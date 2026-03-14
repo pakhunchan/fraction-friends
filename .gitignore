@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+
+# Environment / secrets
+.env
+.env.*
+.env.local
+.env.*.local
+*.pem
+credentials.json
+
+# Misc (reference materials, network captures, etc.)
+misc/
+
+# Research artifacts, notes, and gallery viewers
+notes/
+research/
+gallery/
+
+# Playwright MCP logs
+.playwright-mcp/
+
+# Screenshots
+*.png
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Claude project files
+.claude/
