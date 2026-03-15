@@ -63,9 +63,8 @@ export default function Home() {
   const handleFirstInteraction = useCallback(() => {
     if (!hasInteracted) {
       setHasInteracted(true);
-      // NOTE: Background music is NOT auto-started here. Players found
-      // the immediate synth arpeggio startling. Music can be toggled on
-      // via the mute/unmute button in the tutor panel instead.
+      // Start background music on first interaction
+      music.start();
       // Speak the current step's text now — the TTS effect may not
       // re-trigger because the stepId hasn't changed since mount.
       const currentStep = lessonSteps[stepId];
@@ -74,7 +73,7 @@ export default function Home() {
         tts.speak(currentStep.tutorText);
       }
     }
-  }, [hasInteracted, stepId, tts]);
+  }, [hasInteracted, stepId, tts, music]);
 
   // ---- Speak tutor text and play SFX when step changes ----
   const prevStepIdRef = useRef<string | null>(null);

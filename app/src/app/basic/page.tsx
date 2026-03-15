@@ -53,9 +53,7 @@ export default function Home() {
     if (!hasInteracted) {
       setHasInteracted(true);
       // Start background music on first interaction
-      if (!music.isMuted) {
-        music.start();
-      }
+      music.start();
     }
   }, [hasInteracted, music]);
 

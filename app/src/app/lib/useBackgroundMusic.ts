@@ -59,12 +59,9 @@ export function useBackgroundMusic(): BackgroundMusicControls {
   const reverbRef = useRef<ConvolverNode | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const isPlayingRef = useRef(false);
-  const [isMuted, setIsMuted] = useState(() => {
-    if (typeof window === "undefined") return false;
-    try { return localStorage.getItem(MUTE_KEY) === "true"; } catch { return false; }
-  });
+  const [isMuted, setIsMuted] = useState(false);
   const isMutedRef = useRef(isMuted);
-  const volumeRef = useRef(0.25); // background music default volume (quiet)
+  const volumeRef = useRef(0.8); // background music volume
   const timeoutIdsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const duckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -92,6 +89,7 @@ export function useBackgroundMusic(): BackgroundMusicControls {
   const patternIndexRef = useRef(0);
 
   const schedulePattern = useCallback(() => {
+
     if (!isPlayingRef.current) return;
     const ctx = ctxRef.current;
     if (!ctx) return;
@@ -139,7 +137,6 @@ export function useBackgroundMusic(): BackgroundMusicControls {
 
   const start = useCallback(() => {
     if (isPlayingRef.current) return;
-    if (isMutedRef.current) return;
 
     const ctx = getCtx();
     if (!ctx) return;
