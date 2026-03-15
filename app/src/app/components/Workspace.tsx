@@ -93,7 +93,7 @@ export function Workspace({
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-between h-full py-8 px-4 relative">
+    <div className="flex-1 flex flex-col items-center justify-between h-full py-8 px-4 relative bg-[#1e2d4a] rounded-l-2xl">
       {/* Tool switcher */}
       {step.allowKnife && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 flex bg-[#1a2540] rounded-full p-1 gap-1 z-10">
@@ -137,7 +137,7 @@ export function Workspace({
       {/* Unassigned pieces area */}
       {!isShowStep && (
         <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-wrap items-center justify-center gap-4 max-w-[500px]">
+          <div className="flex flex-wrap items-center justify-center gap-4 max-w-[700px]">
             {unassigned.map((piece) =>
               isInteractive ? (
                 <button
@@ -147,7 +147,7 @@ export function Workspace({
                 >
                   <ObjectComponent
                     type={piece.type}
-                    size={step.type === "slice" ? 140 : 120}
+                    size={step.type === "slice" ? 200 : 180}
                     selected={selectedPiece === piece.id}
                   />
                 </button>
@@ -155,7 +155,7 @@ export function Workspace({
                 <div key={piece.id} className="p-0">
                   <ObjectComponent
                     type={piece.type}
-                    size={120}
+                    size={180}
                   />
                 </div>
               )
@@ -168,7 +168,7 @@ export function Workspace({
       <div className="w-full pb-6">
         {/* Shared grid for characters and their distributed pieces */}
         <div
-          className="mx-auto max-w-[1050px] gap-10"
+          className="mx-auto max-w-[900px] w-full gap-4 md:gap-6 px-2"
           style={{
             display: "grid",
             gridTemplateColumns: `repeat(${characterCount}, 1fr)`,
@@ -182,17 +182,18 @@ export function Workspace({
                 mood={characterMoods[i] || "neutral"}
                 onClick={selectedPiece ? () => onAssignToCharacter(i) : undefined}
                 highlighted={selectedPiece !== null}
+                size={characterCount > 2 ? 120 : 150}
               />
             </div>
           ))}
         </div>
 
         {/* Shelf bar */}
-        <div className="w-full max-w-[1050px] mx-auto h-3 bg-gradient-to-b from-gray-400 to-gray-600 rounded-full mb-3" />
+        <div className="w-full max-w-[900px] mx-auto h-3 bg-gradient-to-b from-gray-400 to-gray-600 rounded-full mb-3" />
 
         {/* Distributed pieces — same grid layout */}
         <div
-          className="mx-auto max-w-[1050px] gap-10"
+          className="mx-auto max-w-[900px] w-full gap-4 md:gap-6 px-2"
           style={{
             display: "grid",
             gridTemplateColumns: `repeat(${characterCount}, 1fr)`,
@@ -214,14 +215,14 @@ export function Workspace({
                     >
                       <ObjectComponent
                         type={c.type}
-                        size={72}
+                        size={96}
                       />
                     </button>
                   ) : (
                     <div key={c.id} className="p-0">
                       <ObjectComponent
                         type={c.type}
-                        size={72}
+                        size={96}
                       />
                     </div>
                   )

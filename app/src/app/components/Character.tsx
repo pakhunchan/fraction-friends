@@ -16,6 +16,7 @@ interface CharacterProps {
   mood?: Mood;
   onClick?: () => void;
   highlighted?: boolean;
+  size?: number;
 }
 
 /* ─── tiny shared helpers ─────────────────────────────────────────── */
@@ -733,7 +734,7 @@ function Monster3({ mood, uid }: { mood: Mood; uid: string }) {
 
 const MONSTERS = [Monster0, Monster1, Monster2, Monster3] as const;
 
-export function Character({ id, mood = "neutral", onClick, highlighted = false }: CharacterProps) {
+export function Character({ id, mood = "neutral", onClick, highlighted = false, size = 150 }: CharacterProps) {
   const Monster = MONSTERS[id % MONSTERS.length];
   // Unique ID prefix for SVG defs (filters/gradients) to avoid clashes
   // when multiple characters are rendered on the same page
@@ -747,8 +748,8 @@ export function Character({ id, mood = "neutral", onClick, highlighted = false }
       } ${onClick ? "cursor-pointer hover:scale-105" : ""}`}
     >
       <svg
-        width={150}
-        height={150}
+        width={size}
+        height={size}
         viewBox="0 0 120 120"
         xmlns="http://www.w3.org/2000/svg"
         style={{ display: "block", overflow: "visible" }}
