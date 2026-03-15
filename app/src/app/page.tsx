@@ -17,7 +17,7 @@ export default function LandingPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl w-full">
         {/* Card 1: Midnight Snack */}
         <Link href="/basic" className="group block">
-          <div className="relative rounded-2xl border border-white/10 bg-[#1a2540] p-6 transition-all duration-200 group-hover:border-blue-400/40 group-hover:bg-[#1e2d50] group-hover:scale-[1.02] group-hover:shadow-lg group-hover:shadow-blue-500/10">
+          <div className="h-full relative rounded-2xl border border-white/10 bg-[#1a2540] p-6 transition-all duration-200 group-hover:border-blue-400/40 group-hover:bg-[#1e2d50] group-hover:scale-[1.02] group-hover:shadow-lg group-hover:shadow-blue-500/10">
             {/* Visual decoration */}
             <div className="text-5xl mb-4 flex gap-2">
               <span>🍫</span>
@@ -53,7 +53,7 @@ export default function LandingPage() {
 
         {/* Card 2: Same Size, Different Names */}
         <Link href="/equivalence" className="group block">
-          <div className="relative rounded-2xl border border-white/10 bg-[#1a2540] p-6 transition-all duration-200 group-hover:border-purple-400/40 group-hover:bg-[#1e2d50] group-hover:scale-[1.02] group-hover:shadow-lg group-hover:shadow-purple-500/10">
+          <div className="h-full relative rounded-2xl border border-white/10 bg-[#1a2540] p-6 transition-all duration-200 group-hover:border-purple-400/40 group-hover:bg-[#1e2d50] group-hover:scale-[1.02] group-hover:shadow-lg group-hover:shadow-purple-500/10">
             {/* Visual decoration */}
             <div className="text-5xl mb-4 flex gap-2">
               <span>🟰</span>

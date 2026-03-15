@@ -490,7 +490,7 @@ export default function Home() {
       </button>
 
       {/* Left: Tutor panel */}
-      <div className="w-[300px] flex-shrink-0 flex flex-col justify-end">
+      <div className="w-[360px] flex-shrink-0 flex flex-col justify-start">
         <TutorPanel
           step={step}
           onChoice={handleChoice}

@@ -36,7 +36,7 @@ export function TutorPanel({
   const showChoices = step.type === "choice" && step.choices;
 
   return (
-    <div className="flex flex-col h-full p-6 pt-20 max-w-[300px]">
+    <div className="flex flex-col h-full p-6 pt-8 max-w-[360px]">
       {/* Task header */}
       {taskHeader && (
         <div className="bg-white/10 rounded-xl px-4 py-3 mb-6 flex items-center justify-between">
@@ -45,11 +45,9 @@ export function TutorPanel({
         </div>
       )}
 
-      <div className="flex-1" />
-
       {/* Tutor text */}
-      <div className="mb-4">
-        <p className="text-base leading-relaxed text-[#e8ecff]">
+      <div className="mb-6">
+        <p className="text-lg leading-relaxed text-[#e8ecff]">
           {step.tutorText}
         </p>
         {/* Speaking indicator — always rendered to reserve space and prevent layout shift */}
@@ -61,13 +59,13 @@ export function TutorPanel({
 
       {/* Choices */}
       {showChoices && (
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-col gap-3 mb-4">
           {step.choices!.map((choice) => (
             <button
               key={choice.label}
               onClick={() => onChoice(choice.next)}
-              className="px-4 py-2.5 rounded-xl bg-white/10 text-[#e8ecff] text-sm font-medium
-                hover:bg-white/20 active:bg-white/25 transition-colors cursor-pointer"
+              className="px-5 py-3.5 rounded-xl bg-white/10 text-[#e8ecff] text-base font-medium
+                hover:bg-white/20 active:bg-white/25 transition-colors cursor-pointer text-left"
             >
               {choice.label}
             </button>
