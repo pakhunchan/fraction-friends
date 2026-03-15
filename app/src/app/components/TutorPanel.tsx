@@ -40,14 +40,14 @@ export function TutorPanel({
       {/* Task header */}
       {taskHeader && (
         <div className="bg-white/10 rounded-xl px-4 py-3 mb-6 flex items-center justify-between">
-          <span className="text-sm text-blue-300">{taskHeader}</span>
+          <span className="text-lg text-blue-300">{taskHeader}</span>
           <span className="text-xl">👋</span>
         </div>
       )}
 
       {/* Tutor text */}
       <div className="mb-6">
-        <p className="text-lg leading-relaxed text-[#e8ecff]">
+        <p className="text-2xl leading-relaxed text-[#e8ecff]">
           {step.tutorText}
         </p>
         {/* Speaking indicator — always rendered to reserve space and prevent layout shift */}
@@ -64,7 +64,7 @@ export function TutorPanel({
             <button
               key={choice.label}
               onClick={() => onChoice(choice.next)}
-              className="px-5 py-3.5 rounded-xl bg-white/10 text-[#e8ecff] text-base font-medium
+              className="px-5 py-4 rounded-xl bg-white/10 text-[#e8ecff] text-xl font-medium
                 hover:bg-white/20 active:bg-white/25 transition-colors cursor-pointer text-left"
             >
               {choice.label}
