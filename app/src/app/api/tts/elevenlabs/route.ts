@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
-import {
-  S3Client,
-  GetObjectCommand,
-  PutObjectCommand,
-} from "@aws-sdk/client-s3";
-
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
 // Jessica — Playful, Bright, Warm (great for a kids' tutor)
 const DEFAULT_VOICE_ID = "cgSgspJ2msm6clMCkdW9";
@@ -46,13 +40,6 @@ const s3 = createS3Client();
 const S3_BUCKET = process.env.S3_TTS_CACHE_BUCKET!;
 
 export async function POST(req: NextRequest) {
-  if (!ELEVENLABS_API_KEY) {
-    return NextResponse.json(
-      { error: "ELEVENLABS_API_KEY is not configured" },
-      { status: 500 },
-    );
-  }
-
   const { text, voiceId, modelId } = await req.json();
 
   if (!text || typeof text !== "string") {
@@ -62,7 +49,6 @@ export async function POST(req: NextRequest) {
   const voice = voiceId || DEFAULT_VOICE_ID;
   const model = modelId || DEFAULT_MODEL_ID;
 
-  // --- S3 cache lookup ---
   const hash = createHash("sha256").update(`${voice}:${model}:${text}`).digest("hex");
   const s3Key = `${hash}.mp3`;
 
@@ -75,71 +61,22 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "audio/mpeg",
-        "X-TTS-Cache": "HIT",
+        "Cache-Control": "public, max-age=31536000, immutable",
       },
     });
   } catch (err: unknown) {
-    // NoSuchKey is a normal cache miss; anything else is a real problem
     const errName = err instanceof Error ? (err as { name?: string }).name : "";
     if (errName === "NoSuchKey") {
-      console.log("TTS S3 cache MISS:", s3Key);
-    } else {
-      console.error("TTS S3 cache READ ERROR (not a miss!):", err);
+      console.warn("TTS audio not found in S3:", s3Key, "— text:", text.substring(0, 80));
+      return NextResponse.json(
+        { error: "Audio not available" },
+        { status: 404 },
+      );
     }
-  }
-
-  // --- ElevenLabs API call ---
-  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voice}`;
-  const elRes = await fetch(url, {
-    method: "POST",
-    headers: {
-      "xi-api-key": ELEVENLABS_API_KEY,
-      "Content-Type": "application/json",
-      Accept: "audio/mpeg",
-    },
-    body: JSON.stringify({
-      text,
-      model_id: model,
-      voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.75,
-        style: 0.0,
-        use_speaker_boost: true,
-      },
-    }),
-  });
-
-  if (!elRes.ok) {
-    const errorText = await elRes.text();
-    console.error("ElevenLabs error:", elRes.status, errorText);
+    console.error("TTS S3 read error:", err);
     return NextResponse.json(
-      { error: "ElevenLabs API error", details: errorText },
-      { status: elRes.status },
+      { error: "Storage error" },
+      { status: 500 },
     );
   }
-
-  const audioBuffer = await elRes.arrayBuffer();
-  const audioBytes = new Uint8Array(audioBuffer);
-
-  // Write to S3 cache
-  try {
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: S3_BUCKET,
-        Key: s3Key,
-        Body: audioBytes,
-        ContentType: "audio/mpeg",
-      }),
-    );
-  } catch (err) {
-    console.warn("Failed to write TTS cache to S3:", err);
-  }
-
-  return new NextResponse(audioBytes as unknown as BodyInit, {
-    status: 200,
-    headers: {
-      "Content-Type": "audio/mpeg",
-      "X-TTS-Cache": "MISS",
-    },
-  });
 }
