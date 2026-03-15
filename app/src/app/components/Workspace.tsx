@@ -6,6 +6,130 @@ import { Character } from "./Character";
 import { BigFraction } from "./Fraction";
 import { LessonStep } from "../lib/lessonData-storyB";
 
+// ---------------------------------------------------------------------------
+// Cheer screens — motivational displays between quiz questions
+// ---------------------------------------------------------------------------
+
+function CheerScreen({ style }: { style?: string }) {
+  switch (style) {
+    case "sparkle-rally":
+      return (
+        <>
+          <style>{`
+            @keyframes glow-pulse { 0%, 100% { text-shadow: 0 0 20px #fbbf24, 0 0 40px #f59e0b; } 50% { text-shadow: 0 0 30px #fbbf24, 0 0 60px #f59e0b, 0 0 90px #d97706; } }
+            @keyframes monster-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+          `}</style>
+          <div className="flex flex-col items-center justify-center gap-6 p-4">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white text-center" style={{ animation: "glow-pulse 2s ease-in-out infinite" }}>
+              You&apos;ve Got This!
+            </h1>
+            <div className="flex items-end gap-4 flex-wrap justify-center">
+              {[0, 1, 2, 3].map((id) => (
+                <div key={id} style={{ animation: `monster-bounce 1.2s ${id * 0.15}s ease-in-out infinite` }}>
+                  <Character id={id} mood="happy" size={100} />
+                </div>
+              ))}
+            </div>
+            <p className="text-lg text-white/80 text-center">Time for the quiz — show us what you learned!</p>
+          </div>
+        </>
+      );
+
+    case "gentle-encouragement":
+      return (
+        <div className="flex flex-col items-center justify-center gap-10 p-4">
+          <div className="text-3xl md:text-4xl font-bold text-center" style={{ color: "#f5e6b8" }}>Ready for a Fun Quiz?</div>
+          <div className="flex items-end gap-5 flex-wrap justify-center">
+            {[0, 1, 2, 3].map((id) => <Character key={id} id={id} mood="happy" size={100} />)}
+          </div>
+          <div className="text-lg text-[#a8b8d0] text-center">Don&apos;t worry — your friends are cheering for you!</div>
+        </div>
+      );
+
+    case "cheerleader-squad":
+      return (
+        <>
+          <style>{`@keyframes cheerWave { 0% { transform: translateY(0); } 100% { transform: translateY(-8px) rotate(3deg); } }`}</style>
+          <div className="flex flex-col items-center justify-center gap-4 p-4">
+            <div className="text-center">
+              <span className="text-2xl font-bold" style={{ color: "#ffd93d" }}>Go, </span>
+              <span className="text-3xl font-extrabold" style={{ color: "#ff9f43" }}>Go, </span>
+              <span className="text-5xl font-black" style={{ color: "#ff6b9d", textShadow: "0 0 18px rgba(255,107,157,0.6)" }}>GO!</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="flex justify-center gap-14 -mb-1">
+                <div style={{ animation: "cheerWave 0.8s ease-in-out infinite alternate" }}><Character id={1} mood="happy" size={100} /></div>
+                <div style={{ animation: "cheerWave 0.8s 0.4s ease-in-out infinite alternate" }}><Character id={3} mood="happy" size={100} /></div>
+              </div>
+              <div className="flex justify-center gap-4">
+                <div style={{ animation: "cheerWave 0.8s 0.2s ease-in-out infinite alternate" }}><Character id={0} mood="happy" size={75} /></div>
+                <div style={{ animation: "cheerWave 0.8s 0.6s ease-in-out infinite alternate" }}><Character id={2} mood="happy" size={75} /></div>
+              </div>
+            </div>
+            <div className="text-lg font-semibold text-[#c8dafa] text-center">Your monster friends believe in you!</div>
+          </div>
+        </>
+      );
+
+    case "trophy-room":
+      return (
+        <>
+          <style>{`@keyframes trophy-glow { 0%, 100% { filter: drop-shadow(0 4px 12px rgba(255,215,0,0.5)); } 50% { filter: drop-shadow(0 4px 24px rgba(255,215,0,0.8)); } }`}</style>
+          <div className="flex flex-col items-center justify-center gap-5 p-4">
+            <div className="text-7xl" style={{ animation: "trophy-glow 2s ease-in-out infinite" }}>🏆</div>
+            <div className="text-3xl md:text-4xl font-bold text-white" style={{ textShadow: "0 2px 8px rgba(255,215,0,0.4)" }}>Almost There!</div>
+            <div className="flex items-end gap-3 flex-wrap justify-center">
+              <div style={{ transform: "translateY(-4px)" }}><Character id={0} mood="happy" size={100} /></div>
+              <div style={{ transform: "translateY(-10px)" }}><Character id={1} mood="happy" size={100} /></div>
+              <div style={{ transform: "translateY(-10px)" }}><Character id={2} mood="happy" size={100} /></div>
+              <div style={{ transform: "translateY(-4px)" }}><Character id={3} mood="happy" size={100} /></div>
+            </div>
+            <div className="text-lg font-semibold text-center" style={{ color: "#ffd700" }}>Answer the quiz to earn your Fraction Trophy!</div>
+          </div>
+        </>
+      );
+
+    case "dance-party":
+      return (
+        <>
+          <style>{`@keyframes danceBounce { 0%, 100% { transform: translateY(0) rotate(var(--tilt)); } 50% { transform: translateY(-10px) rotate(var(--tilt)); } }`}</style>
+          <div className="flex flex-col items-center justify-center gap-5 p-4">
+            <div className="text-4xl md:text-5xl font-black text-center" style={{ background: "linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #b44dff, #ff6bd6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Time to Shine!</div>
+            <p className="text-lg text-[#d0d8e8] text-center">Dance your way through this quiz!</p>
+            <div className="flex gap-4 items-end flex-wrap justify-center">
+              {[0, 1, 2, 3].map((id) => (
+                <div key={id} style={{ ["--tilt" as string]: `${id % 2 === 0 ? -8 : 8}deg`, transform: `rotate(${id % 2 === 0 ? -8 : 8}deg)`, animation: `danceBounce 0.6s ${id * 0.15}s ease-in-out infinite` }}>
+                  <Character id={id} mood="happy" size={100} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      );
+
+    case "warm-hug":
+      return (
+        <>
+          <style>{`@keyframes gentlePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }`}</style>
+          <div className="flex flex-col items-center justify-center gap-5 p-4">
+            <div className="text-6xl" style={{ animation: "gentlePulse 2s ease-in-out infinite" }}>❤️</div>
+            <div className="text-2xl md:text-3xl font-bold text-white text-center">We&apos;re So Proud of You!</div>
+            <div className="flex items-end justify-center">
+              <div style={{ marginRight: "-14px", zIndex: 1 }}><Character id={0} mood="happy" size={85} /></div>
+              <div style={{ marginRight: "-14px", zIndex: 2, marginBottom: "6px" }}><Character id={1} mood="happy" size={85} /></div>
+              <div style={{ marginRight: "-14px", zIndex: 2, marginBottom: "6px" }}><Character id={2} mood="happy" size={85} /></div>
+              <div style={{ zIndex: 1 }}><Character id={3} mood="happy" size={85} /></div>
+            </div>
+            <div className="text-lg text-white/85 text-center">Let&apos;s finish strong with a little quiz!</div>
+          </div>
+        </>
+      );
+
+    default:
+      return null;
+  }
+}
+
 export type ObjectPieceType = "whole" | "half-left" | "half-right" | "quarter" | "eighth";
 
 export type ObjectPiece = {
@@ -56,6 +180,7 @@ export function Workspace({
 
   // Check if this is a "show" step (big number/fraction)
   const isShowStep = step.type === "show-number" || step.type === "show-fraction";
+  const isCheerStep = step.type === "cheer";
 
   // Check if this is a distribute step (for showing the reset button)
   const isDistributeStep = step.type === "distribute" || step.type === "distribute-halves";
@@ -63,6 +188,10 @@ export function Workspace({
   // Bars are only interactive during distribute, distribute-halves, and slice steps
   const isInteractive = isDistributeStep || step.type === "slice";
   const hasAnyAssigned = pieces.some((c) => c.assignedTo !== undefined);
+
+  // Hide the bottom shelf (characters + table) when there's nothing to interact
+  // with and no objects on display — quiz, cheer, show, and finale stages
+  const hideShelf = isShowStep || isCheerStep || (!isInteractive && unassigned.length === 0 && !step.objectCount);
 
   // Get pieces assigned to each character
   const getCharacterPieces = (charIndex: number) =>
@@ -93,7 +222,7 @@ export function Workspace({
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-between h-full py-8 px-4 relative bg-[#1e2d4a] rounded-l-2xl">
+    <div className="flex-1 flex flex-col items-center h-full pt-8 px-4 relative bg-[#1e2d4a] rounded-l-2xl">
       {/* Tool switcher */}
       {step.allowKnife && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 flex bg-[#1a2540] rounded-full p-1 gap-1 z-10">
@@ -134,14 +263,21 @@ export function Workspace({
         </div>
       )}
 
+      {/* Cheer/motivational display */}
+      {isCheerStep && (
+        <div className="flex-1 flex items-center justify-center overflow-hidden">
+          <CheerScreen style={step.cheerStyle} />
+        </div>
+      )}
+
       {/* Unassigned pieces area */}
-      {!isShowStep && (
-        <div className="flex-1 flex items-center justify-center">
+      {!isShowStep && !isCheerStep && (
+        <div className={`flex-1 flex items-center justify-center ${hideShelf ? "" : "pb-[280px]"}`}>
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 max-w-full">
             {unassigned.map((piece) => {
-              // Responsive piece sizing: shrink when many pieces on narrow screens
-              const baseSize = step.type === "slice" ? 200 : 180;
-              const pieceSize = unassigned.length > 3 ? Math.min(baseSize, 120) : baseSize;
+              // Fixed size for all pieces — the Brownie component handles
+              // proportional scaling internally (a half renders at half-width).
+              const pieceSize = 160;
               return isInteractive ? (
                 <button
                   key={piece.id}
@@ -167,8 +303,8 @@ export function Workspace({
         </div>
       )}
 
-      {/* Characters and their pieces */}
-      <div className="w-full pb-6">
+      {/* Characters + table — pinned to bottom, hidden when not needed */}
+      <div className={`absolute bottom-0 left-0 right-0 px-4 pb-2 ${hideShelf ? "hidden" : ""}`}>
         {/* Shared grid for characters and their distributed pieces */}
         <div
           className="mx-auto max-w-full w-full gap-2 md:gap-4 lg:gap-6 px-2"
@@ -191,9 +327,9 @@ export function Workspace({
           ))}
         </div>
 
-        {/* Wood table */}
-        <div className="w-full max-w-full mx-auto px-2 -mb-1">
-          <svg viewBox="0 0 1000 160" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
+        {/* Wood table + distributed pieces between the legs */}
+        <div className="w-full max-w-full mx-auto px-2 relative">
+          <svg viewBox="0 0 1000 160" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block relative z-10 pointer-events-none">
             <defs>
               <linearGradient id="ws-tabletopGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#B8862A"/>
@@ -242,60 +378,64 @@ export function Workspace({
             {/* Border */}
             <rect x="5" y="4" width="990" height="24" rx="3" fill="none" stroke="#5C3D10" strokeWidth="0.8" opacity="0.2"/>
           </svg>
-        </div>
 
-        {/* Distributed pieces — same grid layout */}
-        <div
-          className="mx-auto max-w-full w-full gap-2 md:gap-4 lg:gap-6 px-2"
-          style={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${characterCount}, 1fr)`,
-          }}
-        >
-          {characters.map((i) => {
-            const charPieces = getCharacterPieces(i);
-            return (
-              <div
-                key={i}
-                className="flex flex-wrap items-center justify-center gap-1 min-h-[50px]"
-              >
-                {charPieces.map((c) =>
-                  isInteractive ? (
-                    <button
-                      key={c.id}
-                      onClick={() => onUnassignPiece(c.id)}
-                      className="cursor-pointer bg-transparent border-none p-0"
-                    >
-                      <ObjectComponent
-                        type={c.type}
-                        size={96}
-                      />
-                    </button>
-                  ) : (
-                    <div key={c.id} className="p-0">
-                      <ObjectComponent
-                        type={c.type}
-                        size={96}
-                      />
-                    </div>
-                  )
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Reset button — only during distribute steps */}
-        {isDistributeStep && hasAnyAssigned && (
-          <div className="flex justify-center mt-2">
-            <button
-              onClick={onResetAssignments}
-              className="px-3 py-1 text-xs rounded-full bg-white/10 hover:bg-white/20 text-white/60 hover:text-white transition-colors cursor-pointer"
-            >
-              Reset
-            </button>
+          {/* Distributed pieces — positioned between the table legs, only during interactive steps */}
+          <div
+            className={`absolute left-0 right-0 z-0 px-2 gap-2 md:gap-4 lg:gap-6 ${!isInteractive ? "hidden" : ""}`}
+            style={{
+              top: "28%",
+              bottom: "5%",
+              display: "grid",
+              gridTemplateColumns: `repeat(${characterCount}, 1fr)`,
+            }}
+          >
+            {characters.map((i) => {
+              const charPieces = getCharacterPieces(i);
+              return (
+                <div
+                  key={i}
+                  className="flex flex-wrap items-center justify-center gap-1"
+                >
+                  {charPieces.map((c) =>
+                    isInteractive ? (
+                      <button
+                        key={c.id}
+                        onClick={() => onUnassignPiece(c.id)}
+                        className="cursor-pointer bg-transparent border-none p-0 relative z-20"
+                      >
+                        <ObjectComponent
+                          type={c.type}
+                          size={80}
+                        />
+                      </button>
+                    ) : (
+                      <div key={c.id} className="p-0">
+                        <ObjectComponent
+                          type={c.type}
+                          size={80}
+                        />
+                      </div>
+                    )
+                  )}
+                </div>
+              );
+            })}
           </div>
-        )}
+        </div>
+
+        {/* Reset button — always reserve space to prevent layout shift */}
+        <div className="flex justify-center mt-2">
+          <button
+            onClick={onResetAssignments}
+            className={`px-3 py-1 text-xs rounded-full transition-colors cursor-pointer ${
+              isDistributeStep && hasAnyAssigned
+                ? "bg-white/10 hover:bg-white/20 text-white/60 hover:text-white"
+                : "invisible"
+            }`}
+          >
+            Reset
+          </button>
+        </div>
       </div>
     </div>
   );
