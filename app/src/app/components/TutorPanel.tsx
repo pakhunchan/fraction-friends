@@ -36,7 +36,7 @@ export function TutorPanel({
   const showChoices = step.type === "choice" && step.choices;
 
   return (
-    <div className="flex flex-col h-full p-6 pt-8 max-w-[360px]">
+    <div className="flex flex-col h-full p-6 pt-8 max-w-[300px]">
       {/* Task header */}
       {taskHeader && (
         <div className="bg-white/10 rounded-xl px-4 py-3 mb-6 flex items-center justify-between">

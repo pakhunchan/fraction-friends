@@ -137,9 +137,12 @@ export function Workspace({
       {/* Unassigned pieces area */}
       {!isShowStep && (
         <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-wrap items-center justify-center gap-4 max-w-[700px]">
-            {unassigned.map((piece) =>
-              isInteractive ? (
+          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 max-w-full">
+            {unassigned.map((piece) => {
+              // Responsive piece sizing: shrink when many pieces on narrow screens
+              const baseSize = step.type === "slice" ? 200 : 180;
+              const pieceSize = unassigned.length > 3 ? Math.min(baseSize, 120) : baseSize;
+              return isInteractive ? (
                 <button
                   key={piece.id}
                   onClick={() => handlePieceClick(piece)}
@@ -147,7 +150,7 @@ export function Workspace({
                 >
                   <ObjectComponent
                     type={piece.type}
-                    size={step.type === "slice" ? 200 : 180}
+                    size={pieceSize}
                     selected={selectedPiece === piece.id}
                   />
                 </button>
@@ -155,11 +158,11 @@ export function Workspace({
                 <div key={piece.id} className="p-0">
                   <ObjectComponent
                     type={piece.type}
-                    size={180}
+                    size={pieceSize}
                   />
                 </div>
-              )
-            )}
+              );
+            })}
           </div>
         </div>
       )}
@@ -168,7 +171,7 @@ export function Workspace({
       <div className="w-full pb-6">
         {/* Shared grid for characters and their distributed pieces */}
         <div
-          className="mx-auto max-w-[900px] w-full gap-4 md:gap-6 px-2"
+          className="mx-auto max-w-full w-full gap-2 md:gap-4 lg:gap-6 px-2"
           style={{
             display: "grid",
             gridTemplateColumns: `repeat(${characterCount}, 1fr)`,
@@ -182,18 +185,68 @@ export function Workspace({
                 mood={characterMoods[i] || "neutral"}
                 onClick={selectedPiece ? () => onAssignToCharacter(i) : undefined}
                 highlighted={selectedPiece !== null}
-                size={characterCount > 2 ? 120 : 150}
+                size={characterCount > 2 ? 100 : 130}
               />
             </div>
           ))}
         </div>
 
-        {/* Shelf bar */}
-        <div className="w-full max-w-[900px] mx-auto h-3 bg-gradient-to-b from-gray-400 to-gray-600 rounded-full mb-3" />
+        {/* Wood table */}
+        <div className="w-full max-w-full mx-auto px-2 -mb-1">
+          <svg viewBox="0 0 1000 160" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto block">
+            <defs>
+              <linearGradient id="ws-tabletopGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#B8862A"/>
+                <stop offset="30%" stopColor="#A0722A"/>
+                <stop offset="70%" stopColor="#926520"/>
+                <stop offset="100%" stopColor="#7A5518"/>
+              </linearGradient>
+              <linearGradient id="ws-edgeGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#7A5518"/>
+                <stop offset="100%" stopColor="#6B4A14"/>
+              </linearGradient>
+              <linearGradient id="ws-legGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#7A5518"/>
+                <stop offset="30%" stopColor="#8B6514"/>
+                <stop offset="70%" stopColor="#8B6514"/>
+                <stop offset="100%" stopColor="#6B4A14"/>
+              </linearGradient>
+              <filter id="ws-shadow" x="-2%" y="-10%" width="104%" height="140%">
+                <feDropShadow dx="0" dy="4" stdDeviation="5" floodColor="#000000" floodOpacity="0.35"/>
+              </filter>
+              <pattern id="ws-grain" patternUnits="userSpaceOnUse" width="1000" height="24" patternTransform="rotate(0)">
+                <line x1="0" y1="5" x2="1000" y2="5.5" stroke="#6B4A14" strokeWidth="0.6" opacity="0.25"/>
+                <line x1="0" y1="10" x2="1000" y2="9.5" stroke="#6B4A14" strokeWidth="0.4" opacity="0.18"/>
+                <line x1="0" y1="16" x2="1000" y2="16.8" stroke="#6B4A14" strokeWidth="0.7" opacity="0.2"/>
+                <line x1="0" y1="21" x2="1000" y2="20.5" stroke="#6B4A14" strokeWidth="0.35" opacity="0.15"/>
+                <ellipse cx="320" cy="12" rx="8" ry="4" fill="none" stroke="#6B4A14" strokeWidth="0.5" opacity="0.15"/>
+                <ellipse cx="710" cy="14" rx="6" ry="3" fill="none" stroke="#6B4A14" strokeWidth="0.5" opacity="0.12"/>
+              </pattern>
+            </defs>
+            {/* Shadow under tabletop */}
+            <rect x="10" y="28" width="980" height="10" rx="2" fill="#000" opacity="0.2" filter="url(#ws-shadow)"/>
+            {/* Left leg */}
+            <path d="M 60,35 L 55,155 L 73,155 L 78,35 Z" fill="url(#ws-legGrad)"/>
+            <path d="M 63,35 L 58,155 L 63,155 L 68,35 Z" fill="#A07228" opacity="0.3"/>
+            {/* Right leg */}
+            <path d="M 922,35 L 927,155 L 945,155 L 940,35 Z" fill="url(#ws-legGrad)"/>
+            <path d="M 932,35 L 937,155 L 932,155 L 927,35 Z" fill="#A07228" opacity="0.3"/>
+            {/* Tabletop front edge */}
+            <rect x="5" y="26" width="990" height="10" rx="1" fill="url(#ws-edgeGrad)"/>
+            {/* Tabletop surface */}
+            <rect x="5" y="4" width="990" height="24" rx="3" fill="url(#ws-tabletopGrad)"/>
+            {/* Wood grain overlay */}
+            <rect x="5" y="4" width="990" height="24" rx="3" fill="url(#ws-grain)"/>
+            {/* Top edge highlight */}
+            <line x1="8" y1="5.5" x2="992" y2="5.5" stroke="#D4A84B" strokeWidth="0.8" opacity="0.3"/>
+            {/* Border */}
+            <rect x="5" y="4" width="990" height="24" rx="3" fill="none" stroke="#5C3D10" strokeWidth="0.8" opacity="0.2"/>
+          </svg>
+        </div>
 
         {/* Distributed pieces — same grid layout */}
         <div
-          className="mx-auto max-w-[900px] w-full gap-4 md:gap-6 px-2"
+          className="mx-auto max-w-full w-full gap-2 md:gap-4 lg:gap-6 px-2"
           style={{
             display: "grid",
             gridTemplateColumns: `repeat(${characterCount}, 1fr)`,
