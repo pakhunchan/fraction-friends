@@ -6,37 +6,14 @@ import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 const DEFAULT_VOICE_ID = "cgSgspJ2msm6clMCkdW9";
 const DEFAULT_MODEL_ID = "eleven_multilingual_v2";
 
-/** Build S3 client — uses OIDC on Vercel, static credentials locally */
-function createS3Client(): S3Client {
-  const region = process.env.AWS_REGION ?? "us-west-2";
+const s3 = new S3Client({
+  region: process.env.AWS_REGION ?? "us-west-2",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
 
-  // OIDC path (Vercel production) — use the credentials provider package
-  if (process.env.AWS_ROLE_ARN) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { awsCredentialsProvider } = require("@vercel/oidc-aws-credentials-provider");
-      return new S3Client({
-        region,
-        credentials: awsCredentialsProvider({
-          roleArn: process.env.AWS_ROLE_ARN,
-        }),
-      });
-    } catch {
-      console.warn("OIDC credentials provider not available, falling back to static credentials");
-    }
-  }
-
-  // Fallback to static credentials (local dev)
-  return new S3Client({
-    region,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    },
-  });
-}
-
-const s3 = createS3Client();
 const S3_BUCKET = process.env.S3_TTS_CACHE_BUCKET!;
 
 export async function POST(req: NextRequest) {
