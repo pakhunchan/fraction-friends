@@ -622,32 +622,39 @@ export const lessonSteps: Record<string, LessonStep> = {
   },
 
   // ===========================================================================
-  // CHECK FOR UNDERSTANDING — Fill in the Missing Number
+  // QUIZ — Check for Understanding
   // ===========================================================================
 
   "quiz-intro": {
     id: "quiz-intro",
     type: "narrate",
     tutorText:
-      "Before the kitchen closes up, Sofia has a surprise — a little puzzle game! "
-      + "She pulls out some cards with fraction riddles on them. "
-      + "'Can you figure out the missing number?' she asks with a grin. "
-      + "Let's give it a try!",
-    next: "quiz-1-show",
+      "Great job learning about equivalent fractions! Now let's see how much "
+      + "you remember. Sofia has a few puzzles for you...",
+    next: "quiz-1-show-a",
     sfx: "music-box",
   },
 
-  // --- Puzzle 1: 1/2 = ?/4 ---
+  // --- Q1: Is 1/2 the same as 2/4? (visual comparison) ---
 
-  "quiz-1-show": {
-    id: "quiz-1-show",
+  "quiz-1-show-a": {
+    id: "quiz-1-show-a",
     type: "show-fraction",
     tutorText:
-      "Here's the first riddle! We know that one-half equals something-fourths. "
-      + "One-half equals WHAT over four? Hmm, what number is hiding behind "
-      + "that question mark?",
+      "Take a look at this fraction: one-half!",
     showFractionNum: 1,
     showFractionDen: 2,
+    next: "quiz-1-show-b",
+    sfx: "sparkle",
+  },
+
+  "quiz-1-show-b": {
+    id: "quiz-1-show-b",
+    type: "show-fraction",
+    tutorText:
+      "And now look at this one: two-fourths!",
+    showFractionNum: 2,
+    showFractionDen: 4,
     next: "quiz-1-ask",
     sfx: "sparkle",
   },
@@ -655,32 +662,20 @@ export const lessonSteps: Record<string, LessonStep> = {
   "quiz-1-ask": {
     id: "quiz-1-ask",
     type: "choice",
-    tutorText: "1/2 = ?/4 — What number goes where the question mark is?",
+    tutorText: "Is 1/2 the same as 2/4?",
     choices: [
-      { label: "1", next: "quiz-1-wrong-1" },
-      { label: "2", next: "quiz-1-correct", correct: true },
-      { label: "3", next: "quiz-1-wrong-3" },
+      { label: "Yes, same amount!", next: "quiz-1-correct", correct: true },
+      { label: "No, they're different", next: "quiz-1-wrong" },
     ],
     sfx: "xylophone",
   },
 
-  "quiz-1-wrong-1": {
-    id: "quiz-1-wrong-1",
+  "quiz-1-wrong": {
+    id: "quiz-1-wrong",
     type: "narrate",
     tutorText:
-      "Not quite! One-fourth is a smaller piece than one-half. Remember, "
-      + "when we cut each half into two more pieces, we get TWICE as many. "
-      + "Think about how many fourths fit in one half, and try again!",
-    next: "quiz-1-ask",
-    sfx: "gentle-whoosh",
-  },
-
-  "quiz-1-wrong-3": {
-    id: "quiz-1-wrong-3",
-    type: "narrate",
-    tutorText:
-      "Hmm, three-fourths would be more than one-half — that's too much brownie! "
-      + "We need exactly the same amount as one-half. Try again!",
+      "Remember what we discovered — when we cut each half into two pieces, "
+      + "we got 2 out of 4. That's the same amount of brownie!",
     next: "quiz-1-ask",
     sfx: "gentle-whoosh",
   },
@@ -689,23 +684,22 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "quiz-1-correct",
     type: "narrate",
     tutorText:
-      "Yes! One-half equals two-fourths! If you cut each half into two pieces, "
-      + "you get four pieces total, and two of those four pieces is the same amount. "
-      + "Sofia stamps a little gold star on the card!",
+      "That's right! One-half and two-fourths are the exact same amount. "
+      + "Sofia gives you a big thumbs up!",
     next: "quiz-2-show",
     sfx: "chime",
   },
 
-  // --- Puzzle 2: 2/4 = 1/? ---
+  // --- Q2: 1/2 = ?/4 (fill missing) ---
 
   "quiz-2-show": {
     id: "quiz-2-show",
     type: "show-fraction",
     tutorText:
-      "Next riddle! Marcus holds up a card that says two-fourths equals "
-      + "one-over-SOMETHING. What number goes on the bottom?",
-    showFractionNum: 2,
-    showFractionDen: 4,
+      "Here's a puzzle from Marcus! One-half equals how many fourths? "
+      + "What number goes where the question mark is?",
+    showFractionNum: 1,
+    showFractionDen: 2,
     next: "quiz-2-ask",
     sfx: "sparkle",
   },
@@ -713,33 +707,31 @@ export const lessonSteps: Record<string, LessonStep> = {
   "quiz-2-ask": {
     id: "quiz-2-ask",
     type: "choice",
-    tutorText: "2/4 = 1/? — What number is missing on the bottom?",
+    tutorText: "1/2 = ?/4 — What number goes where the question mark is?",
     choices: [
+      { label: "1", next: "quiz-2-wrong-1" },
       { label: "2", next: "quiz-2-correct", correct: true },
       { label: "3", next: "quiz-2-wrong-3" },
-      { label: "4", next: "quiz-2-wrong-4" },
     ],
     sfx: "xylophone",
+  },
+
+  "quiz-2-wrong-1": {
+    id: "quiz-2-wrong-1",
+    type: "narrate",
+    tutorText:
+      "If we only have 1 out of 4 pieces, that's less than half. "
+      + "We need more pieces!",
+    next: "quiz-2-ask",
+    sfx: "gentle-whoosh",
   },
 
   "quiz-2-wrong-3": {
     id: "quiz-2-wrong-3",
     type: "narrate",
     tutorText:
-      "Hmm, one-third would mean cutting into three pieces — that's a different "
-      + "amount than two-fourths. Remember, two-fourths is the same as one... what? "
-      + "Think about the word we learned today!",
-    next: "quiz-2-ask",
-    sfx: "gentle-whoosh",
-  },
-
-  "quiz-2-wrong-4": {
-    id: "quiz-2-wrong-4",
-    type: "narrate",
-    tutorText:
-      "One-fourth would be just one small piece out of four. But two-fourths "
-      + "is bigger than that! When you push those two small pieces back together, "
-      + "what do you get? Try again!",
+      "3 out of 4 is more than half. Think about how many quarters "
+      + "fit in one half.",
     next: "quiz-2-ask",
     sfx: "gentle-whoosh",
   },
@@ -748,19 +740,19 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "quiz-2-correct",
     type: "narrate",
     tutorText:
-      "You got it! Two-fourths equals one-HALF! Two little pieces out of four "
-      + "is the same as one big piece out of two. Marcus does a happy little dance!",
+      "Yes! One-half equals two-fourths! Marcus does a happy little dance. "
+      + "You're on a roll!",
     next: "quiz-3-show",
     sfx: "chime",
   },
 
-  // --- Puzzle 3: ?/4 = 1/2 ---
+  // --- Q3: ?/4 = 1/2 (fill missing, flipped) ---
 
   "quiz-3-show": {
     id: "quiz-3-show",
     type: "show-fraction",
     tutorText:
-      "Ooh, this one flips it around! Something-fourths equals one-half. "
+      "Lily flips the equation around! Something-fourths equals one-half. "
       + "How many fourths make a half?",
     showFractionNum: 1,
     showFractionDen: 2,
@@ -784,9 +776,8 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "quiz-3-wrong-1",
     type: "narrate",
     tutorText:
-      "One-fourth is just one little piece — that's less than half the brownie. "
-      + "If the brownie has four pieces, how many do you need to have exactly half? "
-      + "Try again!",
+      "If we only have 1 out of 4 pieces, that's less than half. "
+      + "We need more pieces!",
     next: "quiz-3-ask",
     sfx: "gentle-whoosh",
   },
@@ -795,8 +786,8 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "quiz-3-wrong-3",
     type: "narrate",
     tutorText:
-      "Three-fourths would be three pieces out of four — that's almost the whole brownie! "
-      + "That's more than half. Try a smaller number!",
+      "3 out of 4 is more than half. Think about how many quarters "
+      + "fit in one half.",
     next: "quiz-3-ask",
     sfx: "gentle-whoosh",
   },
@@ -805,22 +796,31 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "quiz-3-correct",
     type: "narrate",
     tutorText:
-      "That's right! Two-fourths equals one-half! You're getting so good at this! "
+      "That's right! Two-fourths equals one-half! "
       + "Lily and James give you a round of applause.",
-    next: "quiz-4-show",
+    next: "quiz-4-show-a",
     sfx: "chime",
   },
 
-  // --- Puzzle 4: 4/4 = ?/2 (stretch challenge) ---
+  // --- Q4: Is 1/3 the same as 2/4? (visual comparison) ---
 
-  "quiz-4-show": {
-    id: "quiz-4-show",
+  "quiz-4-show-a": {
+    id: "quiz-4-show-a",
     type: "show-fraction",
     tutorText:
-      "One last riddle — a tricky one! Sofia writes: four-fourths equals "
-      + "WHAT-over-two. Four-fourths means we have ALL the pieces — that's "
-      + "the whole brownie! How many halves make a whole?",
-    showFractionNum: 4,
+      "Now Sofia has a tricky one! Take a look at this fraction: one-third.",
+    showFractionNum: 1,
+    showFractionDen: 3,
+    next: "quiz-4-show-b",
+    sfx: "sparkle",
+  },
+
+  "quiz-4-show-b": {
+    id: "quiz-4-show-b",
+    type: "show-fraction",
+    tutorText:
+      "And compare it with this one: two-fourths!",
+    showFractionNum: 2,
     showFractionDen: 4,
     next: "quiz-4-ask",
     sfx: "sparkle",
@@ -829,33 +829,22 @@ export const lessonSteps: Record<string, LessonStep> = {
   "quiz-4-ask": {
     id: "quiz-4-ask",
     type: "choice",
-    tutorText: "4/4 = ?/2 — What number goes on top?",
+    tutorText: "Is 1/3 the same as 2/4?",
     choices: [
-      { label: "1", next: "quiz-4-wrong-1" },
-      { label: "2", next: "quiz-4-correct", correct: true },
-      { label: "4", next: "quiz-4-wrong-4" },
+      { label: "Yes, same amount!", next: "quiz-4-wrong" },
+      { label: "No, they're different", next: "quiz-4-correct", correct: true },
     ],
     sfx: "xylophone",
   },
 
-  "quiz-4-wrong-1": {
-    id: "quiz-4-wrong-1",
+  "quiz-4-wrong": {
+    id: "quiz-4-wrong",
     type: "narrate",
     tutorText:
-      "Not quite! One-half is only half the brownie, but four-fourths is the "
-      + "WHOLE brownie. We need enough halves to make a whole. "
-      + "If you put two halves together, what do you get? Try again!",
-    next: "quiz-4-ask",
-    sfx: "gentle-whoosh",
-  },
-
-  "quiz-4-wrong-4": {
-    id: "quiz-4-wrong-4",
-    type: "narrate",
-    tutorText:
-      "Four-halves would be more than one whole brownie — that's two whole brownies! "
-      + "We only have one brownie. How many halves does it take to make exactly one? "
-      + "Try again!",
+      "These look similar but they're actually different amounts! "
+      + "1/3 means the brownie was cut into 3 pieces and you took 1. "
+      + "2/4 means it was cut into 4 pieces and you took 2. "
+      + "Those aren't the same size pieces.",
     next: "quiz-4-ask",
     sfx: "gentle-whoosh",
   },
@@ -864,9 +853,65 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "quiz-4-correct",
     type: "narrate",
     tutorText:
-      "Amazing! Four-fourths equals two-halves — they're both the whole brownie! "
-      + "Two halves make a whole, and four quarters make a whole too. "
-      + "You solved all the riddles!",
+      "Great thinking! One-third and two-fourths are NOT the same. "
+      + "Not all fractions that look similar are equivalent! "
+      + "James is impressed.",
+    next: "quiz-5-show-a",
+    sfx: "chime",
+  },
+
+  // --- Q5: Is 2/4 the same as 4/8? (visual comparison) ---
+
+  "quiz-5-show-a": {
+    id: "quiz-5-show-a",
+    type: "show-fraction",
+    tutorText:
+      "One more puzzle! Take a look at this fraction: two-fourths.",
+    showFractionNum: 2,
+    showFractionDen: 4,
+    next: "quiz-5-show-b",
+    sfx: "sparkle",
+  },
+
+  "quiz-5-show-b": {
+    id: "quiz-5-show-b",
+    type: "show-fraction",
+    tutorText:
+      "And now this one: four-eighths! What do you think?",
+    showFractionNum: 4,
+    showFractionDen: 8,
+    next: "quiz-5-ask",
+    sfx: "sparkle",
+  },
+
+  "quiz-5-ask": {
+    id: "quiz-5-ask",
+    type: "choice",
+    tutorText: "Is 2/4 the same as 4/8?",
+    choices: [
+      { label: "Yes, same amount!", next: "quiz-5-correct", correct: true },
+      { label: "No, they're different", next: "quiz-5-wrong" },
+    ],
+    sfx: "xylophone",
+  },
+
+  "quiz-5-wrong": {
+    id: "quiz-5-wrong",
+    type: "narrate",
+    tutorText:
+      "Think about it this way — if you cut each of the 4 pieces in half, "
+      + "you'd have 8 pieces. And 2 quarters cut in half gives you 4 eighths. "
+      + "Same brownie, same amount!",
+    next: "quiz-5-ask",
+    sfx: "gentle-whoosh",
+  },
+
+  "quiz-5-correct": {
+    id: "quiz-5-correct",
+    type: "narrate",
+    tutorText:
+      "You got it! Two-fourths and four-eighths are the same amount — "
+      + "just more pieces! Sofia, Marcus, Lily, and James all cheer for you!",
     next: "quiz-celebrate",
     sfx: "chime",
   },
@@ -875,9 +920,9 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "quiz-celebrate",
     type: "narrate",
     tutorText:
-      "All four friends jump up and down, showering you with tiny flour-cloud fireworks! "
-      + "'You're a fraction puzzle champion!' they cheer. "
-      + "You figured out every missing number!",
+      "All four friends jump up and cheer! "
+      + "\"You're a fraction superstar!\" says Sofia. "
+      + "You answered every puzzle perfectly!",
     next: "finale-intro",
     sfx: "harp-gliss",
   },

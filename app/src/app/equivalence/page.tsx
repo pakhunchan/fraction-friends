@@ -9,6 +9,7 @@ import { TutorPanel } from "../components/TutorPanel";
 import { Workspace, ObjectPiece } from "../components/Workspace";
 import { Brownie } from "../components/Brownie";
 import { ReportIssue } from "../components/ReportIssue";
+import { Character } from "../components/Character";
 
 const CORRECT_SOUNDS = [
   "boing", "ding", "fanfare", "music-box", "harp-gliss",
@@ -507,21 +508,35 @@ export default function Home() {
         onClick={handleFirstInteraction}
       >
         <div className="text-center">
-          <div className="text-6xl mb-4">🎉</div>
-          <h1 className="text-3xl font-bold text-white mb-2">Lesson Complete!</h1>
-          <p className="text-[#e8ecff] mb-6">You learned about fractions!</p>
-          <button
-            onClick={() => {
-              setStepId("start");
-              setPieces(createPieces(4));
-              setCharacterCount(2);
-              setCharacterMoods(["neutral", "neutral"]);
-              setTaskHeader(undefined);
-            }}
-            className="px-6 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-medium cursor-pointer"
-          >
-            Play Again
-          </button>
+          <h1 className="text-4xl font-bold text-white mb-2">You&apos;re a Fraction Star!</h1>
+          <p className="text-lg text-[#e8ecff] mb-6">
+            You learned that fractions can look different but mean the same thing!
+          </p>
+          <div className="flex justify-center gap-4 mb-8">
+            {[0, 1, 2, 3].map((id) => (
+              <Character key={id} id={id} mood="happy" size={100} />
+            ))}
+          </div>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => {
+                setStepId("start");
+                setPieces(createPieces(4));
+                setCharacterCount(2);
+                setCharacterMoods(["neutral", "neutral"]);
+                setTaskHeader(undefined);
+              }}
+              className="px-6 py-3 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-medium cursor-pointer"
+            >
+              Play Again
+            </button>
+            <a
+              href="/"
+              className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium"
+            >
+              Back to Home
+            </a>
+          </div>
         </div>
         <ReportIssue stepId={stepId} />
       </div>
