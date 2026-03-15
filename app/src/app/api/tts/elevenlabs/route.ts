@@ -78,9 +78,14 @@ export async function POST(req: NextRequest) {
         "X-TTS-Cache": "HIT",
       },
     });
-  } catch {
-    // Cache miss — fall through to ElevenLabs
-    console.warn("S3 cache read error:");
+  } catch (err: unknown) {
+    // NoSuchKey is a normal cache miss; anything else is a real problem
+    const errName = err instanceof Error ? (err as { name?: string }).name : "";
+    if (errName === "NoSuchKey") {
+      console.log("TTS S3 cache MISS:", s3Key);
+    } else {
+      console.error("TTS S3 cache READ ERROR (not a miss!):", err);
+    }
   }
 
   // --- ElevenLabs API call ---
