@@ -10,6 +10,15 @@ import { Workspace, ObjectPiece } from "../components/Workspace";
 import { Brownie } from "../components/Brownie";
 import { ReportIssue } from "../components/ReportIssue";
 
+const CORRECT_SOUNDS = [
+  "boing", "ding", "fanfare", "music-box", "harp-gliss",
+  "magic-sparkle", "chest-open", "quest-horn", "victory-fanfare",
+] as const;
+
+function randomCorrectSound() {
+  return CORRECT_SOUNDS[Math.floor(Math.random() * CORRECT_SOUNDS.length)];
+}
+
 function createPieces(count: number): ObjectPiece[] {
   return Array.from({ length: count }, (_, i) => ({
     id: `whole-${i}`,
@@ -53,12 +62,18 @@ export default function Home() {
   const handleFirstInteraction = useCallback(() => {
     if (!hasInteracted) {
       setHasInteracted(true);
-      // Start background music on first interaction
-      if (!music.isMuted) {
-        music.start();
+      // NOTE: Background music is NOT auto-started here. Players found
+      // the immediate synth arpeggio startling. Music can be toggled on
+      // via the mute/unmute button in the tutor panel instead.
+      // Speak the current step's text now — the TTS effect may not
+      // re-trigger because the stepId hasn't changed since mount.
+      const currentStep = lessonSteps[stepId];
+      if (currentStep?.tutorText) {
+        prevStepIdRef.current = stepId;
+        tts.speak(currentStep.tutorText);
       }
     }
-  }, [hasInteracted, music]);
+  }, [hasInteracted, stepId, tts]);
 
   // ---- Speak tutor text and play SFX when step changes ----
   const prevStepIdRef = useRef<string | null>(null);
@@ -189,7 +204,7 @@ export default function Home() {
       });
       const allEqual = counts.every((c) => c === counts[0]);
       if (!allEqual) return; // wrong distribution — just wait, character moods show feedback
-      sfx.play("ding");
+      sfx.play(randomCorrectSound());
       const timer = setTimeout(() => setStepId(step.next!), 800);
       return () => clearTimeout(timer);
     }
@@ -211,7 +226,7 @@ export default function Home() {
         if (unassigned.length === 0) {
           const allEqual = counts.every((c) => c === counts[0]);
           if (allEqual) {
-            sfx.play("ding");
+            sfx.play(randomCorrectSound());
             const timer = setTimeout(() => setStepId(step.next!), 800);
             return () => clearTimeout(timer);
           }
@@ -221,7 +236,7 @@ export default function Home() {
         // (there may be leftover pieces, e.g., 5÷2 leaves 1)
         const allHaveExpected = counts.every((c) => c === step.expectedPerPerson);
         if (allHaveExpected) {
-          sfx.play("ding");
+          sfx.play(randomCorrectSound());
           const timer = setTimeout(() => setStepId(step.next!), 800);
           return () => clearTimeout(timer);
         }
@@ -275,7 +290,7 @@ export default function Home() {
             });
             const allEqual = counts.every((c) => c === counts[0]);
             if (allEqual) {
-              sfx.play("ding");
+              sfx.play(randomCorrectSound());
               setTimeout(() => setStepId(currentStep.next!), 800);
             }
           }
@@ -292,7 +307,7 @@ export default function Home() {
 
           if (allHaveExpected && currentStep.next) {
             if (remainingWholes.length > 0 || unassigned.length === 0) {
-              sfx.play("ding");
+              sfx.play(randomCorrectSound());
               setTimeout(() => setStepId(currentStep.next!), 800);
             }
           }
@@ -310,7 +325,7 @@ export default function Home() {
           });
           const allEqual = counts.every((c) => c === counts[0]);
           if (allEqual) {
-            sfx.play("ding");
+            sfx.play(randomCorrectSound());
             setTimeout(() => setStepId(currentStep.next!), 800);
           }
           // If not equal, just wait — character moods show the feedback
@@ -464,7 +479,7 @@ export default function Home() {
     if (currentStep?.choices) {
       const chosen = currentStep.choices.find((c) => c.next === nextId);
       if (chosen?.correct) {
-        sfx.play("chime");
+        sfx.play(randomCorrectSound());
       } else if (chosen && !chosen.correct && chosen.correct !== undefined) {
         sfx.play("wrong");
       }
@@ -534,7 +549,7 @@ export default function Home() {
       </button>
 
       {/* Left: Tutor panel */}
-      <div className="w-[300px] flex-shrink-0 flex flex-col justify-end">
+      <div className="w-[360px] flex-shrink-0 flex flex-col justify-start">
         <TutorPanel
           step={step}
           onChoice={handleChoice}

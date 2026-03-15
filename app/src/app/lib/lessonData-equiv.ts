@@ -71,7 +71,6 @@ export const lessonSteps: Record<string, LessonStep> = {
       + "are baking brownies together. The kitchen smells like warm chocolate, "
       + "and the brownies just came out of the oven. Yum!",
     next: "kitchen-intro-2",
-    sfx: "warm-pad",
   },
 
   "kitchen-intro-2": {
@@ -83,7 +82,6 @@ export const lessonSteps: Record<string, LessonStep> = {
       + "She and Marcus both want to eat it, but there's only one brownie. "
       + "They need to share it fairly!",
     next: "s1-share-question",
-    sfx: "harp-gliss",
   },
 
   "s1-share-question": {

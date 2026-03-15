@@ -115,6 +115,10 @@ export function useElevenLabsSpeech() {
 
       stop();
 
+      // Mark as speaking immediately so that callers (e.g. auto-advance
+      // effects) know TTS is in progress even while the audio is loading.
+      setIsSpeaking(true);
+
       const trimmed = text.trim();
 
       // Check client-side in-memory cache first
