@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chocolate Bar — DividableObject Preview (attempt5)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f0eb; }
+
+    .page { display: flex; flex-direction: column; gap: 0; }
+
+    /* Light section */
+    .section-light {
+      background: #faf6f0;
+      padding: 32px 40px 40px;
+    }
+    /* Dark section */
+    .section-dark {
+      background: #0f1729;
+      padding: 32px 40px 40px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .section-light .section-title { color: #6b4c2a; }
+    .section-dark  .section-title { color: #a07850; }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 28px;
+      margin-bottom: 32px;
+    }
+    .row:last-child { margin-bottom: 0; }
+
+    .label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .section-light .label { color: #7a5230; }
+    .section-dark  .label { color: #c09060; }
+
+    .item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .row-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .section-light .row-title { color: #9a7040; }
+    .section-dark  .row-title  { color: #806040; }
+
+    /* Animation keyframes */
+    @keyframes choco-tilt {
+      0%   { transform: rotate(-4deg) scale(1.07); }
+      25%  { transform: rotate( 4deg) scale(1.09); }
+      50%  { transform: rotate(-2deg) scale(1.08); }
+      75%  { transform: rotate( 2deg) scale(1.07); }
+      100% { transform: rotate(-4deg) scale(1.07); }
+    }
+    @keyframes choco-shine {
+      0%   { opacity: 0.10; transform: translateX(-30%); }
+      50%  { opacity: 0.45; transform: translateX(10%); }
+      100% { opacity: 0.10; transform: translateX(50%); }
+    }
+    .choco-sel {
+      animation: choco-tilt 1.8s ease-in-out infinite;
+      transform-origin: 50% 50%;
+    }
+    .choco-shine-rect {
+      animation: choco-shine 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- =====================================================================
+       LIGHT BACKGROUND
+       ===================================================================== -->
+  <div class="section-light">
+    <div class="section-title">Chocolate Bar Component — Light Background</div>
+
+    <!-- Row 1: Whole bar at multiple sizes -->
+    <div class="row-title" style="color:#9a7040; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:14px;">Whole bar — multiple sizes</div>
+    <div class="row">
+      <div class="item">
+        <!-- size=48 -->
+        <svg id="whole-32" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">size 48</div>
+      </div>
+      <div class="item">
+        <svg id="whole-80" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">size 80</div>
+      </div>
+      <div class="item">
+        <svg id="whole-120" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">size 120 (default)</div>
+      </div>
+      <div class="item">
+        <svg id="whole-160" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">size 160</div>
+      </div>
+      <div class="item">
+        <svg id="whole-200" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">size 200</div>
+      </div>
+    </div>
+
+    <!-- Row 2: Pieces -->
+    <div class="row-title" style="color:#9a7040; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:14px;">Pieces — default size 120</div>
+    <div class="row" style="align-items:flex-end;">
+      <div class="item">
+        <svg id="light-whole" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">whole (8 seg)</div>
+      </div>
+      <div class="item">
+        <svg id="light-half-left" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">half-left (4 seg)</div>
+      </div>
+      <div class="item">
+        <svg id="light-half-right" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">half-right (4 seg)</div>
+      </div>
+      <div class="item">
+        <svg id="light-quarter" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">quarter (2 seg)</div>
+      </div>
+    </div>
+
+    <!-- Row 3: Halves side by side (broken bar) -->
+    <div class="row-title" style="color:#9a7040; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:14px;">Halves together (snapped bar)</div>
+    <div class="row" style="gap:4px;">
+      <div class="item">
+        <svg id="light-snap-left" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+      </div>
+      <div class="item">
+        <svg id="light-snap-right" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+      </div>
+      <div class="label" style="width:100%; text-align:left; margin-top:6px;">half-left + half-right, side by side</div>
+    </div>
+
+    <!-- Row 4: Selected states -->
+    <div class="row-title" style="color:#9a7040; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:14px;">Selected state (animated)</div>
+    <div class="row">
+      <div class="item">
+        <svg id="light-sel-whole" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">whole selected</div>
+      </div>
+      <div class="item">
+        <svg id="light-sel-half" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">half selected</div>
+      </div>
+      <div class="item">
+        <svg id="light-sel-quarter" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">quarter selected</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       DARK BACKGROUND
+       ===================================================================== -->
+  <div class="section-dark">
+    <div class="section-title">Chocolate Bar Component — Dark Background (#0f1729)</div>
+
+    <!-- Row 1: Pieces -->
+    <div class="row-title" style="color:#806040; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:14px;">Pieces — default size 120</div>
+    <div class="row" style="align-items:flex-end;">
+      <div class="item">
+        <svg id="dark-whole" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">whole</div>
+      </div>
+      <div class="item">
+        <svg id="dark-half-left" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">half-left</div>
+      </div>
+      <div class="item">
+        <svg id="dark-half-right" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">half-right</div>
+      </div>
+      <div class="item">
+        <svg id="dark-quarter" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">quarter</div>
+      </div>
+    </div>
+
+    <!-- Row 2: Selected states on dark -->
+    <div class="row-title" style="color:#806040; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:14px;">Selected state on dark</div>
+    <div class="row">
+      <div class="item">
+        <svg id="dark-sel-whole" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">whole selected</div>
+      </div>
+      <div class="item">
+        <svg id="dark-sel-half" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">half selected</div>
+      </div>
+      <div class="item">
+        <svg id="dark-sel-quarter" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">quarter selected</div>
+      </div>
+    </div>
+
+    <!-- Row 3: Size range on dark -->
+    <div class="row-title" style="color:#806040; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:14px;">Size range on dark</div>
+    <div class="row">
+      <div class="item">
+        <svg id="dark-32" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">size 48</div>
+      </div>
+      <div class="item">
+        <svg id="dark-80" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">size 80</div>
+      </div>
+      <div class="item">
+        <svg id="dark-120" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">size 120</div>
+      </div>
+      <div class="item">
+        <svg id="dark-160" style="display:block;" xmlns="http://www.w3.org/2000/svg" overflow="visible"></svg>
+        <div class="label">size 160</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================================
+// Inline SVG rendering — mirrors DividableObject.tsx geometry exactly
+// ============================================================================
+
+// ---- Constants (match TSX) -------------------------------------------------
+const PAD = 4, BAR_X = 4, BAR_Y = 4, BAR_W = 92, BAR_H = 52;
+const GROOVE = 2, COLS = 4, ROWS = 2;
+const SEG_W = (BAR_W - (COLS - 1) * GROOVE) / COLS; // 21.5
+const SEG_H = (BAR_H - (ROWS - 1) * GROOVE) / ROWS; // 25
+const BAR_R = 3;
+
+function segX(col) { return BAR_X + col * (SEG_W + GROOVE); }
+function segY(row) { return BAR_Y + row * (SEG_H + GROOVE); }
+
+// ---- SVG namespace ---------------------------------------------------------
+const SVG_NS = "http://www.w3.org/2000/svg";
+let _uid = 0;
+function uid() { return "choco" + (++_uid); }
+
+// ---- Geometry helpers ------------------------------------------------------
+function roundedRectD(x, y, w, h, r) {
+  return `M${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} ` +
+         `L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} ` +
+         `L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} ` +
+         `L${x},${y+r} Q${x},${y} ${x+r},${y} Z`;
+}
+
+function snapEdgeV(nomX, yTop, yBot, seed) {
+  const pts = [[nomX, yTop]];
+  const steps = 7;
+  for (let i = 1; i < steps; i++) {
+    const t = i / steps;
+    const y = yTop + t * (yBot - yTop);
+    const jag = (((i * 3 + seed * 7) % 7) - 3) * 0.85;
+    pts.push([nomX + jag, y]);
+  }
+  pts.push([nomX, yBot]);
+  return pts;
+}
+
+function ptsToPolyline(pts) {
+  return pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
+}
+
+function getPieceBounds(type) {
+  switch (type) {
+    case "whole":      return { x: BAR_X, y: BAR_Y, w: BAR_W, h: BAR_H };
+    case "half-left":  return { x: BAR_X, y: BAR_Y, w: SEG_W * 2 + GROOVE, h: BAR_H };
+    case "half-right": return { x: segX(2), y: BAR_Y, w: SEG_W * 2 + GROOVE, h: BAR_H };
+    case "quarter":    return { x: BAR_X, y: BAR_Y, w: SEG_W, h: BAR_H };
+  }
+}
+
+function getSegments(type) {
+  switch (type) {
+    case "whole":
+      return [0,1,2,3].flatMap(col => [0,1].map(row => ({col,row})));
+    case "half-left":
+      return [0,1].flatMap(col => [0,1].map(row => ({col,row})));
+    case "half-right":
+      return [2,3].flatMap(col => [0,1].map(row => ({col,row})));
+    case "quarter":
+      return [0,1].map(row => ({col:0, row}));
+  }
+}
+
+// ---- SVG element factories -------------------------------------------------
+function el(tag, attrs, children) {
+  const e = document.createElementNS(SVG_NS, tag);
+  if (attrs) Object.entries(attrs).forEach(([k, v]) => {
+    if (v !== undefined && v !== null) e.setAttribute(k, String(v));
+  });
+  if (children) children.forEach(c => c && e.appendChild(c));
+  return e;
+}
+
+function elText(tag, attrs, text) {
+  const e = el(tag, attrs);
+  e.textContent = text;
+  return e;
+}
+
+function stop(offset, color, opacity) {
+  const s = el("stop", { offset });
+  s.style.stopColor = color;
+  if (opacity !== undefined) s.style.stopOpacity = opacity;
+  return s;
+}
+
+// ---- Build <defs> -----------------------------------------------------------
+function buildDefs(id, type) {
+  const bounds = getPieceBounds(type);
+  const defs = el("defs");
+
+  // Body gradient
+  const bodyG = el("linearGradient", { id: id+"-body", x1:"0%", y1:"0%", x2:"100%", y2:"100%"}, [
+    stop("0%",   "#8B4513"),
+    stop("25%",  "#7A3A0E"),
+    stop("60%",  "#6B3000"),
+    stop("100%", "#4A1F00"),
+  ]);
+  defs.appendChild(bodyG);
+
+  // Sheen
+  const sheenG = el("linearGradient", { id: id+"-sheen", x1:"0%", y1:"0%", x2:"55%", y2:"90%"}, [
+    stop("0%",   "#D4893A", 0.60),
+    stop("35%",  "#B06828", 0.20),
+    stop("100%", "#7A3A0E", 0),
+  ]);
+  defs.appendChild(sheenG);
+
+  // Bevel highlight (top-left)
+  const bvlHi = el("linearGradient", { id: id+"-bvl-hi", x1:"0%", y1:"0%", x2:"100%", y2:"100%"}, [
+    stop("0%",   "#E0A060", 0.50),
+    stop("55%",  "#E0A060", 0),
+    stop("100%", "#E0A060", 0),
+  ]);
+  defs.appendChild(bvlHi);
+
+  // Bevel shadow (bottom-right)
+  const bvlSh = el("linearGradient", { id: id+"-bvl-sh", x1:"100%", y1:"100%", x2:"0%", y2:"0%"}, [
+    stop("0%",   "#1A0800", 0.45),
+    stop("50%",  "#1A0800", 0),
+    stop("100%", "#1A0800", 0),
+  ]);
+  defs.appendChild(bvlSh);
+
+  // Groove vertical
+  const gV = el("linearGradient", { id: id+"-groove-v", x1:"0%", y1:"0%", x2:"100%", y2:"0%"}, [
+    stop("0%",   "#2A0E00", 0.55),
+    stop("50%",  "#1A0800", 0.80),
+    stop("100%", "#2A0E00", 0.55),
+  ]);
+  defs.appendChild(gV);
+
+  // Groove horizontal
+  const gH = el("linearGradient", { id: id+"-groove-h", x1:"0%", y1:"0%", x2:"0%", y2:"100%"}, [
+    stop("0%",   "#2A0E00", 0.55),
+    stop("50%",  "#1A0800", 0.80),
+    stop("100%", "#2A0E00", 0.55),
+  ]);
+  defs.appendChild(gH);
+
+  // Snap face
+  const snapG = el("linearGradient", { id: id+"-snap", x1:"0%", y1:"0%", x2:"0%", y2:"100%"}, [
+    stop("0%",   "#F0B87A"),
+    stop("40%",  "#D08840"),
+    stop("100%", "#E8A060"),
+  ]);
+  defs.appendChild(snapG);
+
+  // Drop shadow filter
+  const dshadow = el("filter", { id: id+"-dshadow", x:"-20%", y:"-20%", width:"145%", height:"155%"});
+  const fds = el("feDropShadow", { dx:"0", dy:"3", stdDeviation:"3", "flood-color":"#1A0800", "flood-opacity":"0.50"});
+  dshadow.appendChild(fds);
+  defs.appendChild(dshadow);
+
+  // Glow filter
+  const glow = el("filter", { id: id+"-glow", x:"-30%", y:"-30%", width:"160%", height:"170%"});
+  const fgBlur  = el("feGaussianBlur", { stdDeviation:"4.5", result:"blur"});
+  const fgFlood = el("feFlood", { "flood-color":"#FFD700", "flood-opacity":"0.90", result:"color"});
+  const fgComp  = el("feComposite", { in:"color", in2:"blur", operator:"in", result:"glow"});
+  const fgMerge = el("feMerge", {}, [
+    el("feMergeNode", {in:"glow"}),
+    el("feMergeNode", {in:"glow"}),
+    el("feMergeNode", {in:"SourceGraphic"}),
+  ]);
+  glow.appendChild(fgBlur);
+  glow.appendChild(fgFlood);
+  glow.appendChild(fgComp);
+  glow.appendChild(fgMerge);
+  defs.appendChild(glow);
+
+  // Clip path
+  const clip = el("clipPath", { id: id+"-clip"});
+  clip.appendChild(el("rect", {
+    x: bounds.x, y: bounds.y - 1,
+    width: bounds.w, height: bounds.h + 2,
+  }));
+  defs.appendChild(clip);
+
+  return defs;
+}
+
+// ---- Build groove lines ----------------------------------------------------
+function buildGrooves(id, type) {
+  const segs = getSegments(type);
+  const colSet = [...new Set(segs.map(s => s.col))].sort((a,b) => a-b);
+  const rowSet = [...new Set(segs.map(s => s.row))].sort((a,b) => a-b);
+
+  const g = el("g");
+
+  // Vertical grooves
+  for (let i = 0; i < colSet.length - 1; i++) {
+    const col = colSet[i];
+    if (colSet[i+1] !== col + 1) continue;
+    const gx = segX(col) + SEG_W;
+    const yTop = segY(rowSet[0]);
+    const yBot = segY(rowSet[rowSet.length - 1]) + SEG_H;
+    g.appendChild(el("rect", {
+      x: gx, y: yTop,
+      width: GROOVE, height: yBot - yTop,
+      fill: `url(#${id}-groove-v)`,
+    }));
+  }
+
+  // Horizontal groove
+  if (rowSet.length > 1) {
+    const gy = segY(rowSet[0]) + SEG_H;
+    const xLeft  = segX(colSet[0]);
+    const xRight = segX(colSet[colSet.length - 1]) + SEG_W;
+    g.appendChild(el("rect", {
+      x: xLeft, y: gy,
+      width: xRight - xLeft, height: GROOVE,
+      fill: `url(#${id}-groove-h)`,
+    }));
+  }
+
+  return g;
+}
+
+// ---- Build segment bevel edges ---------------------------------------------
+function buildBevels(id, type) {
+  const segs = getSegments(type);
+  const g = el("g");
+  const in1 = 1.2;
+
+  segs.forEach(({col, row}) => {
+    const x = segX(col), y = segY(row), w = SEG_W, h = SEG_H;
+
+    // Top + left highlight
+    const hiPath = el("path", {
+      d: `M${x+in1},${y+h-in1} L${x+in1},${y+in1} L${x+w-in1},${y+in1}`,
+      fill: "none",
+      stroke: `url(#${id}-bvl-hi)`,
+      "stroke-width": "2.2",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+    });
+    g.appendChild(hiPath);
+
+    // Bottom + right shadow
+    const shPath = el("path", {
+      d: `M${x+in1},${y+h-in1} L${x+w-in1},${y+h-in1} L${x+w-in1},${y+in1}`,
+      fill: "none",
+      stroke: `url(#${id}-bvl-sh)`,
+      "stroke-width": "2.2",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+    });
+    g.appendChild(shPath);
+  });
+
+  return g;
+}
+
+// ---- Build snap edges ------------------------------------------------------
+function buildSnapEdges(id, type) {
+  if (type === "whole") return null;
+
+  const FACE_W = 3;
+  const yTop = BAR_Y, yBot = BAR_Y + BAR_H;
+
+  function snapFaceD(nomX, seed, faceDir) {
+    const pts = snapEdgeV(nomX, yTop, yBot, seed);
+    const fwd = pts.map(([x, y], i) => `${i===0?"M":"L"}${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
+    const back = [...pts].reverse().map(([x, y]) => `L${(x + faceDir * FACE_W).toFixed(2)},${y.toFixed(2)}`).join(" ");
+    return `${fwd} ${back} Z`;
+  }
+
+  const g = el("g", { "clip-path": `url(#${id}-clip)` });
+
+  // nomX = the nominal snap break x; faceDir determines which side of nomX
+  // the crumble face appears (always INTO the piece).
+  let nomX, faceDir, highlightShift;
+  const seed = 42;
+  if (type === "half-left") {
+    // Snap at right edge of half-left piece, face extends leftward (inward)
+    nomX = segX(1) + SEG_W; // = 49
+    faceDir = -1;
+    highlightShift = -0.6;
+  } else if (type === "half-right") {
+    // Snap at left edge of half-right piece, face extends rightward (inward)
+    nomX = segX(2); // = 51
+    faceDir = 1;
+    highlightShift = 0.6;
+  } else if (type === "quarter") {
+    // Snap at right edge of quarter piece, face extends leftward (inward)
+    nomX = segX(0) + SEG_W; // = 25.5
+    faceDir = -1;
+    highlightShift = -0.6;
+  }
+
+  const pts = snapEdgeV(nomX, yTop, yBot, seed);
+
+  // Crumble face fill
+  g.appendChild(el("path", {
+    d: snapFaceD(nomX, seed, faceDir),
+    fill: `url(#${id}-snap)`,
+    opacity: "0.92",
+  }));
+
+  // Snap line stroke
+  g.appendChild(el("polyline", {
+    points: ptsToPolyline(pts),
+    fill: "none",
+    stroke: "#3A1800",
+    "stroke-width": "0.7",
+    opacity: "0.55",
+  }));
+
+  // Thin highlight (shifted slightly inward along the face)
+  g.appendChild(el("polyline", {
+    points: ptsToPolyline(pts.map(([x, y]) => [x + highlightShift, y])),
+    fill: "none",
+    stroke: "#F0C080",
+    "stroke-width": "0.5",
+    opacity: "0.40",
+  }));
+
+  return g;
+}
+
+// ---- Master render function -------------------------------------------------
+function renderChocolateBar(svgElem, type, size, selected) {
+  size = size || 120;
+  const id = uid();
+  const bounds = getPieceBounds(type);
+  const segs = getSegments(type);
+
+  // ViewBox
+  const VP = 7;
+  const vbX = bounds.x - VP, vbY = bounds.y - VP;
+  const vbW = bounds.w + VP*2, vbH = bounds.h + VP*2;
+
+  // Pixel size
+  const aspect = vbW / vbH;
+  const svgW = size;
+  const svgH = Math.round(size / aspect);
+
+  svgElem.setAttribute("width", svgW);
+  svgElem.setAttribute("height", svgH);
+  svgElem.setAttribute("viewBox", `${vbX} ${vbY} ${vbW} ${vbH}`);
+  if (selected) svgElem.classList.add("choco-sel");
+
+  const outerD = roundedRectD(bounds.x, bounds.y, bounds.w, bounds.h, BAR_R);
+
+  // Defs
+  svgElem.appendChild(buildDefs(id, type));
+
+  // Body (fill + sheen) with shadow or glow
+  const bodyG = el("g", { filter: selected ? `url(#${id}-glow)` : `url(#${id}-dshadow)` });
+  bodyG.appendChild(el("path", { d: outerD, fill: `url(#${id}-body)` }));
+  bodyG.appendChild(el("path", { d: outerD, fill: `url(#${id}-sheen)` }));
+  svgElem.appendChild(bodyG);
+
+  // Segment surface highlight rects
+  segs.forEach(({col, row}) => {
+    svgElem.appendChild(el("rect", {
+      x: segX(col) + 0.5, y: segY(row) + 0.5,
+      width: SEG_W - 1, height: SEG_H - 1,
+      rx: "1.2",
+      fill: "#A05018",
+      opacity: "0.18",
+    }));
+  });
+
+  // Grooves
+  svgElem.appendChild(buildGrooves(id, type));
+
+  // Bevels
+  svgElem.appendChild(buildBevels(id, type));
+
+  // Snap edges
+  const snap = buildSnapEdges(id, type);
+  if (snap) svgElem.appendChild(snap);
+
+  // Outer edge stroke
+  svgElem.appendChild(el("path", {
+    d: outerD,
+    fill: "none",
+    stroke: "#2A0E00",
+    "stroke-width": "1.2",
+    opacity: "0.65",
+  }));
+
+  // Selected shine sweep
+  if (selected) {
+    const shineG = el("g", { "clip-path": `url(#${id}-clip)` });
+    const shineRect = el("rect", {
+      x: bounds.x - bounds.w * 0.1,
+      y: bounds.y,
+      width: bounds.w * 0.35,
+      height: bounds.h,
+      rx: "4",
+      fill: "white",
+      opacity: "0.18",
+    });
+    shineRect.classList.add("choco-shine-rect");
+    shineG.appendChild(shineRect);
+    svgElem.appendChild(shineG);
+  }
+}
+
+// ============================================================================
+// Render all instances
+// ============================================================================
+document.addEventListener("DOMContentLoaded", function() {
+
+  // Light — whole at multiple sizes
+  renderChocolateBar(document.getElementById("whole-32"),  "whole", 48,  false);
+  renderChocolateBar(document.getElementById("whole-80"),  "whole", 80,  false);
+  renderChocolateBar(document.getElementById("whole-120"), "whole", 120, false);
+  renderChocolateBar(document.getElementById("whole-160"), "whole", 160, false);
+  renderChocolateBar(document.getElementById("whole-200"), "whole", 200, false);
+
+  // Light — pieces
+  renderChocolateBar(document.getElementById("light-whole"),      "whole",      120, false);
+  renderChocolateBar(document.getElementById("light-half-left"),  "half-left",  120, false);
+  renderChocolateBar(document.getElementById("light-half-right"), "half-right", 120, false);
+  renderChocolateBar(document.getElementById("light-quarter"),    "quarter",    120, false);
+
+  // Light — snap pair
+  renderChocolateBar(document.getElementById("light-snap-left"),  "half-left",  120, false);
+  renderChocolateBar(document.getElementById("light-snap-right"), "half-right", 120, false);
+
+  // Light — selected
+  renderChocolateBar(document.getElementById("light-sel-whole"),   "whole",   120, true);
+  renderChocolateBar(document.getElementById("light-sel-half"),    "half-left", 120, true);
+  renderChocolateBar(document.getElementById("light-sel-quarter"), "quarter",  120, true);
+
+  // Dark — pieces
+  renderChocolateBar(document.getElementById("dark-whole"),      "whole",      120, false);
+  renderChocolateBar(document.getElementById("dark-half-left"),  "half-left",  120, false);
+  renderChocolateBar(document.getElementById("dark-half-right"), "half-right", 120, false);
+  renderChocolateBar(document.getElementById("dark-quarter"),    "quarter",    120, false);
+
+  // Dark — selected
+  renderChocolateBar(document.getElementById("dark-sel-whole"),   "whole",     120, true);
+  renderChocolateBar(document.getElementById("dark-sel-half"),    "half-left", 120, true);
+  renderChocolateBar(document.getElementById("dark-sel-quarter"), "quarter",   120, true);
+
+  // Dark — sizes
+  renderChocolateBar(document.getElementById("dark-32"),  "whole", 48,  false);
+  renderChocolateBar(document.getElementById("dark-80"),  "whole", 80,  false);
+  renderChocolateBar(document.getElementById("dark-120"), "whole", 120, false);
+  renderChocolateBar(document.getElementById("dark-160"), "whole", 160, false);
+});
+</script>
+</body>
+</html>

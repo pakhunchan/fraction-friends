@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Orange DividableObject — Preview (attempt6)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; }
+  .page { padding: 32px; }
+  .page.light { background: #f8f4ee; color: #333; }
+  .page.dark  { background: #0f1729; color: #e8dfc8; }
+  h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
+  h2 { font-size: 1rem; font-weight: 600; margin: 28px 0 12px; opacity: 0.7; letter-spacing: 0.05em; text-transform: uppercase; }
+  .row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 24px; margin-bottom: 8px; }
+  .item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .label { font-size: 0.72rem; opacity: 0.6; }
+  .halves { display: flex; align-items: center; gap: 4px; }
+  hr { border: none; border-top: 1px solid rgba(128,128,128,0.2); margin: 32px 0 0; }
+  .selected-ring { border-radius: 50%; outline: 3px solid #60a5fa; outline-offset: 3px; }
+</style>
+</head>
+<body>
+
+<!-- =====================================================================
+     SHARED SVG DEFS — referenced by all instances below
+     We use unique IDs per instance inline; for simplicity in pure HTML
+     we define defs inside each SVG.
+     ===================================================================== -->
+
+<script>
+// ---------------------------------------------------------------------------
+// JavaScript helpers to generate orange SVG markup
+// ---------------------------------------------------------------------------
+
+const CX = 50, CY = 50;
+const R_PEEL  = 46;
+const R_PITH  = 39;
+const R_CORE  = 7;
+const NUM_SEG = 10;
+
+const SEG_COLORS = [
+  ["#ff9a2e","#e8781a"],
+  ["#ffaa3a","#f08a20"],
+  ["#ff9228","#e87218"],
+  ["#ffb040","#f09228"],
+  ["#ff9830","#e87a1e"],
+  ["#ffa535","#ed8520"],
+  ["#ff9030","#e87018"],
+  ["#ffac3c","#f08c24"],
+  ["#ff9630","#e8761c"],
+  ["#ffa838","#f08828"],
+];
+
+function polar(cx, cy, r, deg) {
+  const a = (deg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+}
+
+function segPath(i, total) {
+  const step = 360 / total;
+  const s = i * step, e = s + step;
+  const outerR = R_PITH - 1.5;
+  const innerR = R_CORE + 1;
+  const p1 = polar(CX,CY,innerR,s), p2 = polar(CX,CY,outerR,s);
+  const p3 = polar(CX,CY,outerR,e), p4 = polar(CX,CY,innerR,e);
+  const la = step > 180 ? 1 : 0;
+  const f = n => n.toFixed(3);
+  return `M${f(p1.x)} ${f(p1.y)} L${f(p2.x)} ${f(p2.y)} A${outerR} ${outerR} 0 ${la} 1 ${f(p3.x)} ${f(p3.y)} L${f(p4.x)} ${f(p4.y)} A${innerR} ${innerR} 0 ${la} 0 ${f(p1.x)} ${f(p1.y)} Z`;
+}
+
+function veinPath(i, total) {
+  const step = 360 / total;
+  const inner = polar(CX,CY,R_CORE+1, i*step);
+  const outer = polar(CX,CY,R_PITH-1.5, i*step);
+  const f = n => n.toFixed(3);
+  return `M${f(inner.x)} ${f(inner.y)} L${f(outer.x)} ${f(outer.y)}`;
+}
+
+// Build the <defs> block with a given prefix id
+function defs(id, mode) {
+  let clipPath = '';
+  if (mode === 'left')    clipPath = `<clipPath id="${id}-clip"><rect x="0" y="0" width="51" height="100"/></clipPath>`;
+  if (mode === 'right')   clipPath = `<clipPath id="${id}-clip"><rect x="49" y="0" width="51" height="100"/></clipPath>`;
+  if (mode === 'quarter') clipPath = `<clipPath id="${id}-clip"><rect x="49" y="0" width="51" height="51"/></clipPath>`;
+
+  return `<defs>
+    <radialGradient id="${id}-peel" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#ffce6b"/>
+      <stop offset="30%" stop-color="#ffa833"/>
+      <stop offset="70%" stop-color="#f07e10"/>
+      <stop offset="100%" stop-color="#c85c00"/>
+    </radialGradient>
+    <linearGradient id="${id}-peel-band" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f07020"/>
+      <stop offset="50%" stop-color="#ff8c28"/>
+      <stop offset="100%" stop-color="#f07020"/>
+    </linearGradient>
+    <radialGradient id="${id}-pith" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff8f0"/>
+      <stop offset="80%" stop-color="#ffe8d0"/>
+      <stop offset="100%" stop-color="#f8d8b8"/>
+    </radialGradient>
+    <radialGradient id="${id}-core" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#ffe0a0"/>
+      <stop offset="100%" stop-color="#f0a840"/>
+    </radialGradient>
+    <radialGradient id="${id}-flesh" cx="45%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#ffcc60"/>
+      <stop offset="60%" stop-color="#ff9a28"/>
+      <stop offset="100%" stop-color="#e07010"/>
+    </radialGradient>
+    <radialGradient id="${id}-face-hl" cx="40%" cy="35%" r="50%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="${id}-peel-tex" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="turbulence" baseFrequency="0.18 0.18" numOctaves="4" seed="7" result="turbNoise"/>
+      <feColorMatrix type="saturate" values="0" in="turbNoise" result="grayNoise"/>
+      <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blended"/>
+      <feComponentTransfer in="blended">
+        <feFuncR type="linear" slope="1.05" intercept="-0.02"/>
+        <feFuncG type="linear" slope="0.95" intercept="0.01"/>
+        <feFuncB type="linear" slope="0.85" intercept="0"/>
+      </feComponentTransfer>
+    </filter>
+    <filter id="${id}-shadow" x="-20%" y="-15%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#7a3800" flood-opacity="0.35"/>
+    </filter>
+    <filter id="${id}-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feFlood flood-color="#ffb830" flood-opacity="0.85" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="${id}-juice" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="3" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="gray"/>
+      <feBlend in="SourceGraphic" in2="gray" mode="softLight"/>
+    </filter>
+    ${clipPath}
+  </defs>`;
+}
+
+// Interior cross-section (segments, pith, core)
+function interior(id) {
+  const segs = Array.from({length: NUM_SEG}, (_,i) =>
+    `<path d="${segPath(i,NUM_SEG)}" fill="${SEG_COLORS[i][0]}" stroke="${SEG_COLORS[i][1]}" stroke-width="0.4"/>`
+  ).join('\n    ');
+  const veins = Array.from({length: NUM_SEG}, (_,i) =>
+    `<path d="${veinPath(i,NUM_SEG)}" stroke="rgba(255,255,255,0.65)" stroke-width="0.9" fill="none"/>`
+  ).join('\n    ');
+  return `
+  <!-- flesh bg -->
+  <circle cx="${CX}" cy="${CY}" r="${R_PITH-1}" fill="url(#${id}-flesh)"/>
+  <!-- segments -->
+  <g filter="url(#${id}-juice)">
+    ${segs}
+  </g>
+  <!-- veins -->
+  <g>${veins}</g>
+  <!-- core -->
+  <circle cx="${CX}" cy="${CY}" r="${R_CORE}" fill="url(#${id}-core)"/>
+  <circle cx="${CX}" cy="${CY}" r="${R_CORE}" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="0.8"/>
+  <!-- pith ring -->
+  <circle cx="${CX}" cy="${CY}" r="${R_PITH}" fill="none" stroke="url(#${id}-pith)" stroke-width="6"/>
+  <circle cx="${CX}" cy="${CY}" r="${R_PITH-3.5}" fill="none" stroke="rgba(255,240,220,0.6)" stroke-width="0.6"/>
+  <!-- face highlight -->
+  <circle cx="${CX}" cy="${CY}" r="${R_PITH-1}" fill="url(#${id}-face-hl)"/>`;
+}
+
+// Peel exterior ring (for cut views)
+function peelExterior(id) {
+  return `
+  <circle cx="${CX}" cy="${CY}" r="${R_PEEL-3.5}" fill="none" stroke="#f07820" stroke-width="7" filter="url(#${id}-peel-tex)" opacity="0.95"/>
+  <circle cx="${CX}" cy="${CY}" r="${R_PEEL}" fill="none" stroke="#c05000" stroke-width="1.5" opacity="0.7"/>
+  <circle cx="${CX}" cy="${CY}" r="${R_PEEL-7}" fill="none" stroke="#e07018" stroke-width="0.8" opacity="0.5"/>`;
+}
+
+// Whole orange body
+function wholeBody(id, selected) {
+  const filterAttr = selected ? `filter="url(#${id}-glow)"` : `filter="url(#${id}-shadow)"`;
+  const dimples = [
+    [40,25],[58,22],[70,35],[75,52],[68,68],
+    [52,75],[36,70],[24,58],[22,40],[30,28],
+    [50,35],[64,48],[42,62],[32,48],[56,60],
+    [46,18],[72,44],[28,62],[60,30],[38,78],
+  ].map(([dx,dy]) => `<circle cx="${dx}" cy="${dy}" r="1.5" fill="#b84800"/>`).join('\n    ');
+
+  const cutLine = selected
+    ? `<line x1="${CX}" y1="${CY-R_PEEL+2}" x2="${CX}" y2="${CY+R_PEEL-2}" stroke="white" stroke-width="2" stroke-dasharray="4 4" opacity="0.75"/>`
+    : '';
+
+  return `<g ${filterAttr}>
+  <circle cx="${CX}" cy="${CY}" r="${R_PEEL}" fill="url(#${id}-peel)"/>
+  <circle cx="${CX}" cy="${CY}" r="${R_PEEL}" fill="url(#${id}-peel)" filter="url(#${id}-peel-tex)" opacity="0.55"/>
+  <g opacity="0.18">${dimples}</g>
+  <ellipse cx="41" cy="37" rx="16" ry="12" fill="white" opacity="0.22" transform="rotate(-25 41 37)"/>
+  <circle cx="${CX}" cy="${CY}" r="${R_PEEL}" fill="none" stroke="#c05800" stroke-width="2" opacity="0.5"/>
+  <ellipse cx="${CX}" cy="${CY+30}" rx="5" ry="4" fill="none" stroke="#d06808" stroke-width="1.2" opacity="0.6"/>
+  <ellipse cx="${CX}" cy="${CY+30}" rx="2.5" ry="2" fill="#e07818" opacity="0.5"/>
+  <rect x="${CX-2}" y="${CY-R_PEEL-5}" width="4" height="6" rx="1.5" fill="#5a3a10"/>
+  <ellipse cx="${CX+7}" cy="${CY-R_PEEL-5}" rx="8" ry="4" fill="#3a8a20" transform="rotate(-30 ${CX+7} ${CY-R_PEEL-5})"/>
+  <line x1="${CX+1}" y1="${CY-R_PEEL-7}" x2="${CX+13}" y2="${CY-R_PEEL-3}" stroke="#2a6a12" stroke-width="0.8" opacity="0.7" transform="rotate(-30 ${CX+7} ${CY-R_PEEL-5})"/>
+  ${cutLine}
+</g>`;
+}
+
+// Cut edge lines
+function cutEdge(id, mode) {
+  if (mode === 'left' || mode === 'right') {
+    return `<line x1="${CX}" y1="${CY-R_PEEL}" x2="${CX}" y2="${CY+R_PEEL}" stroke="url(#${id}-peel-band)" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  return `
+  <line x1="${CX}" y1="${CY-R_PEEL}" x2="${CX}" y2="${CY}" stroke="url(#${id}-peel-band)" stroke-width="3" stroke-linecap="round"/>
+  <line x1="${CX}" y1="${CY}" x2="${CX+R_PEEL}" y2="${CY}" stroke="url(#${id}-peel-band)" stroke-width="3" stroke-linecap="round"/>`;
+}
+
+// Half cross-section group
+function halfBody(id, mode, selected) {
+  const filterAttr = selected ? `filter="url(#${id}-glow)"` : `filter="url(#${id}-shadow)"`;
+  return `<g clip-path="url(#${id}-clip)" ${filterAttr}>
+  ${interior(id)}
+  ${peelExterior(id)}
+  ${cutEdge(id, mode)}
+</g>`;
+}
+
+// Quarter cross-section group
+function quarterBody(id, selected) {
+  const filterAttr = selected ? `filter="url(#${id}-glow)"` : `filter="url(#${id}-shadow)"`;
+  return `<g clip-path="url(#${id}-clip)" ${filterAttr}>
+  ${interior(id)}
+  ${peelExterior(id)}
+  ${cutEdge(id, 'quarter')}
+</g>`;
+}
+
+// ---- SVG builders ----
+
+function svgWhole(id, px, selected=false) {
+  return `<svg width="${px}" height="${px}" viewBox="-4 -12 108 116" xmlns="http://www.w3.org/2000/svg">
+  ${defs(id,'whole')}
+  ${wholeBody(id,selected)}
+</svg>`;
+}
+
+function svgHalfLeft(id, px, selected=false) {
+  const w = Math.round(px*0.52), h = Math.round(px*0.96);
+  return `<svg width="${w}" height="${h}" viewBox="-5 2 57 96" xmlns="http://www.w3.org/2000/svg">
+  ${defs(id,'left')}
+  ${halfBody(id,'left',selected)}
+</svg>`;
+}
+
+function svgHalfRight(id, px, selected=false) {
+  const w = Math.round(px*0.52), h = Math.round(px*0.96);
+  return `<svg width="${w}" height="${h}" viewBox="48 2 57 96" xmlns="http://www.w3.org/2000/svg">
+  ${defs(id,'right')}
+  ${halfBody(id,'right',selected)}
+</svg>`;
+}
+
+function svgQuarter(id, px, selected=false) {
+  const q = Math.round(px*0.58);
+  return `<svg width="${q}" height="${q}" viewBox="48 2 54 52" xmlns="http://www.w3.org/2000/svg">
+  ${defs(id,'quarter')}
+  ${quarterBody(id,selected)}
+</svg>`;
+}
+
+// ---- Inject into page ----
+document.addEventListener('DOMContentLoaded', () => {
+  let counter = 0;
+  function uid() { return `o${++counter}`; }
+
+  // WHOLE sizes
+  document.getElementById('whole-sizes').innerHTML =
+    [32,48,64,80,96,120,150,200].map(sz => `
+      <div class="item">
+        ${svgWhole(uid(), sz)}
+        <span class="label">${sz}px</span>
+      </div>`).join('');
+
+  // HALVES
+  document.getElementById('halves-row').innerHTML = `
+    <div class="item">
+      <div class="halves">
+        ${svgHalfLeft(uid(), 120)}
+        ${svgHalfRight(uid(), 120)}
+      </div>
+      <span class="label">half-left + half-right (120px)</span>
+    </div>
+    <div class="item">
+      <div class="halves">
+        ${svgHalfLeft(uid(), 80)}
+        ${svgHalfRight(uid(), 80)}
+      </div>
+      <span class="label">80px</span>
+    </div>
+    <div class="item">
+      <div class="halves">
+        ${svgHalfLeft(uid(), 160)}
+        ${svgHalfRight(uid(), 160)}
+      </div>
+      <span class="label">160px</span>
+    </div>`;
+
+  // QUARTERS
+  document.getElementById('quarters-row').innerHTML =
+    [60,80,100,120,150].map(sz => `
+      <div class="item">
+        ${svgQuarter(uid(), sz)}
+        <span class="label">quarter ${sz}px</span>
+      </div>`).join('');
+
+  // SELECTED states
+  document.getElementById('selected-row').innerHTML = `
+    <div class="item">
+      ${svgWhole(uid(), 120, true)}
+      <span class="label">whole selected</span>
+    </div>
+    <div class="item">
+      <div class="halves">
+        ${svgHalfLeft(uid(), 120, true)}
+        ${svgHalfRight(uid(), 120, true)}
+      </div>
+      <span class="label">halves selected</span>
+    </div>
+    <div class="item">
+      ${svgQuarter(uid(), 120, true)}
+      <span class="label">quarter selected</span>
+    </div>`;
+
+  // DARK BG — same content
+  document.getElementById('dark-whole-sizes').innerHTML =
+    document.getElementById('whole-sizes').innerHTML;
+  document.getElementById('dark-halves-row').innerHTML =
+    document.getElementById('halves-row').innerHTML;
+  document.getElementById('dark-quarters-row').innerHTML =
+    document.getElementById('quarters-row').innerHTML;
+  document.getElementById('dark-selected-row').innerHTML =
+    document.getElementById('selected-row').innerHTML;
+});
+</script>
+
+<!-- ====================================================================
+     LIGHT BACKGROUND
+     ==================================================================== -->
+<div class="page light">
+  <h1>Orange — DividableObject (attempt6)</h1>
+  <p style="font-size:0.8rem;opacity:0.6;margin-top:4px;">Light background</p>
+
+  <h2>Whole — multiple sizes</h2>
+  <div class="row" id="whole-sizes"></div>
+
+  <h2>Halves (cross-section view)</h2>
+  <div class="row" id="halves-row"></div>
+
+  <h2>Quarter</h2>
+  <div class="row" id="quarters-row"></div>
+
+  <h2>Selected state</h2>
+  <div class="row" id="selected-row"></div>
+</div>
+
+<hr/>
+
+<!-- ====================================================================
+     DARK BACKGROUND
+     ==================================================================== -->
+<div class="page dark">
+  <h1>Orange — DividableObject (attempt6)</h1>
+  <p style="font-size:0.8rem;opacity:0.5;margin-top:4px;">Dark background (#0f1729)</p>
+
+  <h2>Whole — multiple sizes</h2>
+  <div class="row" id="dark-whole-sizes"></div>
+
+  <h2>Halves (cross-section view)</h2>
+  <div class="row" id="dark-halves-row"></div>
+
+  <h2>Quarter</h2>
+  <div class="row" id="dark-quarters-row"></div>
+
+  <h2>Selected state</h2>
+  <div class="row" id="dark-selected-row"></div>
+</div>
+
+</body>
+</html>

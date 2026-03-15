@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Character Graphics Preview — Attempt 2 (Pixar/Disney Junior Style)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 24px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 22px;
+      color: #f8d56e;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 14px;
+      font-weight: 400;
+      color: #aaa;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 100px repeat(4, 1fr);
+      gap: 8px;
+      max-width: 700px;
+      margin: 0 auto 40px;
+      align-items: center;
+    }
+    .grid-header {
+      text-align: center;
+      font-weight: 600;
+      font-size: 13px;
+      color: #ccc;
+      padding: 4px;
+    }
+    .mood-label {
+      font-size: 13px;
+      color: #999;
+      text-align: right;
+      padding-right: 12px;
+    }
+    .cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #16213e;
+      border-radius: 12px;
+      padding: 8px;
+    }
+    .cell svg {
+      display: block;
+    }
+    .small-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin: 0 auto 40px;
+      flex-wrap: wrap;
+    }
+    .small-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .small-cell span {
+      font-size: 10px;
+      color: #888;
+    }
+    .small-cell svg {
+      background: #16213e;
+      border-radius: 8px;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 16px;
+      color: #f8d56e;
+      margin: 32px 0 16px;
+    }
+    .char-name {
+      font-size: 11px;
+      color: #bbb;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Character Graphics — Attempt 2</h1>
+  <h2>Pixar / Disney Junior Inspired &bull; Big Eyes, Tiny Bodies, Expressive Moods</h2>
+
+  <div class="grid" id="main-grid">
+    <!-- JS fills this -->
+  </div>
+
+  <div class="section-title">Small Size (48px) — Readability Check</div>
+  <div class="small-row" id="small-row">
+    <!-- JS fills this -->
+  </div>
+
+  <div class="section-title">Extra Small (32px) — Stress Test</div>
+  <div class="small-row" id="tiny-row">
+    <!-- JS fills this -->
+  </div>
+
+<script>
+// ============================================================
+// CHARACTER DESIGNS (mirrors the TSX)
+// ============================================================
+const designs = [
+  {
+    label: "Marcus",
+    skin: "#9B7044", skinShadow: "#7D5A35", blush: "#B8845A",
+    hair: "#1C1008", hairHighlight: "#3D2A14",
+    shirt: "#E8B731", shirtAccent: "#D4A017",
+    irisColor: "#5C3A1E", isGirl: false,
+    trait: "afro", browStyle: "straight",
+  },
+  {
+    label: "Sophie",
+    skin: "#FADCC6", skinShadow: "#E8C4A8", blush: "#F4A4A4",
+    hair: "#8B3A1A", hairHighlight: "#B55A2E",
+    shirt: "#4A90D9", shirtAccent: "#3670B8",
+    irisColor: "#3E7CB1", isGirl: true,
+    trait: "wavy-bow", browStyle: "arched",
+  },
+  {
+    label: "Kai",
+    skin: "#D4B896", skinShadow: "#BDA07E", blush: "#D9A088",
+    hair: "#151520", hairHighlight: "#2C2C40",
+    shirt: "#8E44AD", shirtAccent: "#7D3C98",
+    irisColor: "#4A7C3F", isGirl: false,
+    trait: "messy-cowlick", browStyle: "angled",
+  },
+  {
+    label: "Priya",
+    skin: "#B07848", skinShadow: "#946038", blush: "#C89070",
+    hair: "#0E0E14", hairHighlight: "#28283C",
+    shirt: "#27AE60", shirtAccent: "#1E8C4D",
+    irisColor: "#6B4226", isGirl: true,
+    trait: "space-buns", browStyle: "round",
+  },
+];
+
+const moods = ["neutral", "happy", "sad"];
+
+// ============================================================
+// SVG BUILDERS
+// ============================================================
+
+function hairSVG(d) {
+  switch (d.trait) {
+    case "afro": return `
+      <ellipse cx="50" cy="28" rx="30" ry="26" fill="${d.hair}" />
+      <circle cx="26" cy="22" r="9" fill="${d.hair}" />
+      <circle cx="74" cy="22" r="9" fill="${d.hair}" />
+      <circle cx="34" cy="12" r="10" fill="${d.hair}" />
+      <circle cx="50" cy="8" r="10" fill="${d.hair}" />
+      <circle cx="66" cy="12" r="10" fill="${d.hair}" />
+      <circle cx="22" cy="32" r="7" fill="${d.hair}" />
+      <circle cx="78" cy="32" r="7" fill="${d.hair}" />
+      <circle cx="46" cy="12" r="5" fill="${d.hairHighlight}" opacity="0.35" />
+      <circle cx="58" cy="16" r="4" fill="${d.hairHighlight}" opacity="0.25" />`;
+    case "wavy-bow": return `
+      <ellipse cx="50" cy="30" rx="30" ry="24" fill="${d.hair}" />
+      <path d="M 22 30 Q 16 40 20 52 Q 22 56 18 60 Q 16 64 20 66" fill="none" stroke="${d.hair}" stroke-width="8" stroke-linecap="round" />
+      <path d="M 78 30 Q 84 40 80 52 Q 78 56 82 60 Q 84 64 80 66" fill="none" stroke="${d.hair}" stroke-width="8" stroke-linecap="round" />
+      <path d="M 40 10 Q 50 8 56 12 Q 58 14 54 16" fill="${d.hairHighlight}" opacity="0.4" />
+      <g transform="translate(72, 16)">
+        <path d="M 0 0 Q -8 -6 -4 -10 Q 0 -12 2 -6 Z" fill="#E84466" />
+        <path d="M 0 0 Q 8 -6 4 -10 Q 0 -12 -2 -6 Z" fill="#E84466" />
+        <path d="M 0 0 Q -6 6 -3 10 Q 0 12 2 6 Z" fill="#D63B5A" />
+        <path d="M 0 0 Q 6 6 3 10 Q 0 12 -2 6 Z" fill="#D63B5A" />
+        <circle cx="0" cy="0" r="2.5" fill="#F06090" />
+      </g>`;
+    case "messy-cowlick": return `
+      <ellipse cx="50" cy="28" rx="28" ry="22" fill="${d.hair}" />
+      <path d="M 30 14 Q 28 4 36 8 Q 34 2 42 10" fill="${d.hair}" />
+      <path d="M 60 10 Q 64 0 68 8 Q 72 2 70 14" fill="${d.hair}" />
+      <path d="M 44 8 Q 46 -2 52 4 Q 54 -2 56 8" fill="${d.hair}" />
+      <path d="M 54 10 Q 58 -4 64 2 Q 60 -6 56 6" fill="${d.hair}" stroke="${d.hairHighlight}" stroke-width="0.5" />
+      <path d="M 54 8 Q 60 -8 66 -2" fill="none" stroke="${d.hair}" stroke-width="4" stroke-linecap="round" />
+      <path d="M 24 26 Q 18 22 20 18 Q 22 22 24 20" fill="${d.hair}" />
+      <path d="M 76 26 Q 82 22 80 18 Q 78 22 76 20" fill="${d.hair}" />
+      <ellipse cx="42" cy="18" rx="5" ry="3" fill="${d.hairHighlight}" opacity="0.3" />`;
+    case "space-buns": return `
+      <ellipse cx="50" cy="30" rx="28" ry="22" fill="${d.hair}" />
+      <circle cx="24" cy="16" r="12" fill="${d.hair}" />
+      <circle cx="22" cy="14" r="4" fill="${d.hairHighlight}" opacity="0.2" />
+      <circle cx="76" cy="16" r="12" fill="${d.hair}" />
+      <circle cx="74" cy="14" r="4" fill="${d.hairHighlight}" opacity="0.2" />
+      <path d="M 28 28 Q 34 18 50 16 Q 66 18 72 28" fill="${d.hair}" />
+      <line x1="50" y1="12" x2="50" y2="22" stroke="${d.hairHighlight}" stroke-width="0.5" opacity="0.3" />
+      <path d="M 38 20 Q 44 16 52 17 Q 56 18 58 20" fill="${d.hairHighlight}" opacity="0.2" />`;
+    default: return "";
+  }
+}
+
+function backHairSVG(d) {
+  if (d.trait === "wavy-bow") {
+    return `
+      <path d="M 20 34 Q 16 42 18 54 Q 20 58 16 62" fill="none" stroke="${d.hair}" stroke-width="7" stroke-linecap="round" />
+      <path d="M 78 34 Q 82 42 80 54 Q 78 58 82 62" fill="none" stroke="${d.hair}" stroke-width="7" stroke-linecap="round" />`;
+  }
+  return "";
+}
+
+function eyesSVG(d, mood) {
+  if (mood === "happy") {
+    let lashes = "";
+    if (d.isGirl) {
+      lashes = `
+        <line x1="31" y1="42" x2="29" y2="39" stroke="#1A1A2E" stroke-width="1.5" stroke-linecap="round" />
+        <line x1="43" y1="42" x2="45" y2="39" stroke="#1A1A2E" stroke-width="1.5" stroke-linecap="round" />
+        <line x1="55" y1="42" x2="53" y2="39" stroke="#1A1A2E" stroke-width="1.5" stroke-linecap="round" />
+        <line x1="67" y1="42" x2="69" y2="39" stroke="#1A1A2E" stroke-width="1.5" stroke-linecap="round" />`;
+    }
+    return `
+      <path d="M 32 43 Q 36 36 42 43" fill="none" stroke="#1A1A2E" stroke-width="2.8" stroke-linecap="round" />
+      <path d="M 56 43 Q 60 36 66 43" fill="none" stroke="#1A1A2E" stroke-width="2.8" stroke-linecap="round" />
+      ${lashes}`;
+  }
+
+  const leftRot = mood === "sad" ? ` transform="rotate(8, 37, 42)"` : "";
+  const rightRot = mood === "sad" ? ` transform="rotate(-8, 61, 42)"` : "";
+
+  function girlLashes(xOff) {
+    if (!d.isGirl) return "";
+    const cx = xOff;
+    return `
+      <line x1="${cx-7}" y1="40" x2="${cx-10}" y2="37" stroke="#1A1A2E" stroke-width="1.5" stroke-linecap="round" />
+      <line x1="${cx-5}" y1="37" x2="${cx-7}" y2="33" stroke="#1A1A2E" stroke-width="1.5" stroke-linecap="round" />
+      <line x1="${cx-1}" y1="34" x2="${cx-2}" y2="30" stroke="#1A1A2E" stroke-width="1.3" stroke-linecap="round" />
+      <line x1="${cx+7}" y1="38" x2="${cx+10}" y2="35" stroke="#1A1A2E" stroke-width="1.3" stroke-linecap="round" />`;
+  }
+
+  function eyeUnit(cx) {
+    return `
+      <ellipse cx="${cx}" cy="42" rx="8" ry="9" fill="white" />
+      <ellipse cx="${cx}" cy="38" rx="7" ry="4" fill="#E8E8F0" opacity="0.5" />
+      <ellipse cx="${cx}" cy="43" rx="5" ry="5.5" fill="${d.irisColor}" />
+      <ellipse cx="${cx}" cy="43" rx="2.5" ry="3" fill="#0A0A12" />
+      <ellipse cx="${cx-2}" cy="40" rx="2.2" ry="2.8" fill="white" opacity="0.9" />
+      <circle cx="${cx+2.5}" cy="45.5" r="1.2" fill="white" opacity="0.6" />
+      <ellipse cx="${cx}" cy="42" rx="8" ry="9" fill="none" stroke="#1A1A2E" stroke-width="1.2" />
+      <path d="M ${cx-8} 42 Q ${cx-4} 33 ${cx+8} 42" fill="none" stroke="#1A1A2E" stroke-width="1.8" stroke-linecap="round" />`;
+  }
+
+  return `
+    <g${leftRot}>${eyeUnit(37)}${girlLashes(37)}</g>
+    <g${rightRot}>${eyeUnit(61)}${girlLashes(61)}</g>`;
+}
+
+function browsSVG(d, mood) {
+  const c = d.hair;
+  if (mood === "sad") {
+    return `
+      <path d="M 30 33 Q 34 30 41 34" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" />
+      <path d="M 57 34 Q 64 30 68 33" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" />`;
+  }
+  if (mood === "happy") {
+    return `
+      <path d="M 30 32 Q 35 29 42 31" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" />
+      <path d="M 56 31 Q 63 29 68 32" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" />`;
+  }
+  switch (d.browStyle) {
+    case "straight": return `
+      <line x1="30" y1="32" x2="42" y2="31" stroke="${c}" stroke-width="2.2" stroke-linecap="round" />
+      <line x1="56" y1="31" x2="68" y2="32" stroke="${c}" stroke-width="2.2" stroke-linecap="round" />`;
+    case "arched": return `
+      <path d="M 30 34 Q 36 28 42 33" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round" />
+      <path d="M 56 33 Q 62 28 68 34" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round" />`;
+    case "angled": return `
+      <path d="M 30 34 L 36 30 L 42 32" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M 56 32 L 62 30 L 68 34" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />`;
+    default: return `
+      <path d="M 30 33 Q 36 29 42 33" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round" />
+      <path d="M 56 33 Q 62 29 68 33" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round" />`;
+  }
+}
+
+function noseSVG(d) {
+  return `
+    <ellipse cx="49" cy="51" rx="2.5" ry="1.8" fill="${d.skinShadow}" stroke="#00000020" stroke-width="0.8" />
+    <circle cx="47.5" cy="51.5" r="0.7" fill="#00000018" />
+    <circle cx="50.5" cy="51.5" r="0.7" fill="#00000018" />`;
+}
+
+function mouthSVG(mood) {
+  if (mood === "happy") {
+    return `
+      <path d="M 38 56 Q 42 54 49 54 Q 56 54 60 56 Q 56 66 49 67 Q 42 66 38 56 Z" fill="#C0392B" />
+      <path d="M 40 56 Q 42 54 49 54 Q 56 54 58 56 L 56 58 Q 52 56 49 56 Q 46 56 42 58 Z" fill="white" />
+      <ellipse cx="49" cy="64" rx="5" ry="3" fill="#E74C3C" />
+      <path d="M 38 56 Q 42 54 49 54 Q 56 54 60 56 Q 56 66 49 67 Q 42 66 38 56 Z" fill="none" stroke="#1A1A2E" stroke-width="1" stroke-linejoin="round" />`;
+  }
+  if (mood === "sad") {
+    return `
+      <path d="M 40 60 Q 45 56 49 56 Q 53 56 58 60" fill="none" stroke="#1A1A2E" stroke-width="1.8" stroke-linecap="round" />
+      <path d="M 42 61 Q 49 64 56 61" fill="#D4837A" stroke="#B56B63" stroke-width="0.8" stroke-linecap="round" />`;
+  }
+  return `
+    <path d="M 40 57 Q 45 62 49 62 Q 53 62 58 57" fill="none" stroke="#1A1A2E" stroke-width="1.8" stroke-linecap="round" />`;
+}
+
+function bodySVG(d) {
+  let details = "";
+  // Neck
+  let svg = `<rect x="43" y="66" width="12" height="8" rx="2" fill="${d.skin}" />`;
+  // Main shirt
+  svg += `<path d="M 24 80 Q 24 72 38 70 Q 44 69 49 69 Q 54 69 60 70 Q 74 72 74 80 L 74 100 L 24 100 Z" fill="${d.shirt}" />`;
+
+  if (d.trait === "afro") {
+    details = `
+      <path d="M 38 72 Q 44 76 49 77 Q 54 76 60 72" fill="none" stroke="${d.shirtAccent}" stroke-width="1.5" stroke-linecap="round" />
+      <path d="M 36 71 Q 38 68 42 70" fill="none" stroke="${d.shirtAccent}" stroke-width="1" stroke-linecap="round" />
+      <path d="M 62 71 Q 60 68 56 70" fill="none" stroke="${d.shirtAccent}" stroke-width="1" stroke-linecap="round" />
+      <line x1="44" y1="77" x2="43" y2="84" stroke="${d.shirtAccent}" stroke-width="0.8" />
+      <line x1="54" y1="77" x2="55" y2="84" stroke="${d.shirtAccent}" stroke-width="0.8" />
+      <path d="M 38 88 Q 38 86 49 86 Q 60 86 60 88 L 60 95 Q 60 97 49 97 Q 38 97 38 95 Z" fill="${d.shirtAccent}" opacity="0.5" />`;
+  } else if (d.trait === "wavy-bow") {
+    details = `
+      <path d="M 42 71 Q 38 73 36 72 Q 38 69 44 70" fill="white" stroke="#DDD" stroke-width="0.5" />
+      <path d="M 56 71 Q 60 73 62 72 Q 60 69 54 70" fill="white" stroke="#DDD" stroke-width="0.5" />
+      <circle cx="49" cy="78" r="1.2" fill="${d.shirtAccent}" />
+      <circle cx="49" cy="84" r="1.2" fill="${d.shirtAccent}" />
+      <circle cx="49" cy="90" r="1.2" fill="${d.shirtAccent}" />`;
+  } else if (d.trait === "messy-cowlick") {
+    details = `
+      <path d="M 40 71 Q 45 74 49 75 Q 53 74 58 71" fill="none" stroke="${d.shirtAccent}" stroke-width="1.5" stroke-linecap="round" />
+      <path d="M 49 82 L 50.5 86 L 55 86.5 L 51.5 89 L 52.5 93 L 49 91 L 45.5 93 L 46.5 89 L 43 86.5 L 47.5 86 Z" fill="${d.shirtAccent}" opacity="0.6" />`;
+  } else if (d.trait === "space-buns") {
+    details = `
+      <path d="M 40 72 Q 44 70 49 70 Q 54 70 58 72 L 56 100 L 42 100 Z" fill="#F5E6CA" />
+      <line x1="42" y1="72" x2="42" y2="100" stroke="${d.shirtAccent}" stroke-width="1.2" />
+      <line x1="56" y1="72" x2="56" y2="100" stroke="${d.shirtAccent}" stroke-width="1.2" />
+      <path d="M 40 72 Q 42 70 44 72 L 42 78 Z" fill="${d.shirtAccent}" opacity="0.4" />
+      <path d="M 58 72 Q 56 70 54 72 L 56 78 Z" fill="${d.shirtAccent}" opacity="0.4" />`;
+  }
+
+  return svg + details;
+}
+
+function glassesSVG(d) {
+  if (d.trait !== "space-buns") return "";
+  return `
+    <circle cx="37" cy="42" r="9.5" fill="none" stroke="#2A2A3A" stroke-width="1.5" />
+    <circle cx="61" cy="42" r="9.5" fill="none" stroke="#2A2A3A" stroke-width="1.5" />
+    <path d="M 46.5 42 Q 49 39 51.5 42" fill="none" stroke="#2A2A3A" stroke-width="1.3" />
+    <line x1="27.5" y1="40" x2="22" y2="39" stroke="#2A2A3A" stroke-width="1.3" stroke-linecap="round" />
+    <line x1="70.5" y1="40" x2="76" y2="39" stroke="#2A2A3A" stroke-width="1.3" stroke-linecap="round" />`;
+}
+
+function earsSVG(d) {
+  return `
+    <ellipse cx="22" cy="44" rx="4" ry="6" fill="${d.skin}" stroke="${d.skinShadow}" stroke-width="0.8" />
+    <ellipse cx="22" cy="44" rx="2" ry="3.5" fill="${d.skinShadow}" opacity="0.3" />
+    <ellipse cx="76" cy="44" rx="4" ry="6" fill="${d.skin}" stroke="${d.skinShadow}" stroke-width="0.8" />
+    <ellipse cx="76" cy="44" rx="2" ry="3.5" fill="${d.skinShadow}" opacity="0.3" />`;
+}
+
+function buildCharacterSVG(d, mood, size) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    ${bodySVG(d)}
+    ${backHairSVG(d)}
+    ${earsSVG(d)}
+    <ellipse cx="49" cy="46" rx="26" ry="27" fill="${d.skin}" />
+    <ellipse cx="49" cy="56" rx="20" ry="14" fill="${d.skinShadow}" opacity="0.15" />
+    ${hairSVG(d)}
+    ${browsSVG(d, mood)}
+    ${eyesSVG(d, mood)}
+    ${glassesSVG(d)}
+    ${noseSVG(d)}
+    ${mouthSVG(mood)}
+    <circle cx="30" cy="53" r="4" fill="${d.blush}" opacity="0.35" />
+    <circle cx="68" cy="53" r="4" fill="${d.blush}" opacity="0.35" />
+    <ellipse cx="44" cy="34" rx="6" ry="3" fill="white" opacity="0.08" />
+  </svg>`;
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+
+// Main 4x3 grid
+const grid = document.getElementById("main-grid");
+// Header row
+grid.innerHTML = `<div></div>` + designs.map(d => `<div class="grid-header">${d.label}</div>`).join("");
+// Character name subtitle
+grid.innerHTML += `<div></div>` + designs.map(d => `<div class="char-name">(${d.trait})</div>`).join("");
+
+moods.forEach(mood => {
+  grid.innerHTML += `<div class="mood-label">${mood}</div>`;
+  designs.forEach(d => {
+    grid.innerHTML += `<div class="cell">${buildCharacterSVG(d, mood, 100)}</div>`;
+  });
+});
+
+// Small row (48px)
+const smallRow = document.getElementById("small-row");
+designs.forEach((d, i) => {
+  moods.forEach(mood => {
+    smallRow.innerHTML += `<div class="small-cell">${buildCharacterSVG(d, mood, 48)}<span>${d.label} ${mood}</span></div>`;
+  });
+});
+
+// Tiny row (32px)
+const tinyRow = document.getElementById("tiny-row");
+designs.forEach((d, i) => {
+  moods.forEach(mood => {
+    tinyRow.innerHTML += `<div class="small-cell">${buildCharacterSVG(d, mood, 32)}<span>${d.label}</span></div>`;
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brownie Component Preview — Attempt 9</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a1a2e;
+      color: #e0d8cc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 32px;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #f0e6d6;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 500;
+      margin: 32px 0 16px 0;
+      color: #c8b898;
+      border-bottom: 1px solid #333;
+      padding-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 28px;
+    }
+    .row {
+      display: flex;
+      gap: 32px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .cell .label {
+      font-size: 12px;
+      color: #999;
+      font-family: "SF Mono", "Fira Code", monospace;
+    }
+    .section {
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    /* Animations */
+    @keyframes brownie-tilt {
+      0%   { transform: rotate(-4deg) scale(1.07); }
+      25%  { transform: rotate( 4deg) scale(1.09); }
+      50%  { transform: rotate(-2deg) scale(1.08); }
+      75%  { transform: rotate( 2deg) scale(1.07); }
+      100% { transform: rotate(-4deg) scale(1.07); }
+    }
+    @keyframes brownie-shine {
+      0%   { opacity: 0.08; transform: translateX(-30%); }
+      50%  { opacity: 0.30; transform: translateX(10%); }
+      100% { opacity: 0.08; transform: translateX(50%); }
+    }
+    .brownie-sel {
+      animation: brownie-tilt 1.8s ease-in-out infinite;
+      transform-origin: 50% 50%;
+    }
+    .brownie-shine-rect {
+      animation: brownie-shine 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <h1>Brownie Component Preview</h1>
+  <p class="subtitle">Attempt 9 — Matching DividableObject patterns</p>
+
+  <div class="section">
+    <h2>All Types at 120px (default size)</h2>
+    <div class="row" id="row-120"></div>
+  </div>
+
+  <div class="section">
+    <h2>All Types at 72px</h2>
+    <div class="row" id="row-72"></div>
+  </div>
+
+  <div class="section">
+    <h2>Selected State (120px)</h2>
+    <div class="row" id="row-selected"></div>
+  </div>
+
+  <div class="section">
+    <h2>Composition Test: 2 halves = 1 whole</h2>
+    <div class="row" id="row-halves"></div>
+  </div>
+
+  <div class="section">
+    <h2>Composition Test: 4 quarters = 1 whole</h2>
+    <div class="row" id="row-quarters"></div>
+  </div>
+
+  <div class="section">
+    <h2>Composition Test: 8 eighths = 1 whole</h2>
+    <div class="row" id="row-eighths"></div>
+  </div>
+
+  <div class="section">
+    <h2>Multiple Instances (ID uniqueness test)</h2>
+    <div class="row" id="row-multi"></div>
+  </div>
+
+  <script>
+    // ---- Geometry constants (mirroring the TSX) ----
+    const PAD = 4;
+    const BRW_X = PAD;
+    const BRW_Y = PAD;
+    const BRW_W = 72;
+    const BRW_H = 72;
+    const BRW_R = 3.5;
+    const MID_X = BRW_X + BRW_W / 2;
+    const MID_Y = BRW_Y + BRW_H / 2;
+
+    function getPieceBounds(type) {
+      switch (type) {
+        case "whole":      return { x: BRW_X, y: BRW_Y, w: BRW_W, h: BRW_H };
+        case "half-left":  return { x: BRW_X, y: BRW_Y, w: BRW_W / 2, h: BRW_H };
+        case "half-right": return { x: MID_X, y: BRW_Y, w: BRW_W / 2, h: BRW_H };
+        case "quarter":    return { x: BRW_X, y: BRW_Y, w: BRW_W / 2, h: BRW_H / 2 };
+        case "eighth":     return { x: BRW_X, y: BRW_Y, w: BRW_W / 4, h: BRW_H / 2 };
+      }
+    }
+
+    function roundedRect(x, y, w, h, r) {
+      return (
+        `M${x+r},${y} L${x+w-r},${y} Q${x+w},${y} ${x+w},${y+r} ` +
+        `L${x+w},${y+h-r} Q${x+w},${y+h} ${x+w-r},${y+h} ` +
+        `L${x+r},${y+h} Q${x},${y+h} ${x},${y+h-r} ` +
+        `L${x},${y+r} Q${x},${y} ${x+r},${y} Z`
+      );
+    }
+
+    function crumbleEdgeV(nominalX, yTop, yBot, seed) {
+      const pts = [[nominalX, yTop]];
+      const steps = 9;
+      for (let i = 1; i < steps; i++) {
+        const t = i / steps;
+        const y = yTop + t * (yBot - yTop);
+        const jag = (((i * 5 + seed * 11) % 9) - 4) * 0.55;
+        pts.push([nominalX + jag, y]);
+      }
+      pts.push([nominalX, yBot]);
+      return pts;
+    }
+
+    function crumbleEdgeH(nominalY, xLeft, xRight, seed) {
+      const pts = [[xLeft, nominalY]];
+      const steps = 9;
+      for (let i = 1; i < steps; i++) {
+        const t = i / steps;
+        const x = xLeft + t * (xRight - xLeft);
+        const jag = (((i * 7 + seed * 13) % 9) - 4) * 0.50;
+        pts.push([x, nominalY + jag]);
+      }
+      pts.push([xRight, nominalY]);
+      return pts;
+    }
+
+    function ptsToPolyline(pts) {
+      return pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
+    }
+
+    const CRACK_LINES = [
+      { d: "M12,14 Q20,18 30,15 Q38,12 48,17 Q55,20 62,16", opacity: 0.30, width: 1.1 },
+      { d: "M8,32 Q18,29 25,34 Q35,38 45,33 Q52,29 58,35 Q65,40 70,36", opacity: 0.25, width: 1.0 },
+      { d: "M10,52 Q22,48 32,54 Q40,58 50,52 Q60,47 68,53", opacity: 0.28, width: 1.0 },
+      { d: "M14,68 Q25,64 38,70 Q50,73 60,67 Q68,63 72,66", opacity: 0.22, width: 0.9 },
+      { d: "M18,10 Q22,20 20,30 Q18,38 22,46", opacity: 0.15, width: 0.7 },
+      { d: "M42,8 Q45,18 40,28 Q38,35 42,42 Q44,50 40,58", opacity: 0.18, width: 0.7 },
+      { d: "M60,12 Q56,22 58,32 Q62,40 58,50 Q55,58 60,66", opacity: 0.15, width: 0.7 },
+      { d: "M28,22 Q32,26 36,24", opacity: 0.12, width: 0.5 },
+      { d: "M50,42 Q54,46 58,43", opacity: 0.12, width: 0.5 },
+      { d: "M16,60 Q22,56 26,60", opacity: 0.10, width: 0.5 },
+      { d: "M48,62 Q52,58 56,62", opacity: 0.10, width: 0.5 },
+    ];
+
+    let idCounter = 0;
+
+    function renderBrownie(type, size, selected) {
+      const id = `brw${idCounter++}`;
+      const bounds = getPieceBounds(type);
+      const wholeBounds = getPieceBounds("whole");
+      const VP = 7;
+
+      // Whole brownie's viewBox determines the reference scale
+      const wholeVbW = wholeBounds.w + VP * 2;
+      const wholeVbH = wholeBounds.h + VP * 2;
+      const wholePixelW = size;
+      const wholePixelH = Math.round(size * wholeVbH / wholeVbW);
+
+      // This piece's viewBox
+      const vbX = bounds.x - VP;
+      const vbY = bounds.y - VP;
+      const vbW = bounds.w + VP * 2;
+      const vbH = bounds.h + VP * 2;
+
+      // Same scale: svgW / vbW = wholePixelW / wholeVbW
+      const svgW = Math.round(vbW * wholePixelW / wholeVbW);
+      const svgH = Math.round(vbH * wholePixelH / wholeVbH);
+
+      const outerPath = roundedRect(bounds.x, bounds.y, bounds.w, bounds.h, BRW_R);
+
+      // Build defs
+      let defs = `
+        <linearGradient id="${id}-body" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4A2816"/>
+          <stop offset="30%" stop-color="#3E2010"/>
+          <stop offset="60%" stop-color="#35190C"/>
+          <stop offset="100%" stop-color="#2C1408"/>
+        </linearGradient>
+        <linearGradient id="${id}-top" x1="0%" y1="0%" x2="60%" y2="80%">
+          <stop offset="0%" stop-color="#5A3420" stop-opacity="0.50"/>
+          <stop offset="40%" stop-color="#4A2814" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="#3A1C0A" stop-opacity="0.10"/>
+        </linearGradient>
+        <radialGradient id="${id}-matte" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#6B3D24" stop-opacity="0.20"/>
+          <stop offset="60%" stop-color="#4A2816" stop-opacity="0.05"/>
+          <stop offset="100%" stop-color="#2C1408" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="${id}-bvl-hi" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#8B6040" stop-opacity="0.40"/>
+          <stop offset="50%" stop-color="#8B6040" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="${id}-bvl-sh" x1="100%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="#0E0600" stop-opacity="0.40"/>
+          <stop offset="50%" stop-color="#0E0600" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="${id}-cut" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#C8915A"/>
+          <stop offset="30%" stop-color="#B07840"/>
+          <stop offset="70%" stop-color="#A06830"/>
+          <stop offset="100%" stop-color="#B88050"/>
+        </linearGradient>
+        <linearGradient id="${id}-cut-h" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#C8915A"/>
+          <stop offset="30%" stop-color="#B07840"/>
+          <stop offset="70%" stop-color="#A06830"/>
+          <stop offset="100%" stop-color="#B88050"/>
+        </linearGradient>
+        <radialGradient id="${id}-crumb" cx="50%" cy="40%" r="50%">
+          <stop offset="0%" stop-color="#C8915A"/>
+          <stop offset="100%" stop-color="#8B5E3C"/>
+        </radialGradient>
+        <filter id="${id}-dshadow" x="-20%" y="-20%" width="145%" height="155%">
+          <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1A0800" flood-opacity="0.50"/>
+        </filter>
+        <filter id="${id}-glow" x="-30%" y="-30%" width="160%" height="170%">
+          <feGaussianBlur stdDeviation="4.5" result="blur"/>
+          <feFlood flood-color="#FFD700" flood-opacity="0.90" result="color"/>
+          <feComposite in="color" in2="blur" operator="in" result="glow"/>
+          <feMerge>
+            <feMergeNode in="glow"/>
+            <feMergeNode in="glow"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+        <clipPath id="${id}-clip">
+          <rect x="${bounds.x - 1}" y="${bounds.y - 1}" width="${bounds.w + 2}" height="${bounds.h + 2}"/>
+        </clipPath>
+      `;
+
+      // Crack lines
+      let cracks = `<g clip-path="url(#${id}-clip)">`;
+      for (const crack of CRACK_LINES) {
+        cracks += `<path d="${crack.d}" fill="none" stroke="#1A0800" stroke-width="${crack.width}" opacity="${crack.opacity}" stroke-linecap="round"/>`;
+      }
+      for (let i = 0; i < 4; i++) {
+        const crack = CRACK_LINES[i];
+        cracks += `<path d="${crack.d}" fill="none" stroke="#8B6844" stroke-width="${crack.width * 0.6}" opacity="${crack.opacity * 0.5}" stroke-linecap="round" stroke-dasharray="2 4"/>`;
+      }
+      cracks += `</g>`;
+
+      // Cut edges
+      let cuts = "";
+      const yTop = BRW_Y;
+      const yBot = BRW_Y + BRW_H;
+      const xLeft = BRW_X;
+
+      function cutFaceV(nomX, yT, yB, seed, faceDir) {
+        const pts = crumbleEdgeV(nomX, yT, yB, seed);
+        const forward = pts.map(([x,y],i) => `${i===0?"M":"L"}${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
+        const back = [...pts].reverse().map(([x,y]) => `L${(x+faceDir*3.5).toFixed(2)},${y.toFixed(2)}`).join(" ");
+        return `${forward} ${back} Z`;
+      }
+
+      function cutFaceH(nomY, xL, xR, seed, faceDir) {
+        const pts = crumbleEdgeH(nomY, xL, xR, seed);
+        const forward = pts.map(([x,y],i) => `${i===0?"M":"L"}${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
+        const back = [...pts].reverse().map(([x,y]) => `L${x.toFixed(2)},${(y+faceDir*3.5).toFixed(2)}`).join(" ");
+        return `${forward} ${back} Z`;
+      }
+
+      function renderCutV(nomX, seed, faceDir, cutYTop, cutYBot) {
+        const pts = crumbleEdgeV(nomX, cutYTop, cutYBot, seed);
+        const faceD = cutFaceV(nomX, cutYTop, cutYBot, seed, faceDir);
+        return `<g clip-path="url(#${id}-clip)">
+          <path d="${faceD}" fill="url(#${id}-cut)" opacity="0.90"/>
+          <polyline points="${ptsToPolyline(pts)}" fill="none" stroke="#3A1800" stroke-width="0.6" opacity="0.50"/>
+          <polyline points="${ptsToPolyline(pts.map(([x,y])=>[x+faceDir*0.5,y]))}" fill="none" stroke="#D4A870" stroke-width="0.4" opacity="0.35"/>
+        </g>`;
+      }
+
+      function renderCutH(nomY, seed, faceDir, cutXLeft, cutXRight) {
+        const pts = crumbleEdgeH(nomY, cutXLeft, cutXRight, seed);
+        const faceD = cutFaceH(nomY, cutXLeft, cutXRight, seed, faceDir);
+        return `<g clip-path="url(#${id}-clip)">
+          <path d="${faceD}" fill="url(#${id}-cut-h)" opacity="0.90"/>
+          <polyline points="${ptsToPolyline(pts)}" fill="none" stroke="#3A1800" stroke-width="0.6" opacity="0.50"/>
+          <polyline points="${ptsToPolyline(pts.map(([x,y])=>[x,y+faceDir*0.5]))}" fill="none" stroke="#D4A870" stroke-width="0.4" opacity="0.35"/>
+        </g>`;
+      }
+
+      function renderCrumbs(edges) {
+        let html = `<g clip-path="url(#${id}-clip)">`;
+        for (const edge of edges) {
+          for (let i = 0; i < 3; i++) {
+            const hash = (edge.seed * 17 + i * 31) % 100;
+            const offsetX = ((hash % 7) - 3) * 1.5;
+            const offsetY = ((hash % 5) - 2) * 1.8 + (i * 8);
+            const sz = 1.0 + (hash % 3) * 0.4;
+            const rot = (hash * 7) % 45;
+            const cx = edge.x + offsetX;
+            const cy = edge.y + offsetY;
+            html += `<rect x="${cx-sz/2}" y="${cy-sz/2}" width="${sz}" height="${sz}" rx="0.2" fill="url(#${id}-crumb)" opacity="0.70" transform="rotate(${rot} ${cx} ${cy})"/>`;
+          }
+        }
+        html += `</g>`;
+        return html;
+      }
+
+      if (type === "half-left") {
+        cuts = renderCutV(MID_X, 37, -1, yTop, yBot) + renderCrumbs([{x:MID_X-4,y:yTop+10,seed:37}]);
+      } else if (type === "half-right") {
+        cuts = renderCutV(MID_X, 37, 1, yTop, yBot) + renderCrumbs([{x:MID_X+4,y:yTop+14,seed:41}]);
+      } else if (type === "quarter") {
+        cuts = renderCutV(MID_X, 37, -1, yTop, MID_Y) + renderCutH(MID_Y, 53, -1, xLeft, MID_X) + renderCrumbs([{x:MID_X-4,y:yTop+8,seed:37},{x:xLeft+10,y:MID_Y-4,seed:53}]);
+      } else if (type === "eighth") {
+        const eighthRight = BRW_X + BRW_W / 4;
+        cuts = renderCutV(eighthRight, 29, -1, yTop, MID_Y) + renderCutH(MID_Y, 53, -1, xLeft, eighthRight) + renderCrumbs([{x:eighthRight-3,y:yTop+6,seed:29},{x:xLeft+5,y:MID_Y-3,seed:53}]);
+      }
+
+      // Shine for selected
+      let shine = "";
+      if (selected) {
+        shine = `<g clip-path="url(#${id}-clip)">
+          <rect x="${bounds.x - bounds.w*0.1}" y="${bounds.y}" width="${bounds.w*0.35}" height="${bounds.h}" rx="4" fill="white" opacity="0.12" class="brownie-shine-rect" style="transform-origin: ${bounds.x+bounds.w/2}px ${bounds.y+bounds.h/2}px"/>
+        </g>`;
+      }
+
+      const filterAttr = selected ? `url(#${id}-glow)` : `url(#${id}-dshadow)`;
+
+      return `<svg width="${svgW}" height="${svgH}" viewBox="${vbX} ${vbY} ${vbW} ${vbH}" xmlns="http://www.w3.org/2000/svg" overflow="visible" ${selected ? 'class="brownie-sel"' : ''} style="display:block" role="img" aria-label="Brownie piece: ${type}">
+        <defs>${defs}</defs>
+        <g filter="${filterAttr}">
+          <path d="${outerPath}" fill="url(#${id}-body)"/>
+          <path d="${outerPath}" fill="url(#${id}-top)"/>
+          <path d="${outerPath}" fill="url(#${id}-matte)"/>
+        </g>
+        <g clip-path="url(#${id}-clip)">
+          <path d="M${bounds.x+1.5},${bounds.y+bounds.h-1.5} L${bounds.x+1.5},${bounds.y+1.5} L${bounds.x+bounds.w-1.5},${bounds.y+1.5}" fill="none" stroke="url(#${id}-bvl-hi)" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M${bounds.x+1.5},${bounds.y+bounds.h-1.5} L${bounds.x+bounds.w-1.5},${bounds.y+bounds.h-1.5} L${bounds.x+bounds.w-1.5},${bounds.y+1.5}" fill="none" stroke="url(#${id}-bvl-sh)" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        ${cracks}
+        ${cuts}
+        <path d="${outerPath}" fill="none" stroke="#1A0800" stroke-width="1.0" opacity="0.60"/>
+        ${shine}
+      </svg>`;
+    }
+
+    // Render all rows
+    const types = ["whole", "half-left", "half-right", "quarter", "eighth"];
+
+    function addRow(containerId, size, selected) {
+      const container = document.getElementById(containerId);
+      for (const type of types) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.innerHTML = renderBrownie(type, size, selected) + `<span class="label">${type}</span>`;
+        container.appendChild(cell);
+      }
+    }
+
+    addRow("row-120", 120, false);
+    addRow("row-72", 72, false);
+    addRow("row-selected", 120, true);
+
+    // Composition: halves = whole
+    {
+      const container = document.getElementById("row-halves");
+      const cell1 = document.createElement("div");
+      cell1.className = "cell";
+      cell1.innerHTML = renderBrownie("whole", 120, false) + `<span class="label">whole</span>`;
+      container.appendChild(cell1);
+
+      const eq = document.createElement("div");
+      eq.className = "cell";
+      eq.innerHTML = `<span style="font-size:24px;color:#c8b898">=</span>`;
+      container.appendChild(eq);
+
+      const cell2 = document.createElement("div");
+      cell2.className = "cell";
+      cell2.innerHTML = renderBrownie("half-left", 120, false) + `<span class="label">half-left</span>`;
+      container.appendChild(cell2);
+
+      const plus = document.createElement("div");
+      plus.className = "cell";
+      plus.innerHTML = `<span style="font-size:24px;color:#c8b898">+</span>`;
+      container.appendChild(plus);
+
+      const cell3 = document.createElement("div");
+      cell3.className = "cell";
+      cell3.innerHTML = renderBrownie("half-right", 120, false) + `<span class="label">half-right</span>`;
+      container.appendChild(cell3);
+    }
+
+    // Composition: quarters = whole
+    {
+      const container = document.getElementById("row-quarters");
+      const cell1 = document.createElement("div");
+      cell1.className = "cell";
+      cell1.innerHTML = renderBrownie("whole", 120, false) + `<span class="label">whole</span>`;
+      container.appendChild(cell1);
+
+      const eq = document.createElement("div");
+      eq.className = "cell";
+      eq.innerHTML = `<span style="font-size:24px;color:#c8b898">=</span>`;
+      container.appendChild(eq);
+
+      for (let i = 0; i < 4; i++) {
+        if (i > 0) {
+          const plus = document.createElement("div");
+          plus.className = "cell";
+          plus.innerHTML = `<span style="font-size:24px;color:#c8b898">+</span>`;
+          container.appendChild(plus);
+        }
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.innerHTML = renderBrownie("quarter", 120, false) + `<span class="label">quarter</span>`;
+        container.appendChild(cell);
+      }
+    }
+
+    // Composition: eighths = whole
+    {
+      const container = document.getElementById("row-eighths");
+      const cell1 = document.createElement("div");
+      cell1.className = "cell";
+      cell1.innerHTML = renderBrownie("whole", 120, false) + `<span class="label">whole</span>`;
+      container.appendChild(cell1);
+
+      const eq = document.createElement("div");
+      eq.className = "cell";
+      eq.innerHTML = `<span style="font-size:24px;color:#c8b898">=</span>`;
+      container.appendChild(eq);
+
+      for (let i = 0; i < 8; i++) {
+        if (i > 0) {
+          const plus = document.createElement("div");
+          plus.className = "cell";
+          plus.innerHTML = `<span style="font-size:24px;color:#c8b898">+</span>`;
+          container.appendChild(plus);
+        }
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.innerHTML = renderBrownie("eighth", 120, false) + `<span class="label">eighth</span>`;
+        container.appendChild(cell);
+      }
+    }
+
+    // Multiple instances test
+    const multiContainer = document.getElementById("row-multi");
+    for (let i = 0; i < 4; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.innerHTML = renderBrownie("whole", 90, false) + `<span class="label">whole #${i+1}</span>`;
+      multiContainer.appendChild(cell);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Option 3: Cartoon Counter</title>
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #0f1729;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  h1 {
+    color: #e0e0e0;
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+    letter-spacing: 0.02em;
+  }
+  .preview {
+    background: #1a2236;
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+</style>
+</head>
+<body>
+  <h1>Option 3: Cartoon Counter</h1>
+  <div class="preview">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 200" width="800">
+      <defs>
+        <!-- Tabletop top-surface gradient (slight sheen) -->
+        <linearGradient id="topSurface" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#7A4E2D"/>
+          <stop offset="100%" stop-color="#5C3A1E"/>
+        </linearGradient>
+        <!-- Front face gradient (darker, depth) -->
+        <linearGradient id="frontFace" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#5C3A1E"/>
+          <stop offset="100%" stop-color="#3E2410"/>
+        </linearGradient>
+        <!-- Leg gradient -->
+        <linearGradient id="legGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#4A2E14"/>
+          <stop offset="50%" stop-color="#5C3A1E"/>
+          <stop offset="100%" stop-color="#4A2E14"/>
+        </linearGradient>
+        <!-- Checkered pattern for front edge detail -->
+        <pattern id="checker" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+          <rect width="24" height="24" fill="#5C3A1E"/>
+          <rect width="12" height="12" fill="#4A2E14"/>
+          <rect x="12" y="12" width="12" height="12" fill="#4A2E14"/>
+        </pattern>
+      </defs>
+
+      <!-- LEFT LEG -->
+      <rect x="100" y="72" width="40" height="126" rx="3" fill="url(#legGrad)" stroke="#3E2410" stroke-width="2"/>
+      <!-- Left leg inner highlight -->
+      <rect x="112" y="72" width="8" height="126" rx="2" fill="#6B4525" opacity="0.3"/>
+
+      <!-- RIGHT LEG -->
+      <rect x="860" y="72" width="40" height="126" rx="3" fill="url(#legGrad)" stroke="#3E2410" stroke-width="2"/>
+      <!-- Right leg inner highlight -->
+      <rect x="872" y="72" width="8" height="126" rx="2" fill="#6B4525" opacity="0.3"/>
+
+      <!-- FRONT FACE of tabletop (the thick edge, butcher-block style) -->
+      <rect x="50" y="34" width="900" height="42" rx="4" fill="url(#frontFace)" stroke="#3E2410" stroke-width="2.5"/>
+
+      <!-- Checkered stripe band on front face -->
+      <clipPath id="stripeClip">
+        <rect x="60" y="46" width="880" height="18" rx="2"/>
+      </clipPath>
+      <rect x="60" y="46" width="880" height="18" rx="2" fill="url(#checker)" clip-path="url(#stripeClip)" opacity="0.35"/>
+
+      <!-- Thin decorative line above and below the checker band -->
+      <line x1="60" y1="46" x2="940" y2="46" stroke="#7A4E2D" stroke-width="1" opacity="0.5"/>
+      <line x1="60" y1="64" x2="940" y2="64" stroke="#7A4E2D" stroke-width="1" opacity="0.5"/>
+
+      <!-- TOP SURFACE of tabletop (the flat top, slightly lighter) -->
+      <rect x="40" y="10" width="920" height="28" rx="5" fill="url(#topSurface)" stroke="#3E2410" stroke-width="2.5"/>
+
+      <!-- Subtle wood-grain lines on top surface -->
+      <line x1="80" y1="20" x2="920" y2="20" stroke="#8B5E3C" stroke-width="0.8" opacity="0.3"/>
+      <line x1="70" y1="28" x2="930" y2="28" stroke="#8B5E3C" stroke-width="0.6" opacity="0.2"/>
+      <line x1="90" y1="15" x2="910" y2="15" stroke="#8B5E3C" stroke-width="0.5" opacity="0.15"/>
+
+      <!-- Front edge highlight (top rim of the front face for 3D pop) -->
+      <line x1="52" y1="36" x2="948" y2="36" stroke="#8B5E3C" stroke-width="1.5" opacity="0.5"/>
+
+      <!-- Bottom edge shadow of front face -->
+      <line x1="55" y1="75" x2="945" y2="75" stroke="#2A1808" stroke-width="1.5" opacity="0.4"/>
+
+      <!-- Drop shadow under tabletop onto legs area -->
+      <rect x="50" y="76" width="900" height="4" rx="2" fill="#1a1005" opacity="0.25"/>
+    </svg>
+  </div>
+</body>
+</html>

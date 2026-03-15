@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Viewer - All 4 Variants</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0f1729;
+    color: #c8d6e5;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 2rem 1rem 1rem;
+    border-bottom: 1px solid rgba(99, 140, 255, 0.15);
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+    color: #e2e8f0;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  header p {
+    color: #7b8ea8;
+    margin-top: 0.4rem;
+    font-size: 0.95rem;
+  }
+
+  /* Tab bar */
+  .tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.2rem 1rem 0;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    background: rgba(30, 42, 70, 0.7);
+    border: 1px solid rgba(99, 140, 255, 0.2);
+    color: #8ea4c8;
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .tab-btn:hover {
+    background: rgba(50, 65, 100, 0.7);
+    color: #b8c8e0;
+  }
+
+  .tab-btn.active {
+    background: rgba(60, 80, 160, 0.35);
+    border-color: rgba(99, 140, 255, 0.45);
+    border-bottom-color: transparent;
+    color: #a5b4fc;
+  }
+
+  /* Tab content */
+  .tab-content {
+    display: none;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  .quiz-description {
+    background: rgba(30, 42, 70, 0.5);
+    border: 1px solid rgba(99, 140, 255, 0.12);
+    border-radius: 10px;
+    padding: 1rem 1.4rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.92rem;
+    color: #9ab0cc;
+  }
+
+  .quiz-description strong {
+    color: #a5b4fc;
+  }
+
+  /* Question cards */
+  .question-card {
+    background: rgba(22, 33, 58, 0.8);
+    border: 1px solid rgba(99, 140, 255, 0.12);
+    border-radius: 12px;
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .question-card h3 {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6b7fa0;
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+  }
+
+  .tutor-text {
+    font-size: 1.02rem;
+    color: #d4dde8;
+    margin-bottom: 1rem;
+    line-height: 1.55;
+  }
+
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .choice {
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .choice.correct {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #86efac;
+  }
+
+  .choice.wrong {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+  }
+
+  /* Feedback collapsible */
+  .feedback-section {
+    margin-top: 0.6rem;
+  }
+
+  .feedback-toggle {
+    background: none;
+    border: none;
+    color: #7b8ea8;
+    cursor: pointer;
+    font-size: 0.82rem;
+    padding: 0.3rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.2s;
+  }
+
+  .feedback-toggle:hover {
+    color: #a5b4fc;
+  }
+
+  .feedback-toggle .arrow {
+    display: inline-block;
+    transition: transform 0.2s;
+    font-size: 0.7rem;
+  }
+
+  .feedback-toggle.open .arrow {
+    transform: rotate(90deg);
+  }
+
+  .feedback-items {
+    display: none;
+    margin-top: 0.4rem;
+    padding-left: 0.8rem;
+    border-left: 2px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .feedback-items.open {
+    display: block;
+  }
+
+  .feedback-item {
+    font-size: 0.85rem;
+    color: #8a7a7a;
+    padding: 0.35rem 0;
+    line-height: 1.45;
+  }
+
+  .feedback-item .fb-label {
+    color: #e88;
+    font-weight: 500;
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 0.15rem;
+  }
+
+  /* Context steps (show-fraction, narrate setup) */
+  .context-note {
+    font-size: 0.85rem;
+    color: #6d829c;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    padding: 0.3rem 0.6rem;
+    border-left: 2px solid rgba(99, 140, 255, 0.2);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Quiz Variant Comparison</h1>
+  <p>4 quiz styles for the equivalent fractions lesson</p>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('v1')">v1: Visual Comparison</button>
+  <button class="tab-btn" onclick="showTab('v2')">v2: Fill Missing</button>
+  <button class="tab-btn" onclick="showTab('v3')">v3: Odd One Out</button>
+  <button class="tab-btn" onclick="showTab('v4')">v4: Story Scenarios</button>
+</div>
+
+<!-- ============ V1: Visual Comparison ============ -->
+<div id="tab-v1" class="tab-content active">
+  <div class="quiz-description">
+    <strong>v1: Visual Comparison</strong> &mdash; Ember shows two fractions side by side and asks
+    "Are they the same amount or not?" Simple yes/no binary choice. 4 questions total.
+  </div>
+
+  <!-- Q1 -->
+  <div class="question-card">
+    <h3>Question 1</h3>
+    <div class="context-note">Ember shows 1/2, then 2/4</div>
+    <div class="tutor-text">Is one-half the same amount as two-fourths?</div>
+    <div class="choices">
+      <span class="choice correct">Yes, same amount!</span>
+      <span class="choice wrong">No, they're different</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">"No, they're different"</span>
+          Hmm, think about it -- if you cut a cake into 4 pieces and take 2 of them, how much cake do you have? Try picturing it in your head and give it another go!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card">
+    <h3>Question 2</h3>
+    <div class="context-note">Ember shows 1/3, then 2/4</div>
+    <div class="tutor-text">Is one-third the same amount as two-fourths?</div>
+    <div class="choices">
+      <span class="choice wrong">Yes, same amount!</span>
+      <span class="choice correct">No, they're different</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">"Yes, same amount!"</span>
+          Not quite! One-third means the cake is cut into 3 pieces and you take 1. Two-fourths means it's cut into 4 pieces and you take 2. Those are different amounts! Try again.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card">
+    <h3>Question 3</h3>
+    <div class="context-note">Ember shows 2/4, then 4/8</div>
+    <div class="tutor-text">Is two-fourths the same amount as four-eighths?</div>
+    <div class="choices">
+      <span class="choice correct">Yes, same amount!</span>
+      <span class="choice wrong">No, they're different</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">"No, they're different"</span>
+          Hmm, the numbers look bigger, but think about it -- if you cut the cake into 8 pieces and take 4, that's still half the cake! And two-fourths is also half. Give it another try!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card">
+    <h3>Question 4</h3>
+    <div class="context-note">Ember shows 1/4, then 1/2</div>
+    <div class="tutor-text">Is one-fourth the same amount as one-half?</div>
+    <div class="choices">
+      <span class="choice wrong">Yes, same amount!</span>
+      <span class="choice correct">No, they're different</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">"Yes, same amount!"</span>
+          Not quite! One-fourth means the cake is cut into 4 pieces and you only get 1 little piece. One-half means it's cut into 2 and you get 1 bigger piece. That's more cake! Try again.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ V2: Fill Missing ============ -->
+<div id="tab-v2" class="tab-content">
+  <div class="quiz-description">
+    <strong>v2: Fill in the Missing Number</strong> &mdash; Ember shows an equation with a question mark
+    (e.g. 1/2 = ?/4) and the student picks the missing numerator or denominator. 3-choice questions with
+    per-distractor feedback. 4 puzzles total.
+  </div>
+
+  <!-- Q1 -->
+  <div class="question-card">
+    <h3>Puzzle 1</h3>
+    <div class="context-note">Shows 1/2 as reference</div>
+    <div class="tutor-text">1/2 = ?/4 -- What number goes where the question mark is?</div>
+    <div class="choices">
+      <span class="choice wrong">1</span>
+      <span class="choice correct">2</span>
+      <span class="choice wrong">3</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">Chose "1"</span>
+          Not quite! One-fourth is a smaller piece than one-half. Remember, when we cut each half into two more pieces, we get TWICE as many. Think about how many fourths fit in one half, and try again!
+        </div>
+        <div class="feedback-item">
+          <span class="fb-label">Chose "3"</span>
+          Hmm, three-fourths would be more than one-half -- that's too much cake! We need exactly the same amount as one-half. Try again!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card">
+    <h3>Puzzle 2</h3>
+    <div class="context-note">Shows 2/4 as reference</div>
+    <div class="tutor-text">2/4 = 1/? -- What number is missing on the bottom?</div>
+    <div class="choices">
+      <span class="choice correct">2</span>
+      <span class="choice wrong">3</span>
+      <span class="choice wrong">4</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">Chose "3"</span>
+          Hmm, one-third would mean cutting into three pieces -- that's a different amount than two-fourths. Remember, two-fourths is the same as one... what? Think about the word we learned today!
+        </div>
+        <div class="feedback-item">
+          <span class="fb-label">Chose "4"</span>
+          One-fourth would be just one small piece out of four. But two-fourths is bigger than that! When you push those two small pieces back together, what do you get? Try again!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card">
+    <h3>Puzzle 3</h3>
+    <div class="context-note">Shows 1/2 as reference</div>
+    <div class="tutor-text">?/4 = 1/2 -- How many fourths equal one-half?</div>
+    <div class="choices">
+      <span class="choice wrong">1</span>
+      <span class="choice correct">2</span>
+      <span class="choice wrong">3</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">Chose "1"</span>
+          One-fourth is just one little piece -- that's less than half the cake. If the cake has four pieces, how many do you need to have exactly half? Try again!
+        </div>
+        <div class="feedback-item">
+          <span class="fb-label">Chose "3"</span>
+          Three-fourths would be three pieces out of four -- that's almost the whole cake! That's more than half. Try a smaller number!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card">
+    <h3>Puzzle 4 (stretch)</h3>
+    <div class="context-note">Shows 1/3 as reference</div>
+    <div class="tutor-text">1/3 = 2/? -- What number goes on the bottom?</div>
+    <div class="choices">
+      <span class="choice wrong">4</span>
+      <span class="choice correct">6</span>
+      <span class="choice wrong">8</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">Chose "4"</span>
+          Not quite! Think about it this way: the cake starts with 3 big pieces. If you cut EACH of those 3 pieces in half, how many total pieces would you have? That's 3 groups of 2!
+        </div>
+        <div class="feedback-item">
+          <span class="fb-label">Chose "8"</span>
+          That's too many pieces! We start with 3 slices and cut each one into 2. So that's 3 times 2. Can you figure it out? Try again!
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ V3: Odd One Out ============ -->
+<div id="tab-v3" class="tab-content">
+  <div class="quiz-description">
+    <strong>v3: Odd One Out</strong> &mdash; Ember shows three fractions. Two are equivalent and one is not.
+    The student must find the imposter. 3-choice questions with per-distractor feedback. 4 problems total.
+  </div>
+
+  <!-- Q1 -->
+  <div class="question-card">
+    <h3>Problem 1</h3>
+    <div class="context-note">Three fractions: 1/2, 2/4, 1/3</div>
+    <div class="tutor-text">Which fraction does NOT belong with the others?</div>
+    <div class="choices">
+      <span class="choice wrong">1/2</span>
+      <span class="choice wrong">2/4</span>
+      <span class="choice correct">1/3</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">Chose "1/2"</span>
+          Careful, detective! 1/2 and 2/4 are actually the same amount -- remember, two quarters fit perfectly into one half! So they both belong together. The odd one out is something different from one-half. Try again!
+        </div>
+        <div class="feedback-item">
+          <span class="fb-label">Chose "2/4"</span>
+          Not quite! 2/4 is just one-half wearing a disguise -- 2 pieces out of 4 is the same amount as 1 piece out of 2. Those two match! Look for the fraction that ISN'T equal to one-half. Try again!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card">
+    <h3>Problem 2</h3>
+    <div class="context-note">Three fractions: 2/4, 3/6, 1/4</div>
+    <div class="tutor-text">Which fraction is NOT the same as the others?</div>
+    <div class="choices">
+      <span class="choice wrong">2/4</span>
+      <span class="choice wrong">3/6</span>
+      <span class="choice correct">1/4</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">Chose "2/4"</span>
+          Hmm, not that one! 2/4 and 3/6 are both secret ways to write one-half. Two out of four pieces is the same as three out of six pieces -- they're equivalent! The odd one out is smaller than one-half. Try again!
+        </div>
+        <div class="feedback-item">
+          <span class="fb-label">Chose "3/6"</span>
+          Close, but 3/6 is actually equal to one-half -- remember the owl's cake? 3 pieces out of 6 is the same as 1 piece out of 2. So 3/6 and 2/4 are twins! Look for the one that's different. Try again!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card">
+    <h3>Problem 3</h3>
+    <div class="context-note">Three fractions: 1/2, 1/4, 2/4</div>
+    <div class="tutor-text">Which fraction is the odd one out?</div>
+    <div class="choices">
+      <span class="choice wrong">1/2</span>
+      <span class="choice correct">1/4</span>
+      <span class="choice wrong">2/4</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">Chose "1/2"</span>
+          Careful! 1/2 and 2/4 are equivalent fractions -- they're the same amount! Two pieces out of four equals one piece out of two. So those two match. Which one is left all alone? Try again!
+        </div>
+        <div class="feedback-item">
+          <span class="fb-label">Chose "2/4"</span>
+          Not 2/4! Remember, 2/4 is just another way to write 1/2. They're the same amount of cake! The fraction that doesn't match is the smaller one. Try again!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card">
+    <h3>Problem 4</h3>
+    <div class="context-note">Three fractions: 2/6, 1/3, 1/2</div>
+    <div class="tutor-text">The owl shows you three fractions. Which one is the odd one out?</div>
+    <div class="choices">
+      <span class="choice wrong">2/6</span>
+      <span class="choice wrong">1/3</span>
+      <span class="choice correct">1/2</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">Chose "2/6"</span>
+          Tricky, but 2/6 actually belongs here! Think about a cake cut into 6 pieces -- if you take 2, that's the same as taking 1 piece from a cake cut into 3. So 2/6 and 1/3 are the same! The odd one out is bigger. Try again!
+        </div>
+        <div class="feedback-item">
+          <span class="fb-label">Chose "1/3"</span>
+          Almost! But 1/3 and 2/6 are secretly the same amount -- two-sixths is just one-third in disguise! Two tiny pieces out of six equals one bigger piece out of three. The odd one out is the bigger fraction. Try again!
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ V4: Story Scenarios ============ -->
+<div id="tab-v4" class="tab-content">
+  <div class="quiz-description">
+    <strong>v4: Story Scenarios</strong> &mdash; Each question is a mini-story about characters (Olive, Benny,
+    Maple, Fern) in the Cozy Kitchen. The student decides whether characters got the same amount or not.
+    2-3 choice questions with narrative feedback. 4 scenarios total.
+  </div>
+
+  <!-- S1 -->
+  <div class="question-card">
+    <h3>Scenario 1: Olive &amp; Benny's Brownies</h3>
+    <div class="context-note">Olive cut her brownie into 2 equal pieces and ate 1 piece. Benny cut his brownie into 4 equal pieces and ate 2 pieces. Benny says, "Hey, I think you got more than me!"</div>
+    <div class="tutor-text">Olive ate 1/2 of her brownie. Benny ate 2/4 of his brownie. Who ate more?</div>
+    <div class="choices">
+      <span class="choice wrong">Olive ate more</span>
+      <span class="choice correct">They ate the same!</span>
+      <span class="choice wrong">Benny ate more</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">"Olive ate more"</span>
+          Hmm, let's think about it. Olive ate 1 piece out of 2. Benny ate 2 pieces out of 4. Remember -- 2 little quarter-pieces fit together to make the same size as 1 half-piece! Try again.
+        </div>
+        <div class="feedback-item">
+          <span class="fb-label">"Benny ate more"</span>
+          It might look like Benny ate more because he had 2 pieces, but those pieces were smaller! Two quarters is the same amount as one half. Let's try that one more time.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="question-card">
+    <h3>Scenario 2: Maple &amp; Fern's Argument</h3>
+    <div class="context-note">Maple is holding a plate with 2/4 of a brownie. Fern is holding a plate with 1/2 of a brownie. Maple pouts: "That's not fair -- Fern got a bigger piece than me!"</div>
+    <div class="tutor-text">Maple has 2/4 of a brownie. Fern has 1/2 of a brownie. Is Maple right that Fern got more?</div>
+    <div class="choices">
+      <span class="choice wrong">Yes, Fern got more</span>
+      <span class="choice correct">No -- they got the same!</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">"Yes, Fern got more"</span>
+          It does look different, but remember our trick! Two-fourths and one-half are equivalent fractions -- they are the exact same amount. Maple's 2 smaller pieces add up to Fern's 1 bigger piece. Try again!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="question-card">
+    <h3>Scenario 3: The Sharing Plate</h3>
+    <div class="context-note">Olive takes 2 pieces from a brownie cut into 4. Benny takes 1 piece from a same-size brownie cut into 2.</div>
+    <div class="tutor-text">Olive took 2 out of 4 pieces. Benny took 1 out of 2 pieces. Did they both take the same amount of brownie?</div>
+    <div class="choices">
+      <span class="choice correct">Yes -- both took half!</span>
+      <span class="choice wrong">No -- Olive took more</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">"No -- Olive took more"</span>
+          Olive did take 2 pieces, but her pieces were smaller because the brownie was cut into 4. Two-fourths is the same as one-half! The brownies are the same size, so Olive and Benny each have the same amount. Let's try again.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="question-card">
+    <h3>Scenario 4: Fern's Tricky Question</h3>
+    <div class="context-note">Fern holds up two cards: one says 1/2, the other says 1/4. "Are THESE two fractions the same amount?"</div>
+    <div class="tutor-text">Is 1/2 the same amount as 1/4?</div>
+    <div class="choices">
+      <span class="choice wrong">Yes, they are equal</span>
+      <span class="choice correct">No, they are different!</span>
+    </div>
+    <div class="feedback-section">
+      <button class="feedback-toggle" onclick="toggleFeedback(this)"><span class="arrow">&#9654;</span> Wrong-answer feedback</button>
+      <div class="feedback-items">
+        <div class="feedback-item">
+          <span class="fb-label">"Yes, they are equal"</span>
+          Careful! One-half means you cut into 2 pieces and take 1. One-quarter means you cut into 4 pieces and take only 1. That quarter piece is much smaller than a half piece! They are NOT the same. Try again.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  // Find the button by matching text
+  const labels = { v1: 'v1', v2: 'v2', v3: 'v3', v4: 'v4' };
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    if (btn.textContent.startsWith(labels[id])) btn.classList.add('active');
+  });
+}
+
+function toggleFeedback(btn) {
+  const items = btn.nextElementSibling;
+  btn.classList.toggle('open');
+  items.classList.toggle('open');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Background Music Sampler — Take 2</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1729;
+      --surface:   #1a2540;
+      --surface2:  #1e2d4a;
+      --border:    #2a3d5e;
+      --text:      #e2e8f0;
+      --muted:     #8899b0;
+      --accent:    #4a9eff;
+
+      --green:     #22c55e;
+      --green-bg:  #052e16;
+      --green-bd:  #166534;
+
+      --blue:      #60a5fa;
+      --blue-bg:   #0c1a3a;
+      --blue-bd:   #1e3a6e;
+
+      --orange:    #fb923c;
+      --orange-bg: #2c1200;
+      --orange-bd: #7c2d12;
+
+      --purple:    #c084fc;
+      --purple-bg: #1a0a2e;
+      --purple-bd: #5b21b6;
+
+      --teal:      #2dd4bf;
+      --teal-bg:   #042f2e;
+      --teal-bd:   #0f766e;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 24px 16px 64px;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .site-header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    .site-header p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .site-header .take-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 3px 12px;
+      border-radius: 20px;
+      background: var(--purple-bg);
+      border: 1px solid var(--purple-bd);
+      color: var(--purple);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Stop All bar ── */
+    .stop-all-bar {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+    .stop-all-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 8px;
+      border: 1px solid var(--orange-bd);
+      background: var(--orange-bg);
+      color: var(--orange);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 80ms ease, box-shadow 80ms ease;
+    }
+    .stop-all-btn:hover {
+      filter: brightness(1.2);
+      box-shadow: 0 0 0 2px rgba(251,146,60,0.25);
+    }
+    .stop-all-btn:active { transform: scale(0.96); }
+
+    /* ── Selected section ── */
+    .selected-section {
+      background: linear-gradient(135deg, #1a2540 0%, #0f2030 100%);
+      border: 2px solid #4a9eff;
+      border-radius: 14px;
+      padding: 20px 22px 24px;
+      margin-bottom: 32px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+    }
+    .selected-section::before {
+      content: '\2605';
+      position: absolute;
+      top: -14px;
+      left: 20px;
+      background: var(--bg);
+      padding: 0 8px;
+      font-size: 1.2rem;
+      color: #4a9eff;
+    }
+    .selected-section .section-label {
+      color: #4a9eff;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+    .selected-section .section-style {
+      color: #8bb8e8;
+      font-size: 0.82rem;
+      font-style: italic;
+    }
+    .selected-section .empty-msg {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      padding: 12px 0;
+    }
+
+    /* ── Tracks grid ── */
+    .tracks-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 16px;
+    }
+
+    /* ── Track card ── */
+    .track-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+
+    /* Playing state — animated border glow */
+    @keyframes pulse-glow {
+      0%   { box-shadow: 0 0 0 0 var(--glow-color, rgba(74,158,255,0.5)); }
+      50%  { box-shadow: 0 0 14px 3px var(--glow-color, rgba(74,158,255,0.25)); }
+      100% { box-shadow: 0 0 0 0 var(--glow-color, rgba(74,158,255,0.5)); }
+    }
+    .track-card.playing {
+      border-color: var(--card-color, var(--accent));
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    /* ── Track header ── */
+    .track-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .track-icon {
+      font-size: 1.5rem;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .track-info { flex: 1 1 0; }
+    .track-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .track-desc {
+      margin-top: 4px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ── Playing indicator dot ── */
+    .playing-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--card-color, var(--accent));
+      flex-shrink: 0;
+      margin-top: 6px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .track-card.playing .playing-dot { opacity: 1; }
+    @keyframes blink-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+    .track-card.playing .playing-dot {
+      animation: blink-dot 1.2s ease-in-out infinite;
+    }
+
+    /* ── Controls row ── */
+    .track-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Play/Stop toggle button */
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 80ms ease, transform 80ms ease, box-shadow 80ms ease;
+      user-select: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .play-btn:hover  { filter: brightness(1.18); box-shadow: 0 0 0 2px rgba(255,255,255,0.1); }
+    .play-btn:active { transform: scale(0.93); }
+
+    /* color variants for play buttons */
+    .play-btn.blue   { background: var(--blue-bg);   border-color: var(--blue-bd);   color: var(--blue); }
+    .play-btn.green  { background: var(--green-bg);  border-color: var(--green-bd);  color: var(--green); }
+    .play-btn.purple { background: var(--purple-bg); border-color: var(--purple-bd); color: var(--purple); }
+    .play-btn.orange { background: var(--orange-bg); border-color: var(--orange-bd); color: var(--orange); }
+    .play-btn.teal   { background: var(--teal-bg);   border-color: var(--teal-bd);   color: var(--teal); }
+
+    /* Volume slider area */
+    .vol-wrap {
+      flex: 1 1 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .vol-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .vol-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1 1 0;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+    .vol-slider::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+    .vol-value {
+      font-size: 0.72rem;
+      color: var(--muted);
+      width: 28px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .tracks-container { grid-template-columns: 1fr; }
+      .play-btn { font-size: 0.78rem; padding: 6px 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>Background Music Sampler</h1>
+  <p>Ambient loops for a kids&rsquo; fraction-teaching app &mdash; all procedurally generated</p>
+  <span class="take-badge">TAKE 2 &mdash; Alternative Interpretations</span>
+</header>
+
+<!-- Stop All -->
+<div class="stop-all-bar">
+  <button class="stop-all-btn" onclick="stopAll()">
+    <span>&#9632;</span> Stop All
+  </button>
+</div>
+
+<!-- Selected card -->
+<section class="selected-section">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+    <span class="section-label">Selected Backgrounds</span>
+    <span class="section-style">&#8212; Your picks for the final app</span>
+  </div>
+  <p class="empty-msg">Tell me which backgrounds to add here.</p>
+</section>
+
+<!-- Track cards rendered by JS -->
+<div class="tracks-container" id="tracks-container"></div>
+
+<script>
+// =============================================================================
+// AudioContext singleton
+// =============================================================================
+
+let _ctx = null;
+
+function getCtx() {
+  if (!_ctx) {
+    _ctx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (_ctx.state === 'suspended') _ctx.resume();
+  return _ctx;
+}
+
+// =============================================================================
+// Track state registry  { [id]: { playing, gainNode, stopFn, intervalIds[] } }
+// =============================================================================
+
+const trackState = {};
+
+function stopAll() {
+  Object.keys(trackState).forEach(id => {
+    if (trackState[id].playing) stopTrack(id);
+  });
+}
+
+function stopTrack(id) {
+  const s = trackState[id];
+  if (!s) return;
+  s.playing = false;
+
+  // Kill scheduled intervals / timeouts
+  (s.intervalIds || []).forEach(h => clearInterval(h));
+  (s.timeoutIds  || []).forEach(h => clearTimeout(h));
+  s.intervalIds = [];
+  s.timeoutIds  = [];
+
+  // Fade out master gain over 0.4 s then disconnect
+  const g = s.masterGain;
+  if (g) {
+    const ctx = getCtx();
+    g.gain.cancelScheduledValues(ctx.currentTime);
+    g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+    setTimeout(() => {
+      try { g.disconnect(); } catch(e) {}
+      s.nodes = [];
+    }, 500);
+  }
+
+  // Run any custom stop function
+  if (s.stopFn) {
+    try { s.stopFn(); } catch(e) {}
+    s.stopFn = null;
+  }
+
+  updateCardUI(id, false);
+}
+
+function registerTrack(id, masterGain, stopFn) {
+  if (!trackState[id]) trackState[id] = { playing: false, intervalIds: [], timeoutIds: [], nodes: [] };
+  const s = trackState[id];
+  s.playing    = true;
+  s.masterGain = masterGain;
+  s.stopFn     = stopFn || null;
+  s.intervalIds = [];
+  s.timeoutIds  = [];
+  s.nodes      = [];
+  updateCardUI(id, true);
+}
+
+function addInterval(id, handle) {
+  if (trackState[id]) trackState[id].intervalIds.push(handle);
+}
+function addTimeout(id, handle) {
+  if (trackState[id]) trackState[id].timeoutIds.push(handle);
+}
+function isPlaying(id) {
+  return trackState[id] && trackState[id].playing;
+}
+
+function updateCardUI(id, playing) {
+  const card = document.getElementById('card-' + id);
+  const btn  = document.getElementById('btn-' + id);
+  if (!card || !btn) return;
+  if (playing) {
+    card.classList.add('playing');
+    btn.textContent = '\u25A0 Stop';
+  } else {
+    card.classList.remove('playing');
+    btn.textContent = '\u25B6 Play';
+  }
+}
+
+// =============================================================================
+// Shared utilities
+// =============================================================================
+
+function midiToFreq(note) {
+  return 440 * Math.pow(2, (note - 69) / 12);
+}
+
+/** White noise buffer (loopable) */
+function makeNoiseBuffer(ctx, duration) {
+  const len = Math.floor(ctx.sampleRate * duration);
+  const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  }
+  return buf;
+}
+
+/** Create a looping noise source */
+function makeLoopingNoise(ctx, duration) {
+  const src = ctx.createBufferSource();
+  src.buffer = makeNoiseBuffer(ctx, duration);
+  src.loop = true;
+  return src;
+}
+
+/** Simple reverb convolver */
+function makeReverb(ctx, seconds, decay) {
+  const rate = ctx.sampleRate;
+  const len = Math.floor(rate * seconds);
+  const imp = ctx.createBuffer(2, len, rate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = imp.getChannelData(ch);
+    for (let i = 0; i < len; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    }
+  }
+  const conv = ctx.createConvolver();
+  conv.buffer = imp;
+  return conv;
+}
+
+/** Play a single note with specified oscillator type and attack/decay envelope */
+function playNote(ctx, dest, freq, gain, attackT, decayT, startT, type) {
+  const osc = ctx.createOscillator();
+  const env = ctx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.value = freq;
+  env.gain.setValueAtTime(0.0001, startT);
+  env.gain.linearRampToValueAtTime(gain, startT + attackT);
+  env.gain.exponentialRampToValueAtTime(0.0001, startT + attackT + decayT);
+  osc.connect(env);
+  env.connect(dest);
+  osc.start(startT);
+  osc.stop(startT + attackT + decayT + 0.05);
+}
+
+/** Music-box pluck: triangle + exponential decay (no sustain) */
+function playMusicBox(ctx, dest, freq, gain, startT) {
+  // Fundamental
+  const osc = ctx.createOscillator();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  const env = ctx.createGain();
+  env.gain.setValueAtTime(gain, startT);
+  env.gain.exponentialRampToValueAtTime(0.0001, startT + 0.9);
+  osc.connect(env);
+  env.connect(dest);
+  osc.start(startT);
+  osc.stop(startT + 1.0);
+
+  // Faint upper partial for metallic shimmer
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.value = freq * 2.76; // inharmonic partial
+  const env2 = ctx.createGain();
+  env2.gain.setValueAtTime(gain * 0.25, startT);
+  env2.gain.exponentialRampToValueAtTime(0.0001, startT + 0.35);
+  osc2.connect(env2);
+  env2.connect(dest);
+  osc2.start(startT);
+  osc2.stop(startT + 0.4);
+}
+
+/** FM synthesis tone (Rhodes-like): carrier modulated by another osc */
+function playFMChord(ctx, dest, freq, gain, duration, startT) {
+  const modFreq = freq * 1.0;   // 1:1 ratio for Rhodes-ish timbre
+  const modIdx  = 2.5;
+
+  const mod = ctx.createOscillator();
+  mod.type = 'sine';
+  mod.frequency.value = modFreq;
+
+  const modGain = ctx.createGain();
+  modGain.gain.setValueAtTime(modFreq * modIdx, startT);
+  modGain.gain.exponentialRampToValueAtTime(modFreq * 0.3, startT + duration * 0.6);
+  mod.connect(modGain);
+
+  const car = ctx.createOscillator();
+  car.type = 'sine';
+  car.frequency.value = freq;
+  modGain.connect(car.frequency);
+
+  const env = ctx.createGain();
+  env.gain.setValueAtTime(0.0001, startT);
+  env.gain.linearRampToValueAtTime(gain, startT + 0.012);
+  env.gain.exponentialRampToValueAtTime(gain * 0.4, startT + duration * 0.5);
+  env.gain.exponentialRampToValueAtTime(0.0001, startT + duration);
+
+  car.connect(env);
+  env.connect(dest);
+  mod.start(startT);
+  car.start(startT);
+  mod.stop(startT + duration + 0.1);
+  car.stop(startT + duration + 0.1);
+}
+
+// =============================================================================
+// TRACK DEFINITIONS — Take 2
+// =============================================================================
+
+const TRACKS = [
+
+  // ── 1. Gentle Lullaby Loop ──────────────────────────────────────────────────
+  // Take 2: Music-box timbre (triangle + inharmonic partial) playing a waltz
+  // in F major (3/4 time). Slower tempo ~60 bpm.
+  {
+    id:    'lullaby',
+    name:  'Gentle Lullaby Loop',
+    icon:  '\uD83C\uDFB9', // 🎹
+    desc:  'Music-box waltz in F major — high triangle tines with fast decay, slow 3/4 swing.',
+    color: 'blue',
+    glowColor: 'rgba(96,165,250,0.4)',
+    defaultVol: 26,
+    start(masterGain, id) {
+      const ctx = getCtx();
+      const reverb = makeReverb(ctx, 2.2, 3.5);
+      reverb.connect(masterGain);
+
+      // F major scale notes (MIDI): F4=65, G=67, A=69, Bb=70, C5=72, D=74, E=76, F5=77
+      // Waltz melody — 3/4 time, each beat = 1 s (60 bpm)
+      // Pattern: 12 beats (4 bars of 3)
+      // note value: [midi, beat offset (in beats), type]
+      // -1 = rest
+      const bpm = 60;
+      const beat = 60 / bpm; // 1.0 s
+
+      // Melody line (MIDI, beat-offset within 4-bar phrase)
+      const melody = [
+        // bar 1: F A C
+        { n: 65, b: 0.0 },
+        { n: 69, b: 1.0 },
+        { n: 72, b: 2.0 },
+        // bar 2: G Bb D
+        { n: 67, b: 3.0 },
+        { n: 70, b: 4.0 },
+        { n: 74, b: 5.0 },
+        // bar 3: A C F
+        { n: 69, b: 6.0 },
+        { n: 72, b: 7.0 },
+        { n: 77, b: 8.0 },
+        // bar 4: G — F (long)
+        { n: 67, b: 9.0 },
+        { n: 65, b: 10.5 },
+      ];
+      // Bass notes on beat 1 of each bar (lower register, F3=53, C4=60, A3=57, G3=55)
+      const bass = [
+        { n: 53, b: 0.0 },
+        { n: 55, b: 3.0 },
+        { n: 57, b: 6.0 },
+        { n: 53, b: 9.0 },
+      ];
+
+      const phraseBeats = 12;
+      const phraseDur = phraseBeats * beat;
+
+      let startTime = ctx.currentTime;
+
+      function schedulePhrase() {
+        if (!isPlaying(id)) return;
+        const t = startTime;
+
+        melody.forEach(({ n, b }) => {
+          playMusicBox(ctx, reverb, midiToFreq(n), 0.28, t + b * beat);
+        });
+
+        // Bass notes: softer, slightly longer decay
+        bass.forEach(({ n, b }) => {
+          const osc = ctx.createOscillator();
+          osc.type = 'triangle';
+          osc.frequency.value = midiToFreq(n);
+          const env = ctx.createGain();
+          const noteT = t + b * beat;
+          env.gain.setValueAtTime(0.12, noteT);
+          env.gain.exponentialRampToValueAtTime(0.0001, noteT + 1.4);
+          osc.connect(env);
+          env.connect(reverb);
+          osc.start(noteT);
+          osc.stop(noteT + 1.5);
+        });
+
+        startTime += phraseDur;
+        const msUntilNext = (startTime - ctx.currentTime - 0.08) * 1000;
+        const h = setTimeout(schedulePhrase, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      schedulePhrase();
+    }
+  },
+
+  // ── 2. Lo-fi Study Beats ────────────────────────────────────────────────────
+  // Take 2: Vinyl crackle layer + slow spacious beat (65 bpm).
+  // Rhodes-like FM chord (Fmaj7) on beats 1 & 3. More spacious, less busy.
+  {
+    id:    'lofi',
+    name:  'Lo-fi Study Beats',
+    icon:  '\uD83C\uDFB5', // 🎵
+    desc:  'Vinyl crackle with spacious groove at 65 bpm. FM Rhodes chord, hip-hop spaces.',
+    color: 'purple',
+    glowColor: 'rgba(192,132,252,0.4)',
+    defaultVol: 24,
+    start(masterGain, id) {
+      const ctx = getCtx();
+
+      // ---- Vinyl crackle layer (quiet filtered noise) ----
+      // Two-layer vinyl: low rumble + high hiss
+      const crackleGain = ctx.createGain();
+      crackleGain.gain.value = 0.018;
+      crackleGain.connect(masterGain);
+
+      // Hiss component: bandpass ~6kHz
+      const hissFilter = ctx.createBiquadFilter();
+      hissFilter.type = 'bandpass';
+      hissFilter.frequency.value = 6000;
+      hissFilter.Q.value = 0.5;
+      hissFilter.connect(crackleGain);
+      const hissSrc = makeLoopingNoise(ctx, 3);
+      hissSrc.connect(hissFilter);
+      hissSrc.start();
+      if (trackState[id]) trackState[id].nodes.push(hissSrc);
+
+      // Rumble component: lowpass ~120Hz, very quiet
+      const rumbleFilter = ctx.createBiquadFilter();
+      rumbleFilter.type = 'lowpass';
+      rumbleFilter.frequency.value = 120;
+      const rumbleGain = ctx.createGain();
+      rumbleGain.gain.value = 0.025;
+      const rumbleSrc = makeLoopingNoise(ctx, 2);
+      rumbleSrc.connect(rumbleFilter);
+      rumbleFilter.connect(rumbleGain);
+      rumbleGain.connect(masterGain);
+      rumbleSrc.start();
+      if (trackState[id]) trackState[id].nodes.push(rumbleSrc);
+
+      // Slow random amplitude flutter on hiss (tape wow)
+      const flutterLFO = ctx.createOscillator();
+      const flutterGain = ctx.createGain();
+      flutterLFO.frequency.value = 0.7;
+      flutterGain.gain.value = 0.006;
+      flutterLFO.connect(flutterGain);
+      flutterGain.connect(crackleGain.gain);
+      flutterLFO.start();
+      if (trackState[id]) trackState[id].nodes.push(flutterLFO);
+
+      // ---- Beat pattern: 65 bpm, 4/4 ----
+      const bpm = 65;
+      const beat = 60 / bpm;
+      const sixteenth = beat / 4;
+
+      // Reverb for kit hits
+      const kitReverb = makeReverb(ctx, 0.6, 4);
+      kitReverb.connect(masterGain);
+
+      // kick: beat 1, beat 3 (with slight swing on 3)
+      // snare: beat 2, beat 4
+      // hi-hat: beats 1, 2.5, 3, 4.5 (half-time hat feel)
+      // One bar = 4 beats = 16 sixteenths
+      //   kick  at sixteenth 0, 8
+      //   snare at sixteenth 4, 12
+      //   hat   at sixteenth 0, 6, 8, 14
+
+      function playKick(t) {
+        const kGain = ctx.createGain();
+        kGain.gain.setValueAtTime(0.28, t);
+        kGain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+        kGain.connect(masterGain);
+        const kOsc = ctx.createOscillator();
+        kOsc.type = 'sine';
+        kOsc.frequency.setValueAtTime(160, t);
+        kOsc.frequency.exponentialRampToValueAtTime(38, t + 0.22);
+        kOsc.connect(kGain);
+        kOsc.start(t); kOsc.stop(t + 0.38);
+        // click transient
+        const clkBuf = makeNoiseBuffer(ctx, 0.01);
+        const clkSrc = ctx.createBufferSource();
+        clkSrc.buffer = clkBuf;
+        const clkFilter = ctx.createBiquadFilter();
+        clkFilter.type = 'bandpass';
+        clkFilter.frequency.value = 3000;
+        const clkGain = ctx.createGain();
+        clkGain.gain.setValueAtTime(0.06, t);
+        clkGain.gain.exponentialRampToValueAtTime(0.001, t + 0.01);
+        clkSrc.connect(clkFilter);
+        clkFilter.connect(clkGain);
+        clkGain.connect(masterGain);
+        clkSrc.start(t); clkSrc.stop(t + 0.015);
+      }
+
+      function playSnare(t) {
+        // Noise body
+        const sNoise = makeLoopingNoise(ctx, 0.15);
+        const sFilter = ctx.createBiquadFilter();
+        sFilter.type = 'bandpass';
+        sFilter.frequency.value = 2200;
+        sFilter.Q.value = 0.7;
+        const sGain = ctx.createGain();
+        sGain.gain.setValueAtTime(0.14, t);
+        sGain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        sNoise.connect(sFilter);
+        sFilter.connect(sGain);
+        sGain.connect(kitReverb);
+        sNoise.start(t); sNoise.stop(t + 0.2);
+        // Tone
+        const sTone = ctx.createOscillator();
+        sTone.type = 'sine';
+        sTone.frequency.setValueAtTime(200, t);
+        sTone.frequency.exponentialRampToValueAtTime(120, t + 0.1);
+        const sToneGain = ctx.createGain();
+        sToneGain.gain.setValueAtTime(0.08, t);
+        sToneGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+        sTone.connect(sToneGain);
+        sToneGain.connect(kitReverb);
+        sTone.start(t); sTone.stop(t + 0.15);
+      }
+
+      function playHat(t, open) {
+        const hNoise = makeLoopingNoise(ctx, 0.12);
+        const hFilter = ctx.createBiquadFilter();
+        hFilter.type = 'highpass';
+        hFilter.frequency.value = 9000;
+        const hGain = ctx.createGain();
+        const decay = open ? 0.18 : 0.055;
+        hGain.gain.setValueAtTime(0.06, t);
+        hGain.gain.exponentialRampToValueAtTime(0.001, t + decay);
+        hNoise.connect(hFilter);
+        hFilter.connect(hGain);
+        hGain.connect(masterGain);
+        hNoise.start(t); hNoise.stop(t + decay + 0.01);
+      }
+
+      // FM Rhodes chord on beat 1 (Fmaj7: F3 A3 C4 E4)
+      const rhodesNotes = [53, 57, 60, 64]; // Fmaj7
+      function playRhodes(t) {
+        rhodesNotes.forEach(n => {
+          const chordReverb = makeReverb(ctx, 1.2, 3);
+          chordReverb.connect(masterGain);
+          playFMChord(ctx, chordReverb, midiToFreq(n), 0.065, beat * 3.5, t);
+        });
+      }
+
+      let barStart = ctx.currentTime;
+      const swingOffset = sixteenth * 0.18; // gentle swing
+
+      function scheduleBeat() {
+        if (!isPlaying(id)) return;
+        const t = barStart;
+
+        // Kick: 0, 8
+        playKick(t + 0 * sixteenth);
+        playKick(t + 8 * sixteenth);
+
+        // Snare: 4, 12
+        playSnare(t + 4 * sixteenth);
+        playSnare(t + 12 * sixteenth);
+
+        // Hats (swung): 0, 6+swing, 8, 14+swing
+        playHat(t + 0 * sixteenth, false);
+        playHat(t + 6 * sixteenth + swingOffset, false);
+        playHat(t + 8 * sixteenth, false);
+        playHat(t + 14 * sixteenth + swingOffset, true); // open on "4-and"
+
+        // Rhodes chord on beat 1
+        playRhodes(t);
+
+        barStart += beat * 4;
+        const msUntilNext = (barStart - ctx.currentTime - 0.08) * 1000;
+        const h = setTimeout(scheduleBeat, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      scheduleBeat();
+    }
+  },
+
+  // ── 3. Whimsical Adventure ──────────────────────────────────────────────────
+  // Take 2: Bouncy staccato D major pattern, alternating high/low registers.
+  // Subtle tambourine (highpass noise hits) on offbeats.
+  {
+    id:    'whimsical',
+    name:  'Whimsical Adventure',
+    icon:  '\u2728', // ✨
+    desc:  'Staccato bouncing melody in D major — high & low registers in playful conversation.',
+    color: 'green',
+    glowColor: 'rgba(34,197,94,0.4)',
+    defaultVol: 28,
+    start(masterGain, id) {
+      const ctx = getCtx();
+      const reverb = makeReverb(ctx, 0.8, 5);
+      reverb.connect(masterGain);
+
+      const bpm = 108;
+      const beat = 60 / bpm;
+      const eighth = beat / 2;
+
+      // D major scale (MIDI): D4=62, E=64, F#=66, G=67, A=69, B=71, C#=73, D5=74
+      // Pattern: 8-note phrase alternating high (D5 octave) and low (D4 octave) register
+      // Staccato = very short decay
+      const loReg = [62, 64, 66, 67, 69, 67, 66, 64]; // D major scale, low
+      const hiReg = [74, 76, 78, 79, 81, 79, 78, 76]; // D major scale, high
+
+      // "Conversation" pattern: lo hi lo hi hi lo hi lo
+      const phrases = [
+        // phrase A: low starts, then jumps high
+        [
+          { n: loReg[0], t: 0 }, { n: hiReg[2], t: 1 },
+          { n: loReg[1], t: 2 }, { n: hiReg[4], t: 3 },
+          { n: loReg[3], t: 4 }, { n: hiReg[1], t: 5 },
+          { n: loReg[4], t: 6 }, { n: hiReg[0], t: 7 },
+        ],
+        // phrase B: starts high, descends low
+        [
+          { n: hiReg[4], t: 0 }, { n: hiReg[2], t: 1 },
+          { n: loReg[4], t: 2 }, { n: loReg[2], t: 3 },
+          { n: hiReg[0], t: 4 }, { n: hiReg[3], t: 5 },
+          { n: loReg[0], t: 6 }, { n: loReg[1], t: 7 },
+        ],
+        // phrase C: ascending conversation
+        [
+          { n: loReg[0], t: 0 }, { n: loReg[2], t: 1 },
+          { n: hiReg[0], t: 2 }, { n: hiReg[2], t: 3 },
+          { n: loReg[4], t: 4 }, { n: hiReg[4], t: 5 },
+          { n: hiReg[3], t: 6 }, { n: hiReg[5 % hiReg.length], t: 7 },
+        ],
+      ];
+
+      // Tambourine: highpass noise burst on offbeats (eigths 1, 3, 5, 7 within phrase)
+      function playTambourine(t) {
+        const tNoise = makeLoopingNoise(ctx, 0.06);
+        const tFilter = ctx.createBiquadFilter();
+        tFilter.type = 'highpass';
+        tFilter.frequency.value = 7000;
+        const tGain = ctx.createGain();
+        tGain.gain.setValueAtTime(0.05, t);
+        tGain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+        tNoise.connect(tFilter);
+        tFilter.connect(tGain);
+        tGain.connect(masterGain);
+        tNoise.start(t); tNoise.stop(t + 0.08);
+      }
+
+      let phraseIdx = 0;
+      let startTime = ctx.currentTime;
+
+      function schedulePhrase() {
+        if (!isPlaying(id)) return;
+        const t = startTime;
+        const phrase = phrases[phraseIdx % phrases.length];
+        phraseIdx++;
+
+        phrase.forEach(({ n, bt: _bt }, i) => {
+          const noteT = t + i * eighth;
+          // Staccato: very short decay
+          const osc = ctx.createOscillator();
+          osc.type = 'square';
+          // Soften with lowpass
+          const lp = ctx.createBiquadFilter();
+          lp.type = 'lowpass';
+          lp.frequency.value = 2200;
+          osc.frequency.value = midiToFreq(n);
+          const env = ctx.createGain();
+          env.gain.setValueAtTime(0.0001, noteT);
+          env.gain.linearRampToValueAtTime(0.18, noteT + 0.006);
+          env.gain.exponentialRampToValueAtTime(0.0001, noteT + 0.09); // staccato!
+          osc.connect(lp);
+          lp.connect(env);
+          env.connect(reverb);
+          osc.start(noteT); osc.stop(noteT + 0.12);
+
+          // Tambourine on odd-indexed notes (offbeats)
+          if (i % 2 === 1) {
+            playTambourine(noteT);
+          }
+        });
+
+        const phraseDur = phrase.length * eighth;
+        startTime += phraseDur;
+        const msUntilNext = (startTime - ctx.currentTime - 0.05) * 1000;
+        const h = setTimeout(schedulePhrase, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      schedulePhrase();
+    }
+  },
+
+  // ── 4. Space Ambient ────────────────────────────────────────────────────────
+  // Take 2: Deep sub-bass drone with very slow pitch LFO. Occasional
+  // crystalline high-register bell tones. More minimal and vast.
+  {
+    id:    'space',
+    name:  'Space Ambient',
+    icon:  '\uD83C\uDF0C', // 🌌
+    desc:  'Sub-bass drone with slow pitch waver. Crystalline bell tones emerge from silence.',
+    color: 'purple',
+    glowColor: 'rgba(192,132,252,0.4)',
+    defaultVol: 20,
+    start(masterGain, id) {
+      const ctx = getCtx();
+      const reverb = makeReverb(ctx, 6, 1.8);
+      reverb.connect(masterGain);
+
+      // ---- Sub-bass drone: A0 (27.5 Hz) + A1 (55 Hz) ----
+      // Very slow pitch LFO (0.04 Hz = ~25 s cycle) — barely perceptible drift
+      const subFreq = 27.5;
+
+      const subOsc = ctx.createOscillator();
+      subOsc.type = 'sine';
+      subOsc.frequency.value = subFreq;
+      const subGain = ctx.createGain();
+      subGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      subGain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 5);
+      subOsc.connect(subGain);
+      subGain.connect(masterGain); // bypass reverb for sub — cleaner
+      subOsc.start();
+      if (trackState[id]) trackState[id].nodes.push(subOsc);
+
+      // Pitch LFO on sub (very slow, ±0.6 Hz drift)
+      const pitchLFO = ctx.createOscillator();
+      const pitchLFOGain = ctx.createGain();
+      pitchLFO.type = 'sine';
+      pitchLFO.frequency.value = 0.04;
+      pitchLFOGain.gain.value = 0.6;
+      pitchLFO.connect(pitchLFOGain);
+      pitchLFOGain.connect(subOsc.frequency);
+      pitchLFO.start();
+      if (trackState[id]) trackState[id].nodes.push(pitchLFO);
+
+      // Upper drone: A1 (55 Hz) + E2 (82.4 Hz) — very quiet
+      [55, 82.4].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, ctx.currentTime);
+        g.gain.linearRampToValueAtTime(0.04 - idx * 0.01, ctx.currentTime + 6 + idx * 2);
+        osc.connect(g);
+        g.connect(reverb);
+        osc.start();
+        if (trackState[id]) trackState[id].nodes.push(osc);
+      });
+
+      // Very slow amplitude swell on entire reverb chain
+      const swellGain = ctx.createGain();
+      swellGain.gain.value = 0.5;
+      masterGain.disconnect();
+      // Reconnect chain: masterGain -> swellGain -> destination
+      // (We can't easily rewire masterGain so just add a swell on the reverb)
+      // Instead, modulate reverb output with an LFO
+      const swellLFO = ctx.createOscillator();
+      const swellLFOG = ctx.createGain();
+      swellLFO.type = 'sine';
+      swellLFO.frequency.value = 0.018; // very slow swell ~55 s cycle
+      swellLFOG.gain.value = 0.025;
+      swellLFO.connect(swellLFOG);
+      swellLFOG.connect(subGain.gain);
+      swellLFO.start();
+      if (trackState[id]) trackState[id].nodes.push(swellLFO);
+
+      // ---- Crystalline bell tones: sparse, high register ----
+      // Notes from A pentatonic: A6, B6, C#7, E7, F#7 (approx)
+      const bellFreqs = [1760, 1975.5, 2217, 2637, 2960];
+
+      function spawnBell() {
+        if (!isPlaying(id)) return;
+        const t = ctx.currentTime;
+        const freq = bellFreqs[Math.floor(Math.random() * bellFreqs.length)];
+
+        // Crystalline: sine fundamental + 2nd harmonic, long reverb tail
+        [1, 2, 4].forEach((ratio, i) => {
+          const osc = ctx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.value = freq * ratio;
+          const env = ctx.createGain();
+          const pk = i === 0 ? 0.08 : 0.03 / (i + 1);
+          const decay = i === 0 ? 3.5 : 1.5 / i;
+          env.gain.setValueAtTime(0.0001, t);
+          env.gain.linearRampToValueAtTime(pk, t + 0.004);
+          env.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+          osc.connect(env);
+          env.connect(reverb);
+          osc.start(t); osc.stop(t + decay + 0.1);
+        });
+
+        // Long silence between bells — 8 to 20 s
+        const delay = 8000 + Math.random() * 12000;
+        const h = setTimeout(spawnBell, delay);
+        addTimeout(id, h);
+      }
+
+      // Seed first bell after short delay
+      const h = setTimeout(spawnBell, 3000 + Math.random() * 5000);
+      addTimeout(id, h);
+    }
+  },
+
+  // ── 5. Ocean Waves ──────────────────────────────────────────────────────────
+  // Take 2: Single large wave cycle (~8 s period). Underwater rumble layer.
+  // More immersive, less chirpy.
+  {
+    id:    'ocean',
+    name:  'Ocean Waves',
+    icon:  '\uD83C\uDF0A', // 🌊
+    desc:  'Long 8-second wave swells with deep underwater rumble. Immersive shore ambience.',
+    color: 'teal',
+    glowColor: 'rgba(45,212,191,0.4)',
+    defaultVol: 32,
+    start(masterGain, id) {
+      const ctx = getCtx();
+
+      // ---- Underwater rumble: very low bandpass noise ----
+      const rumbleSrc = makeLoopingNoise(ctx, 5);
+      const rumbleLP = ctx.createBiquadFilter();
+      rumbleLP.type = 'lowpass';
+      rumbleLP.frequency.value = 90;
+      const rumbleGain = ctx.createGain();
+      rumbleGain.gain.value = 0.22;
+      rumbleSrc.connect(rumbleLP);
+      rumbleLP.connect(rumbleGain);
+      rumbleGain.connect(masterGain);
+      rumbleSrc.start();
+      if (trackState[id]) trackState[id].nodes.push(rumbleSrc);
+
+      // Very slow rumble swell (roughly in sync with wave)
+      const rumbleLFO = ctx.createOscillator();
+      const rumbleLFOG = ctx.createGain();
+      rumbleLFO.frequency.value = 1 / 8; // 8 s cycle
+      rumbleLFOG.gain.value = 0.10;
+      rumbleLFO.connect(rumbleLFOG);
+      rumbleLFOG.connect(rumbleGain.gain);
+      rumbleLFO.start();
+      if (trackState[id]) trackState[id].nodes.push(rumbleLFO);
+
+      // ---- Main wave: two noise layers with 8-second LFO ----
+      // Layer 1: mid surf (400-1200 Hz band) — primary wave body
+      function makeSurfLayer(filterFreq, q, baseGain, lfoRate, lfoDepth) {
+        const src = makeLoopingNoise(ctx, 6);
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.value = filterFreq;
+        bp.Q.value = q;
+        const gain = ctx.createGain();
+        gain.gain.value = baseGain;
+
+        // Slow high-pass sweep during wave crest (more air at peak)
+        const hpSweep = ctx.createBiquadFilter();
+        hpSweep.type = 'highpass';
+        hpSweep.frequency.value = 200;
+
+        src.connect(bp);
+        bp.connect(hpSweep);
+        hpSweep.connect(gain);
+        gain.connect(masterGain);
+        src.start();
+        if (trackState[id]) trackState[id].nodes.push(src);
+
+        // Amplitude LFO — 8 s period
+        const lfo = ctx.createOscillator();
+        const lfoG = ctx.createGain();
+        lfo.type = 'sine';
+        lfo.frequency.value = lfoRate;
+        lfoG.gain.value = lfoDepth;
+        lfo.connect(lfoG);
+        lfoG.connect(gain.gain);
+        lfo.start();
+        if (trackState[id]) trackState[id].nodes.push(lfo);
+
+        // Frequency sweep on high-pass filter (opens up on wave crest)
+        const hpLFO = ctx.createOscillator();
+        const hpLFOG = ctx.createGain();
+        hpLFO.type = 'sine';
+        hpLFO.frequency.value = lfoRate;
+        hpLFOG.gain.value = 150;
+        hpSweep.frequency.value = 250;
+        hpLFO.connect(hpLFOG);
+        hpLFOG.connect(hpSweep.frequency);
+        hpLFO.start();
+        if (trackState[id]) trackState[id].nodes.push(hpLFO);
+      }
+
+      makeSurfLayer(600,  0.8, 0.28, 1/8,  0.22); // slow 8-s swell
+      makeSurfLayer(1600, 0.5, 0.10, 1/6.5, 0.08); // slightly faster upper texture
+      makeSurfLayer(150,  1.0, 0.16, 1/9.2, 0.12); // bass body, slower
+
+      // ---- Receding water: high-pass that swells opposite phase ----
+      const recedeSrc = makeLoopingNoise(ctx, 4);
+      const recedeHP = ctx.createBiquadFilter();
+      recedeHP.type = 'highpass';
+      recedeHP.frequency.value = 2000;
+      const recedeGain = ctx.createGain();
+      recedeGain.gain.value = 0.05;
+      recedeSrc.connect(recedeHP);
+      recedeHP.connect(recedeGain);
+      recedeGain.connect(masterGain);
+      recedeSrc.start();
+      if (trackState[id]) trackState[id].nodes.push(recedeSrc);
+
+      // LFO offset by ~half phase (water rushing back between waves)
+      const recedeLFO = ctx.createOscillator();
+      const recedeLFOG = ctx.createGain();
+      recedeLFO.type = 'sine';
+      recedeLFO.frequency.value = 1/7.5;
+      // Start at different phase by delaying start
+      recedeLFOG.gain.value = 0.04;
+      recedeLFO.connect(recedeLFOG);
+      recedeLFOG.connect(recedeGain.gain);
+      recedeLFO.start(ctx.currentTime + 4); // offset start = half cycle
+      if (trackState[id]) trackState[id].nodes.push(recedeLFO);
+    }
+  },
+
+  // ── 6. Forest Morning ───────────────────────────────────────────────────────
+  // Take 2: Gentle stream/brook (mid-frequency bubbling noise patterns) + wind.
+  // Bird calls more varied with different pitch patterns.
+  {
+    id:    'forest',
+    name:  'Forest Morning',
+    icon:  '\uD83C\uDF33', // 🌳
+    desc:  'Babbling brook with gentle wind. Varied bird calls with distinct melodic patterns.',
+    color: 'green',
+    glowColor: 'rgba(34,197,94,0.4)',
+    defaultVol: 28,
+    start(masterGain, id) {
+      const ctx = getCtx();
+
+      // ---- Brook / Stream: bubbling mid-frequency noise ----
+      // Multiple short-burst bandpass sources that modulate to create "bubbling"
+      // Two layers: main gurgle (600-1400 Hz) + sparkling surface (2-4 kHz)
+
+      const brookGain = ctx.createGain();
+      brookGain.gain.value = 0.20;
+      brookGain.connect(masterGain);
+
+      const brookSrc = makeLoopingNoise(ctx, 3);
+      const brookBP = ctx.createBiquadFilter();
+      brookBP.type = 'bandpass';
+      brookBP.frequency.value = 900;
+      brookBP.Q.value = 1.8;
+      brookSrc.connect(brookBP);
+      brookBP.connect(brookGain);
+      brookSrc.start();
+      if (trackState[id]) trackState[id].nodes.push(brookSrc);
+
+      // Fast irregular LFO on brook filter frequency — creates "gurgling" modulation
+      const brookFreqLFO1 = ctx.createOscillator();
+      const brookFreqLFOG1 = ctx.createGain();
+      brookFreqLFO1.type = 'sine';
+      brookFreqLFO1.frequency.value = 3.7;
+      brookFreqLFOG1.gain.value = 320;
+      brookFreqLFO1.connect(brookFreqLFOG1);
+      brookFreqLFOG1.connect(brookBP.frequency);
+      brookFreqLFO1.start();
+      if (trackState[id]) trackState[id].nodes.push(brookFreqLFO1);
+
+      // Second LFO at prime-ratio to create beating pattern (imitates irregular bubbles)
+      const brookFreqLFO2 = ctx.createOscillator();
+      const brookFreqLFOG2 = ctx.createGain();
+      brookFreqLFO2.type = 'sine';
+      brookFreqLFO2.frequency.value = 5.3;
+      brookFreqLFOG2.gain.value = 180;
+      brookFreqLFO2.connect(brookFreqLFOG2);
+      brookFreqLFOG2.connect(brookBP.frequency);
+      brookFreqLFO2.start();
+      if (trackState[id]) trackState[id].nodes.push(brookFreqLFO2);
+
+      // Sparkle surface layer
+      const sparkleSrc = makeLoopingNoise(ctx, 2);
+      const sparkleBP = ctx.createBiquadFilter();
+      sparkleBP.type = 'bandpass';
+      sparkleBP.frequency.value = 2800;
+      sparkleBP.Q.value = 1.2;
+      const sparkleGain = ctx.createGain();
+      sparkleGain.gain.value = 0.07;
+      sparkleSrc.connect(sparkleBP);
+      sparkleBP.connect(sparkleGain);
+      sparkleGain.connect(masterGain);
+      sparkleSrc.start();
+      if (trackState[id]) trackState[id].nodes.push(sparkleSrc);
+
+      // Amplitude flutter on sparkle
+      const sparkLFO = ctx.createOscillator();
+      const sparkLFOG = ctx.createGain();
+      sparkLFO.frequency.value = 7.1;
+      sparkLFOG.gain.value = 0.04;
+      sparkLFO.connect(sparkLFOG);
+      sparkLFOG.connect(sparkleGain.gain);
+      sparkLFO.start();
+      if (trackState[id]) trackState[id].nodes.push(sparkLFO);
+
+      // ---- Wind: gentle, lower register than brook ----
+      const windSrc = makeLoopingNoise(ctx, 4);
+      const windLP = ctx.createBiquadFilter();
+      windLP.type = 'bandpass';
+      windLP.frequency.value = 300;
+      windLP.Q.value = 0.5;
+      const windGain = ctx.createGain();
+      windGain.gain.value = 0.10;
+      windSrc.connect(windLP);
+      windLP.connect(windGain);
+      windGain.connect(masterGain);
+      windSrc.start();
+      if (trackState[id]) trackState[id].nodes.push(windSrc);
+
+      const windLFO = ctx.createOscillator();
+      const windLFOG = ctx.createGain();
+      windLFO.frequency.value = 0.05;
+      windLFOG.gain.value = 0.06;
+      windLFO.connect(windLFOG);
+      windLFOG.connect(windGain.gain);
+      windLFO.start();
+      if (trackState[id]) trackState[id].nodes.push(windLFO);
+
+      // ---- Varied bird calls: 4 distinct species patterns ----
+      // Species 1: two-note descending (thrush-like)
+      function birdThrush() {
+        if (!isPlaying(id)) return;
+        const t = ctx.currentTime;
+        const f = 2800 + Math.random() * 400;
+        playNote(ctx, masterGain, f,       0.05, 0.01, 0.12, t,        'sine');
+        playNote(ctx, masterGain, f * 0.78, 0.05, 0.01, 0.14, t + 0.18, 'sine');
+        const delay = 4000 + Math.random() * 9000;
+        addTimeout(id, setTimeout(birdThrush, delay));
+      }
+
+      // Species 2: rapid trill (wren-like) — 5 quick notes
+      function birdWren() {
+        if (!isPlaying(id)) return;
+        const t = ctx.currentTime;
+        const f = 3600 + Math.random() * 600;
+        for (let i = 0; i < 5; i++) {
+          const alt = i % 2 === 0 ? f : f * 1.12;
+          playNote(ctx, masterGain, alt, 0.04, 0.005, 0.065, t + i * 0.075, 'sine');
+        }
+        const delay = 5000 + Math.random() * 11000;
+        addTimeout(id, setTimeout(birdWren, delay));
+      }
+
+      // Species 3: rising three-note call (wood pigeon-ish)
+      function birdPigeon() {
+        if (!isPlaying(id)) return;
+        const t = ctx.currentTime;
+        const f = 1200 + Math.random() * 300;
+        playNote(ctx, masterGain, f,       0.06, 0.02, 0.28, t,        'sine');
+        playNote(ctx, masterGain, f * 1.15, 0.06, 0.02, 0.22, t + 0.38, 'sine');
+        playNote(ctx, masterGain, f * 1.32, 0.05, 0.02, 0.35, t + 0.70, 'sine');
+        const delay = 7000 + Math.random() * 14000;
+        addTimeout(id, setTimeout(birdPigeon, delay));
+      }
+
+      // Species 4: single bright tweet (finch-like)
+      function birdFinch() {
+        if (!isPlaying(id)) return;
+        const t = ctx.currentTime;
+        const f = 4200 + Math.random() * 800;
+        // Pitch sweep upward
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f * 0.9, t);
+        osc.frequency.linearRampToValueAtTime(f * 1.2, t + 0.1);
+        osc.frequency.linearRampToValueAtTime(f, t + 0.18);
+        const env = ctx.createGain();
+        env.gain.setValueAtTime(0.0001, t);
+        env.gain.linearRampToValueAtTime(0.06, t + 0.03);
+        env.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+        osc.connect(env);
+        env.connect(masterGain);
+        osc.start(t); osc.stop(t + 0.25);
+        const delay = 3000 + Math.random() * 8000;
+        addTimeout(id, setTimeout(birdFinch, delay));
+      }
+
+      // Stagger starts for variety
+      addTimeout(id, setTimeout(birdThrush, 500));
+      addTimeout(id, setTimeout(birdWren, 2000 + Math.random() * 3000));
+      addTimeout(id, setTimeout(birdPigeon, 4000 + Math.random() * 4000));
+      addTimeout(id, setTimeout(birdFinch, 1000 + Math.random() * 2000));
+    }
+  },
+
+  // ── 7. Cozy Fireplace ───────────────────────────────────────────────────────
+  // Take 2: Rich Am7 drone. Crackles less frequent, more varied character.
+  {
+    id:    'fireplace',
+    name:  'Cozy Fireplace',
+    icon:  '\uD83D\uDD25', // 🔥
+    desc:  'Warm Am7 chord drone with slow breath. Spacious crackles — each one unique.',
+    color: 'orange',
+    glowColor: 'rgba(251,146,60,0.4)',
+    defaultVol: 28,
+    start(masterGain, id) {
+      const ctx = getCtx();
+
+      // ---- Warm Am7 chord drone ----
+      // Am7: A2(110) C3(130.8) E3(164.8) G3(196) — rich warm chord
+      // Use detuned triangle pairs for warmth/width
+      const droneNotes = [
+        { f: 110,   g: 0.055, detune: 1.5  },  // A2
+        { f: 130.8, g: 0.040, detune: -1.2 },  // C3
+        { f: 164.8, g: 0.035, detune: 0.8  },  // E3
+        { f: 196,   g: 0.025, detune: -1.8 },  // G3
+      ];
+
+      const droneFilter = ctx.createBiquadFilter();
+      droneFilter.type = 'lowpass';
+      droneFilter.frequency.value = 1200;
+      droneFilter.Q.value = 0.5;
+      droneFilter.connect(masterGain);
+
+      droneNotes.forEach(({ f, g, detune }, i) => {
+        // Detuned pair for richness
+        [0, detune].forEach(d => {
+          const osc = ctx.createOscillator();
+          osc.type = 'triangle';
+          osc.frequency.value = f + d;
+          const env = ctx.createGain();
+          env.gain.setValueAtTime(0.0001, ctx.currentTime);
+          env.gain.linearRampToValueAtTime(g, ctx.currentTime + 2.5 + i * 0.7);
+          osc.connect(env);
+          env.connect(droneFilter);
+          osc.start();
+          if (trackState[id]) trackState[id].nodes.push(osc);
+        });
+      });
+
+      // Very slow "breathing" LFO on drone gain (like fire breathing)
+      const breathLFO = ctx.createOscillator();
+      const breathLFOG = ctx.createGain();
+      breathLFO.type = 'sine';
+      breathLFO.frequency.value = 0.08; // ~12 s breath
+      breathLFOG.gain.value = 0.012;
+      breathLFO.connect(breathLFOG);
+      breathLFOG.connect(droneFilter.frequency);
+      breathLFO.start();
+      if (trackState[id]) trackState[id].nodes.push(breathLFO);
+
+      // ---- Fire base: continuous soft crackling noise ----
+      const fireSrc = makeLoopingNoise(ctx, 4);
+      const fireLP = ctx.createBiquadFilter();
+      fireLP.type = 'bandpass';
+      fireLP.frequency.value = 380;
+      fireLP.Q.value = 0.6;
+      const fireGain = ctx.createGain();
+      fireGain.gain.value = 0.12;
+      fireSrc.connect(fireLP);
+      fireLP.connect(fireGain);
+      fireGain.connect(masterGain);
+      fireSrc.start();
+      if (trackState[id]) trackState[id].nodes.push(fireSrc);
+
+      // Flicker LFO on fire gain
+      const flickLFO = ctx.createOscillator();
+      const flickLFOG = ctx.createGain();
+      flickLFO.frequency.value = 5.5;
+      flickLFOG.gain.value = 0.06;
+      flickLFO.connect(flickLFOG);
+      flickLFOG.connect(fireGain.gain);
+      flickLFO.start();
+      if (trackState[id]) trackState[id].nodes.push(flickLFO);
+
+      // ---- Varied crackle pops: 4 distinct characters ----
+      // Type A: sharp high snap
+      function crackleSnap(t) {
+        const n = makeLoopingNoise(ctx, 0.03);
+        const f = ctx.createBiquadFilter();
+        f.type = 'bandpass';
+        f.frequency.value = 3500 + Math.random() * 2500;
+        f.Q.value = 6;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.35 + Math.random() * 0.15, t + 0.001);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.018 + Math.random() * 0.01);
+        n.connect(f); f.connect(g); g.connect(masterGain);
+        n.start(t); n.stop(t + 0.035);
+      }
+
+      // Type B: low woody pop
+      function cracklePop(t) {
+        const n = makeLoopingNoise(ctx, 0.06);
+        const f = ctx.createBiquadFilter();
+        f.type = 'bandpass';
+        f.frequency.value = 400 + Math.random() * 400;
+        f.Q.value = 2;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.22 + Math.random() * 0.12, t + 0.003);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.055 + Math.random() * 0.04);
+        n.connect(f); f.connect(g); g.connect(masterGain);
+        n.start(t); n.stop(t + 0.1);
+      }
+
+      // Type C: sizzle (multi-burst)
+      function crackleSizzle(t) {
+        const count = 2 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < count; i++) {
+          const bt = t + i * (0.012 + Math.random() * 0.015);
+          const n = makeLoopingNoise(ctx, 0.02);
+          const f = ctx.createBiquadFilter();
+          f.type = 'bandpass';
+          f.frequency.value = 1800 + Math.random() * 1200;
+          f.Q.value = 4;
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0.0001, bt);
+          g.gain.linearRampToValueAtTime(0.12 + Math.random() * 0.08, bt + 0.002);
+          g.gain.exponentialRampToValueAtTime(0.0001, bt + 0.022);
+          n.connect(f); f.connect(g); g.connect(masterGain);
+          n.start(bt); n.stop(bt + 0.025);
+        }
+      }
+
+      function fireCrackle() {
+        if (!isPlaying(id)) return;
+        const t = ctx.currentTime;
+        const roll = Math.random();
+        if (roll < 0.45) crackleSnap(t);
+        else if (roll < 0.78) cracklePop(t);
+        else crackleSizzle(t);
+
+        // Less frequent, more varied timing (700ms - 3.5s gap)
+        const delay = 700 + Math.random() * 2800;
+        const h = setTimeout(fireCrackle, delay);
+        addTimeout(id, h);
+      }
+
+      fireCrackle();
+    }
+  },
+
+  // ── 8. Cheerful Classroom ───────────────────────────────────────────────────
+  // Take 2: Ukulele-style rapid arpeggiated chords in C major.
+  // Brighter, more Hawaiian/tropical feel.
+  {
+    id:    'classroom',
+    name:  'Cheerful Classroom',
+    icon:  '\uD83C\uDFEB', // 🏫
+    desc:  'Ukulele-feel arpeggios in C major — bright, tropical strumming patterns.',
+    color: 'blue',
+    glowColor: 'rgba(96,165,250,0.4)',
+    defaultVol: 24,
+    start(masterGain, id) {
+      const ctx = getCtx();
+      const reverb = makeReverb(ctx, 0.7, 5);
+      reverb.connect(masterGain);
+
+      const bpm = 100;
+      const beat = 60 / bpm;
+      const sixteenth = beat / 4;
+
+      // Ukulele timbre: mixed square+triangle, highpass filtered (thin/bright)
+      function playUkuNote(freq, gain, startT, decayT) {
+        // Mix of triangle and square for plucky ukulele character
+        ['triangle', 'square'].forEach((type, i) => {
+          const osc = ctx.createOscillator();
+          osc.type = type;
+          osc.frequency.value = freq + (i === 1 ? 0.3 : 0);
+          const hp = ctx.createBiquadFilter();
+          hp.type = 'highpass';
+          hp.frequency.value = 200; // thin out the bass
+          const env = ctx.createGain();
+          const g = type === 'triangle' ? gain * 0.7 : gain * 0.22;
+          env.gain.setValueAtTime(0.0001, startT);
+          env.gain.linearRampToValueAtTime(g, startT + 0.005);
+          env.gain.exponentialRampToValueAtTime(0.0001, startT + decayT);
+          osc.connect(hp); hp.connect(env); env.connect(reverb);
+          osc.start(startT); osc.stop(startT + decayT + 0.02);
+        });
+      }
+
+      // Chord voicings (ukulele-ish, high register): C, F, Am, G7
+      // C major ukulele (GCEA tuning approximation): G4 C4 E4 A4
+      const chords = {
+        C:  [67, 60, 64, 69],  // G4 C4 E4 A4
+        F:  [65, 60, 65, 69],  // F4 C4 F4 A4  (F major)
+        Am: [69, 60, 64, 69],  // A4 C4 E4 A4  (Am)
+        G7: [67, 62, 65, 71],  // G4 D4 F4 B4  (G7)
+      };
+
+      // Strumming pattern: island/calypso feel
+      // Each chord lasts 1 bar (4 beats), with rapid 16th-note arpeggiation
+      // Strum pattern: down-down-up-rest-up-down-up-rest (calypso)
+      const strumPat = [0, 1, 2, -1, 3, 2, 1, -1]; // string indices (-1 = rest)
+      const progression = ['C', 'F', 'C', 'G7', 'C', 'Am', 'F', 'G7'];
+
+      let progIdx = 0;
+      let startTime = ctx.currentTime;
+
+      function scheduleBar() {
+        if (!isPlaying(id)) return;
+        const t = startTime;
+        const chordName = progression[progIdx % progression.length];
+        progIdx++;
+        const chordNotes = chords[chordName];
+
+        // Rapid arpeggio: each 16th slot either plays a string or rests
+        // 8 slots per 2 beats (half bar), repeated for full bar
+        for (let half = 0; half < 2; half++) {
+          strumPat.forEach((strIdx, i) => {
+            if (strIdx < 0) return;
+            const noteT = t + (half * 8 + i) * (sixteenth * 0.5); // fast 32nd-note strums
+            const n = chordNotes[strIdx % chordNotes.length];
+            playUkuNote(midiToFreq(n), 0.20, noteT, 0.38);
+          });
+        }
+
+        // Add gentle bass note on beat 1
+        const bassNote = chordNotes[1]; // root
+        playUkuNote(midiToFreq(bassNote - 12), 0.14, t, 0.7);
+
+        startTime += beat * 2; // half-bar steps for quicker chord changes
+        const msUntilNext = (startTime - ctx.currentTime - 0.05) * 1000;
+        const h = setTimeout(scheduleBar, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      scheduleBar();
+    }
+  },
+
+  // ── 9. Magic Workshop ───────────────────────────────────────────────────────
+  // Take 2: Celesta-like descending arpeggios (structured melodic pattern)
+  // with reverb. Occasional low gong hit. More musical, less random.
+  {
+    id:    'magic',
+    name:  'Magic Workshop',
+    icon:  '\uD83E\uDDD9', // 🧙
+    desc:  'Celesta descending arpeggios with deep reverb. Low gong strikes punctuate the magic.',
+    color: 'purple',
+    glowColor: 'rgba(192,132,252,0.4)',
+    defaultVol: 26,
+    start(masterGain, id) {
+      const ctx = getCtx();
+      const reverb = makeReverb(ctx, 4, 1.5);
+      reverb.connect(masterGain);
+
+      // Celesta timbre: sine + detuned triangle, fast decay (bell-like but softer)
+      function playCelesta(freq, gain, startT) {
+        // Fundamental: sine
+        const osc1 = ctx.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.value = freq;
+        const env1 = ctx.createGain();
+        env1.gain.setValueAtTime(gain, startT);
+        env1.gain.exponentialRampToValueAtTime(0.0001, startT + 1.2);
+        osc1.connect(env1); env1.connect(reverb);
+        osc1.start(startT); osc1.stop(startT + 1.3);
+
+        // 4th partial (inharmonic, for celesta brightness)
+        const osc2 = ctx.createOscillator();
+        osc2.type = 'triangle';
+        osc2.frequency.value = freq * 3.9;
+        const env2 = ctx.createGain();
+        env2.gain.setValueAtTime(gain * 0.18, startT);
+        env2.gain.exponentialRampToValueAtTime(0.0001, startT + 0.4);
+        osc2.connect(env2); env2.connect(reverb);
+        osc2.start(startT); osc2.stop(startT + 0.45);
+      }
+
+      // Structured descending arpeggios — 3 pattern types, rotate
+      // Using C lydian for magical feel: C D E F# G A B
+      // High register (C6 area): 1046, 1175, 1319, 1480, 1568, 1760, 1976
+      const lydianFreqs = [1046, 1175, 1319, 1480, 1568, 1760, 1976, 2093];
+
+      const arpeggioPatterns = [
+        // Pattern A: descend from top
+        [7, 6, 5, 4, 3, 2, 1, 0],
+        // Pattern B: cascading thirds (skip pattern)
+        [7, 5, 3, 1, 0, 2, 4, 6],
+        // Pattern C: bell shape — up then down
+        [0, 2, 4, 6, 7, 6, 4, 2],
+        // Pattern D: short descend + pause holes
+        [7, 6, 5, -1, 4, 3, -1, 2],
+      ];
+
+      const bpm = 88;
+      const beat = 60 / bpm;
+      const noteDuration = beat * 0.55; // slightly swung spacing
+
+      let patIdx = 0;
+      let startTime = ctx.currentTime;
+
+      function scheduleArpeggio() {
+        if (!isPlaying(id)) return;
+        const t = startTime;
+        const pat = arpeggioPatterns[patIdx % arpeggioPatterns.length];
+        patIdx++;
+
+        pat.forEach((idx, i) => {
+          if (idx < 0) return; // rest
+          const noteT = t + i * noteDuration;
+          playCelesta(lydianFreqs[idx], 0.22, noteT);
+        });
+
+        // Phrase length: 8 notes
+        const phraseDur = 8 * noteDuration;
+        startTime += phraseDur + beat * 1.5; // add gap between phrases
+        const msUntilNext = (startTime - ctx.currentTime - 0.05) * 1000;
+        const h = setTimeout(scheduleArpeggio, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      scheduleArpeggio();
+
+      // ---- Low gong hit ----
+      // Gong: multiple inharmonic sine partials with long decay
+      function playGong(t) {
+        if (!isPlaying(id)) return;
+        // D1 (37.5 Hz) base + inharmonic partials
+        const gongFreqs = [36.7, 74, 97, 131, 184, 249];
+        const gongGains = [0.20, 0.12, 0.08, 0.05, 0.03, 0.015];
+        const gongDecays = [5.5, 3.2, 2.1, 1.5, 1.0, 0.7];
+
+        gongFreqs.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          const env = ctx.createGain();
+          env.gain.setValueAtTime(0.0001, t);
+          env.gain.linearRampToValueAtTime(gongGains[i], t + 0.008);
+          env.gain.exponentialRampToValueAtTime(0.0001, t + gongDecays[i]);
+          osc.connect(env);
+          env.connect(reverb);
+          osc.start(t); osc.stop(t + gongDecays[i] + 0.1);
+        });
+
+        // Noise burst for gong attack transient
+        const gBurst = makeLoopingNoise(ctx, 0.04);
+        const gFilter = ctx.createBiquadFilter();
+        gFilter.type = 'bandpass';
+        gFilter.frequency.value = 200;
+        gFilter.Q.value = 1;
+        const gBurstGain = ctx.createGain();
+        gBurstGain.gain.setValueAtTime(0.10, t);
+        gBurstGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+        gBurst.connect(gFilter); gFilter.connect(gBurstGain); gBurstGain.connect(masterGain);
+        gBurst.start(t); gBurst.stop(t + 0.06);
+
+        // Long gap between gongs: 12-22 s
+        const delay = 12000 + Math.random() * 10000;
+        const h = setTimeout(playGong, delay);
+        addTimeout(id, h);
+      }
+
+      // First gong after 4 s
+      const gongHandle = setTimeout(() => playGong(ctx.currentTime), 4000);
+      addTimeout(id, gongHandle);
+    }
+  },
+
+  // ── 10. Starry Night ────────────────────────────────────────────────────────
+  // Take 2: Glass harmonica feel (sine with slow vibrato). Notes form
+  // evolving chords over ~16 s. More harmonic, less random.
+  {
+    id:    'starry',
+    name:  'Starry Night',
+    icon:  '\uD83C\uDF1F', // 🌟
+    desc:  'Glass harmonica tones with gentle vibrato. Evolving chords breathe over 16 seconds.',
+    color: 'teal',
+    glowColor: 'rgba(45,212,191,0.4)',
+    defaultVol: 20,
+    start(masterGain, id) {
+      const ctx = getCtx();
+      const reverb = makeReverb(ctx, 5, 1.5);
+      reverb.connect(masterGain);
+
+      // Glass harmonica timbre:
+      // Pure sine + very slow vibrato (1.8 Hz, ±4 cents), long fade-in/out
+      function playGlassNote(freq, gain, startT, duration, vibratoRate, vibratoDepth) {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+
+        // Vibrato
+        const vibLFO = ctx.createOscillator();
+        const vibLFOG = ctx.createGain();
+        vibLFO.type = 'sine';
+        vibLFO.frequency.value = vibratoRate || 1.8;
+        vibLFOG.gain.value = freq * (vibratoDepth || 0.003); // ±0.3% of freq
+        vibLFO.connect(vibLFOG);
+        vibLFOG.connect(osc.frequency);
+
+        // Gentle bow-like envelope: slow rise, sustain, slow fall
+        const env = ctx.createGain();
+        const riseT  = Math.min(duration * 0.35, 2.5);
+        const fallT  = Math.min(duration * 0.35, 2.5);
+        const sustain = gain * 0.85;
+        env.gain.setValueAtTime(0.0001, startT);
+        env.gain.linearRampToValueAtTime(gain, startT + riseT);
+        env.gain.setValueAtTime(sustain, startT + duration - fallT);
+        env.gain.linearRampToValueAtTime(0.0001, startT + duration);
+
+        osc.connect(env);
+        env.connect(reverb);
+        vibLFO.start(startT);
+        osc.start(startT);
+        vibLFO.stop(startT + duration + 0.1);
+        osc.stop(startT + duration + 0.1);
+      }
+
+      // Chord progression: evolving over 16-s cycles
+      // Each "chord state" has 3-4 notes that overlap
+      // Using Dmaj9, Bm7, Gmaj7, A(add9) — gentle jazz-flavored major/minor
+      //
+      // We work in mid-high register: D5=587, E5=659, F#5=740, G5=784,
+      // A5=880, B5=988, C#6=1109, D6=1175
+      const chordSets = [
+        // Dmaj9: D5 F#5 A5 E5
+        [587, 740, 880, 659],
+        // Bm7: B4=494 D5 F#5 A5
+        [494, 587, 740, 880],
+        // Gmaj7: G4=392 B4 D5 F#5
+        [392, 494, 587, 740],
+        // A(add9): A4=440 C#5=554 E5=659 B4
+        [440, 554, 659, 494],
+      ];
+
+      const chordDuration = 16; // s — how long each chord "breathes"
+      let chordIdx = 0;
+      let chordStart = ctx.currentTime;
+
+      function scheduleChord() {
+        if (!isPlaying(id)) return;
+        const t = chordStart;
+        const notes = chordSets[chordIdx % chordSets.length];
+        chordIdx++;
+
+        // Each note in the chord enters staggered (0, 1.5, 3, 4.5 s offset)
+        // and fades over the full chord duration
+        notes.forEach((freq, i) => {
+          const noteStart = t + i * 1.5;
+          const noteDur = chordDuration - i * 1.5 + 1; // overlap slightly into next chord
+          const uniqueVibRate = 1.6 + i * 0.15; // slightly different vibrato per voice
+          playGlassNote(freq, 0.055, noteStart, noteDur, uniqueVibRate, 0.0025);
+        });
+
+        // Second harmonic layer at half volume, slightly detuned
+        notes.forEach((freq, i) => {
+          const noteStart = t + i * 1.5 + 0.8; // stagger differently from main layer
+          const noteDur = chordDuration - i * 1.5 - 2;
+          if (noteDur < 2) return;
+          playGlassNote(freq * 2, 0.018, noteStart, noteDur, 2.1 + i * 0.12, 0.002);
+        });
+
+        chordStart += chordDuration - 1; // 1-s crossfade overlap with next chord
+        const msUntilNext = (chordStart - ctx.currentTime - 0.1) * 1000;
+        const h = setTimeout(scheduleChord, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      scheduleChord();
+    }
+  },
+
+];
+
+// =============================================================================
+// UI Rendering
+// =============================================================================
+
+function buildUI() {
+  const container = document.getElementById('tracks-container');
+
+  TRACKS.forEach(track => {
+    // Initialize state
+    trackState[track.id] = {
+      playing: false,
+      masterGain: null,
+      stopFn: null,
+      intervalIds: [],
+      timeoutIds: [],
+      nodes: []
+    };
+
+    const card = document.createElement('div');
+    card.className = 'track-card';
+    card.id = 'card-' + track.id;
+    card.style.setProperty('--card-color', track.glowColor.replace('0.4', '0.8'));
+
+    card.innerHTML = `
+      <div class="track-header">
+        <div class="track-icon">${track.icon}</div>
+        <div class="track-info">
+          <div class="track-name">${track.name}</div>
+          <div class="track-desc">${track.desc}</div>
+        </div>
+        <div class="playing-dot"></div>
+      </div>
+      <div class="track-controls">
+        <button
+          class="play-btn ${track.color}"
+          id="btn-${track.id}"
+          onclick="toggleTrack('${track.id}')"
+        >&#9654; Play</button>
+        <div class="vol-wrap">
+          <span class="vol-label">Vol</span>
+          <input
+            type="range"
+            class="vol-slider"
+            id="vol-${track.id}"
+            min="0" max="100"
+            value="${track.defaultVol}"
+            oninput="onVolChange('${track.id}', this.value)"
+            aria-label="Volume for ${track.name}"
+          />
+          <span class="vol-value" id="volval-${track.id}">${track.defaultVol}%</span>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+// =============================================================================
+// Toggle play / stop
+// =============================================================================
+
+function toggleTrack(id) {
+  const s = trackState[id];
+  if (!s) return;
+
+  if (s.playing) {
+    stopTrack(id);
+    return;
+  }
+
+  const ctx = getCtx();
+  const track = TRACKS.find(t => t.id === id);
+  if (!track) return;
+
+  // Create master gain for this track
+  const volSlider = document.getElementById('vol-' + id);
+  const vol = volSlider ? parseFloat(volSlider.value) / 100 : track.defaultVol / 100;
+
+  const masterGain = ctx.createGain();
+  masterGain.gain.value = vol;
+  masterGain.connect(ctx.destination);
+
+  registerTrack(id, masterGain);
+
+  try {
+    track.start(masterGain, id);
+  } catch(e) {
+    console.error('Error starting track', id, e);
+    stopTrack(id);
+  }
+}
+
+function onVolChange(id, value) {
+  const numVal = document.getElementById('volval-' + id);
+  if (numVal) numVal.textContent = Math.round(value) + '%';
+
+  const s = trackState[id];
+  if (s && s.masterGain && s.playing) {
+    const ctx = getCtx();
+    s.masterGain.gain.setTargetAtTime(value / 100, ctx.currentTime, 0.02);
+  }
+}
+
+// Boot
+buildUI();
+</script>
+</body>
+</html>

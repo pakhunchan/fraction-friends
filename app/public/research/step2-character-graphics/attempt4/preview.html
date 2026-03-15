@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Friendly Robot Characters — Preview (attempt4)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f1729;
+      color: #e0e8ff;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 40px 24px 60px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #f5c842 0%, #4fc3f7 40%, #f48fb1 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      opacity: 0.5;
+      margin-bottom: 48px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* Column headers */
+    .grid-header {
+      display: grid;
+      grid-template-columns: 120px repeat(4, 1fr);
+      gap: 12px;
+      max-width: 860px;
+      margin: 0 auto 8px;
+      padding: 0 8px;
+    }
+
+    .col-label {
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      padding: 4px 0;
+    }
+
+    /* Main grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 120px repeat(4, 1fr);
+      gap: 12px;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 8px;
+    }
+
+    .row-label {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 16px;
+    }
+
+    .row-label span {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.55;
+      writing-mode: horizontal-tb;
+    }
+
+    .mood-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 3px 8px;
+      border-radius: 12px;
+      opacity: 0.7;
+    }
+
+    .mood-neutral { background: #1a2a4a; color: #7aa0cc; }
+    .mood-happy   { background: #1a2a1a; color: #76cc44; }
+    .mood-sad     { background: #2a1a2a; color: #cc77aa; }
+
+    /* Character card */
+    .char-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 18px 10px 14px;
+      transition: transform 0.2s, background 0.2s, border-color 0.2s;
+      cursor: default;
+    }
+
+    .char-card:hover {
+      transform: translateY(-4px);
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    .char-card svg {
+      display: block;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.5));
+    }
+
+    .char-name {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.4;
+    }
+
+    /* Divider */
+    .row-divider {
+      grid-column: 1 / -1;
+      height: 1px;
+      background: rgba(255,255,255,0.05);
+      margin: 4px 0;
+    }
+
+    /* Legend section */
+    .legend {
+      max-width: 860px;
+      margin: 48px auto 0;
+      padding: 24px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .legend-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .legend-item h3 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .legend-item p {
+      font-size: 0.72rem;
+      opacity: 0.5;
+      line-height: 1.5;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .gold   { background: #f5c842; }
+    .blue   { background: #4fc3f7; }
+    .green  { background: #76ff03; }
+    .pink   { background: #f48fb1; }
+  </style>
+</head>
+<body>
+
+<h1>Friendly Robot Characters</h1>
+<p class="subtitle">attempt4 &mdash; 4 robots &times; 3 moods &mdash; inline SVG preview</p>
+
+<div class="grid-header">
+  <div></div>
+  <div class="col-label">Round Bot</div>
+  <div class="col-label">Square Bot</div>
+  <div class="col-label">Triangle Bot</div>
+  <div class="col-label">Star Bot</div>
+</div>
+
+<div class="grid" id="main-grid"></div>
+
+<div class="legend">
+  <div class="legend-item">
+    <h3><span class="dot gold"></span>Round Bot</h3>
+    <p>Spherical head, warm gold metallic, ball-tip antenna. Eyes: orange LED dots/arcs. Very friendly and bubbly.</p>
+  </div>
+  <div class="legend-item">
+    <h3><span class="dot blue"></span>Square Bot</h3>
+    <p>Boxy rectangle head, cool steel blue, spring antenna with disc. Speaker grill chest, precision panel lines.</p>
+  </div>
+  <div class="legend-item">
+    <h3><span class="dot green"></span>Triangle Bot</h3>
+    <p>Angular triangular head, vibrant green, radar dish antenna. Hexagonal chest display, side sensor nodes.</p>
+  </div>
+  <div class="legend-item">
+    <h3><span class="dot pink"></span>Star Bot</h3>
+    <p>Five-pointed star head, pink/magenta, heart-shaped antenna. Star badge chest, sparkle body accents.</p>
+  </div>
+</div>
+
+<script>
+/* ===================================================================
+   Inline SVG robot generator — vanilla JS, no build step
+   Mirrors the React component logic exactly
+   =================================================================== */
+
+/* ---------- LED Eye helpers ---------- */
+function eyeNeutral(cx, cy, color) {
+  return `
+    <circle cx="${cx}" cy="${cy}" r="5" fill="${color}" opacity="0.9"/>
+    <circle cx="${cx}" cy="${cy}" r="5" fill="none" stroke="${color}" stroke-width="1" opacity="0.5"/>
+    <circle cx="${cx - 1.5}" cy="${cy - 1.5}" r="1.4" fill="white" opacity="0.5"/>
+  `;
+}
+
+function eyeHappy(cx, cy, color) {
+  return `
+    <path d="M ${cx - 5} ${cy + 1} Q ${cx} ${cy - 6} ${cx + 5} ${cy + 1}"
+          fill="${color}" opacity="0.9"/>
+    <path d="M ${cx - 5} ${cy + 1} Q ${cx} ${cy - 6} ${cx + 5} ${cy + 1}"
+          fill="none" stroke="${color}" stroke-width="1.5" opacity="0.6"/>
+  `;
+}
+
+function eyeSad(cx, cy, color) {
+  return `
+    <path d="M ${cx - 5} ${cy - 2} Q ${cx} ${cy + 5} ${cx + 5} ${cy - 2}"
+          fill="${color}" opacity="0.85"/>
+    <circle cx="${cx - 2}" cy="${cy + 7}" r="1.2" fill="${color}" opacity="0.6"/>
+  `;
+}
+
+function eye(mood, cx, cy, color) {
+  if (mood === 'happy') return eyeHappy(cx, cy, color);
+  if (mood === 'sad')   return eyeSad(cx, cy, color);
+  return eyeNeutral(cx, cy, color);
+}
+
+/* ---------- Mouth screen helpers ---------- */
+function mouthNeutral(x, y, w, h, color) {
+  const mx = x + w/2, my = y + h/2;
+  return `
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3"
+          fill="#0a0a1a" stroke="${color}" stroke-width="1.2" opacity="0.9"/>
+    <line x1="${x+4}" y1="${my}" x2="${x+w-4}" y2="${my}"
+          stroke="${color}" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+  `;
+}
+
+function mouthHappy(x, y, w, h, color) {
+  const mx = x + w/2, my = y + h/2;
+  return `
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3"
+          fill="#0a0a1a" stroke="${color}" stroke-width="1.2" opacity="0.9"/>
+    <path d="M ${x+4} ${my+1} Q ${mx} ${my+7} ${x+w-4} ${my+1}"
+          fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" opacity="0.95"/>
+    <circle cx="${x+6}" cy="${y+4}" r="1" fill="${color}" opacity="0.7"/>
+    <circle cx="${x+w-6}" cy="${y+4}" r="1" fill="${color}" opacity="0.7"/>
+  `;
+}
+
+function mouthSad(x, y, w, h, color) {
+  const mx = x + w/2, my = y + h/2;
+  return `
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3"
+          fill="#0a0a1a" stroke="${color}" stroke-width="1.2" opacity="0.9"/>
+    <path d="M ${x+4} ${my+3} Q ${mx} ${my-4} ${x+w-4} ${my+3}"
+          fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round" opacity="0.95"/>
+    <ellipse cx="${mx-6}" cy="${y+h+3}" rx="1.2" ry="2" fill="#88ccff" opacity="0.7"/>
+    <ellipse cx="${mx+6}" cy="${y+h+4}" rx="1.2" ry="2" fill="#88ccff" opacity="0.7"/>
+  `;
+}
+
+function mouth(mood, x, y, w, h, color) {
+  if (mood === 'happy') return mouthHappy(x, y, w, h, color);
+  if (mood === 'sad')   return mouthSad(x, y, w, h, color);
+  return mouthNeutral(x, y, w, h, color);
+}
+
+/* ---------- Character 0: Round Bot ---------- */
+function roundBot(mood) {
+  const primary = '#f5c842', dark = '#b8860b', mid = '#e6a800';
+  const eyeColor = '#ff6b00', bodyColor = '#d4a017';
+  const glowColor = mood === 'happy' ? '#ffdd55' : mood === 'sad' ? '#aaaaaa' : '#f5c842';
+  const glowOp = mood === 'happy' ? 0.45 : mood === 'sad' ? 0.15 : 0.28;
+
+  const antennaPath = mood === 'happy'
+    ? 'M 60 22 C 62 14 64 10 63 6'
+    : mood === 'sad'
+    ? 'M 60 22 C 61 18 56 14 55 12'
+    : 'M 60 22 C 61 16 62 12 62 8';
+  const [abcx, abcy] = mood === 'happy' ? [63, 5] : mood === 'sad' ? [55, 11] : [62, 7];
+
+  return `
+    <defs>
+      <radialGradient id="rg0-head" cx="38%" cy="35%" r="60%">
+        <stop offset="0%" stop-color="#ffe87a"/>
+        <stop offset="45%" stop-color="${primary}"/>
+        <stop offset="100%" stop-color="#a07000"/>
+      </radialGradient>
+      <radialGradient id="rg0-body" cx="40%" cy="30%" r="65%">
+        <stop offset="0%" stop-color="#e8b820"/>
+        <stop offset="100%" stop-color="#8a6000"/>
+      </radialGradient>
+      <filter id="rg0-glow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="3.5" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- Body glow -->
+    <ellipse cx="60" cy="130" rx="28" ry="22" fill="${glowColor}" opacity="${glowOp}" filter="url(#rg0-glow)"/>
+    <!-- Body -->
+    <path d="M 36 110 L 32 152 L 88 152 L 84 110 Z" fill="url(#rg0-body)"/>
+    <path d="M 36 110 L 32 152 L 88 152 L 84 110 Z" fill="none" stroke="${dark}" stroke-width="1.5"/>
+    <line x1="44" y1="115" x2="42" y2="148" stroke="${dark}" stroke-width="0.8" opacity="0.5"/>
+    <line x1="76" y1="115" x2="78" y2="148" stroke="${dark}" stroke-width="0.8" opacity="0.5"/>
+    <line x1="40" y1="132" x2="80" y2="132" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <!-- Chest LED strip -->
+    <rect x="48" y="120" width="24" height="7" rx="3" fill="#0a0a1a" stroke="${mid}" stroke-width="1"/>
+    <circle cx="54" cy="123.5" r="2" fill="${eyeColor}" opacity="0.9"/>
+    <circle cx="60" cy="123.5" r="2" fill="${primary}" opacity="0.9"/>
+    <circle cx="66" cy="123.5" r="2" fill="${eyeColor}" opacity="0.9"/>
+    <!-- Belly dial -->
+    <circle cx="60" cy="140" r="5" fill="#0a0a1a" stroke="${mid}" stroke-width="1"/>
+    <circle cx="60" cy="140" r="2.5" fill="${mid}" opacity="0.8"/>
+    <!-- Rivets -->
+    <circle cx="38" cy="112" r="1.5" fill="${dark}"/>
+    <circle cx="82" cy="112" r="1.5" fill="${dark}"/>
+    <circle cx="35" cy="148" r="1.5" fill="${dark}"/>
+    <circle cx="85" cy="148" r="1.5" fill="${dark}"/>
+    <!-- Arms -->
+    <rect x="16" y="112" width="18" height="10" rx="5" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="16" cy="117" r="5" fill="${bodyColor}" stroke="${dark}" stroke-width="1"/>
+    <rect x="86" y="112" width="18" height="10" rx="5" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="104" cy="117" r="5" fill="${bodyColor}" stroke="${dark}" stroke-width="1"/>
+    <!-- Neck -->
+    <rect x="52" y="102" width="16" height="10" rx="3" fill="${mid}" stroke="${dark}" stroke-width="1"/>
+    <line x1="52" y1="105" x2="68" y2="105" stroke="${dark}" stroke-width="0.8" opacity="0.6"/>
+    <line x1="52" y1="108" x2="68" y2="108" stroke="${dark}" stroke-width="0.8" opacity="0.6"/>
+    <!-- Head glow -->
+    <circle cx="60" cy="65" r="46" fill="${glowColor}" opacity="${glowOp * 0.8}" filter="url(#rg0-glow)"/>
+    <!-- Head sphere -->
+    <circle cx="60" cy="65" r="38" fill="url(#rg0-head)"/>
+    <circle cx="60" cy="65" r="38" fill="none" stroke="${dark}" stroke-width="1.8"/>
+    <!-- Ear discs -->
+    <circle cx="22" cy="65" r="8" fill="${mid}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="22" cy="65" r="3.5" fill="#0a0a1a" stroke="${mid}" stroke-width="0.8"/>
+    <circle cx="98" cy="65" r="8" fill="${mid}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="98" cy="65" r="3.5" fill="#0a0a1a" stroke="${mid}" stroke-width="0.8"/>
+    <!-- Panel lines -->
+    <path d="M 30 50 Q 60 44 90 50" fill="none" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <path d="M 28 70 Q 60 74 92 70" fill="none" stroke="${dark}" stroke-width="0.8" opacity="0.3"/>
+    <!-- Eyes -->
+    ${eye(mood, 47, 63, eyeColor)}
+    ${eye(mood, 73, 63, eyeColor)}
+    <!-- Mouth -->
+    ${mouth(mood, 44, 74, 32, 14, primary)}
+    <!-- Antenna base -->
+    <circle cx="60" cy="27" r="3.5" fill="${mid}" stroke="${dark}" stroke-width="1"/>
+    <!-- Antenna stem -->
+    <path d="${antennaPath}" fill="none" stroke="${dark}" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="${antennaPath}" fill="none" stroke="${mid}" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Antenna ball -->
+    <circle cx="${abcx}" cy="${abcy}" r="4.5" fill="${primary}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="${abcx - 1.5}" cy="${abcy - 1.5}" r="1.5" fill="white" opacity="0.6"/>
+    <circle cx="${abcx}" cy="${abcy}" r="4.5" fill="${glowColor}" opacity="0.4" filter="url(#rg0-glow)"/>
+  `;
+}
+
+/* ---------- Character 1: Square Bot ---------- */
+function squareBot(mood) {
+  const primary = '#4fc3f7', dark = '#0d47a1', mid = '#1976d2';
+  const eyeColor = '#00e5ff', bodyColor = '#1565c0';
+  const glowColor = mood === 'happy' ? '#00e5ff' : mood === 'sad' ? '#607d8b' : '#4fc3f7';
+  const glowOp = mood === 'happy' ? 0.4 : mood === 'sad' ? 0.15 : 0.25;
+
+  const springY = mood === 'happy' ? 4 : mood === 'sad' ? 12 : 8;
+  const springCoils = mood === 'happy'
+    ? 'M 60 25 C 55 22 65 19 60 16 C 55 13 65 10 60 7'
+    : mood === 'sad'
+    ? 'M 60 25 C 56 23 64 21 60 19 C 56 17 64 15 60 13'
+    : 'M 60 25 C 55 22 65 19 60 16 C 55 13 65 10 60 8';
+
+  const indicators = [
+    { cx: 51, fill: dark },
+    { cx: 58, fill: primary },
+    { cx: 65, fill: eyeColor },
+    { cx: 72, fill: dark },
+  ];
+
+  return `
+    <defs>
+      <linearGradient id="sg1-head" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#b3e5fc"/>
+        <stop offset="40%" stop-color="${primary}"/>
+        <stop offset="100%" stop-color="${dark}"/>
+      </linearGradient>
+      <linearGradient id="sg1-body" x1="0%" y1="0%" x2="80%" y2="100%">
+        <stop offset="0%" stop-color="#42a5f5"/>
+        <stop offset="100%" stop-color="${dark}"/>
+      </linearGradient>
+      <filter id="sg1-glow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- Body -->
+    <rect x="32" y="108" width="56" height="44" rx="5" fill="url(#sg1-body)"/>
+    <rect x="32" y="108" width="56" height="44" rx="5" fill="none" stroke="${dark}" stroke-width="1.5"/>
+    <rect x="32" y="108" width="56" height="44" rx="5" fill="${glowColor}" opacity="${glowOp * 0.5}" filter="url(#sg1-glow)"/>
+    <line x1="44" y1="108" x2="44" y2="152" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <line x1="76" y1="108" x2="76" y2="152" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <line x1="32" y1="128" x2="88" y2="128" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <!-- Speaker grill -->
+    <rect x="44" y="115" width="32" height="10" rx="2" fill="#0a0a1a" stroke="${mid}" stroke-width="1"/>
+    ${[0,4,8,12,16,20,24,28].map(o => `<line x1="${46+o}" y1="116" x2="${46+o}" y2="124" stroke="${primary}" stroke-width="0.8" opacity="0.7"/>`).join('')}
+    <!-- Belly lights -->
+    <rect x="46" y="132" width="28" height="8" rx="3" fill="#0a0a1a" stroke="${mid}" stroke-width="0.8"/>
+    ${indicators.map(ind => `<circle cx="${ind.cx}" cy="136" r="2" fill="${ind.fill}" opacity="0.9"/>`).join('')}
+    <!-- Rivets -->
+    <circle cx="34" cy="110" r="1.5" fill="${dark}"/><circle cx="86" cy="110" r="1.5" fill="${dark}"/>
+    <circle cx="34" cy="150" r="1.5" fill="${dark}"/><circle cx="86" cy="150" r="1.5" fill="${dark}"/>
+    <!-- Arms -->
+    <rect x="12" y="110" width="18" height="12" rx="4" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <rect x="12" y="120" width="10" height="8" rx="3" fill="${mid}" stroke="${dark}" stroke-width="1"/>
+    <rect x="90" y="110" width="18" height="12" rx="4" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <rect x="98" y="120" width="10" height="8" rx="3" fill="${mid}" stroke="${dark}" stroke-width="1"/>
+    <!-- Neck -->
+    <rect x="50" y="100" width="20" height="10" rx="2" fill="${mid}" stroke="${dark}" stroke-width="1"/>
+    <line x1="50" y1="103" x2="70" y2="103" stroke="${dark}" stroke-width="0.8" opacity="0.5"/>
+    <line x1="50" y1="107" x2="70" y2="107" stroke="${dark}" stroke-width="0.8" opacity="0.5"/>
+    <!-- Head glow -->
+    <rect x="20" y="28" width="80" height="74" rx="10" fill="${glowColor}" opacity="${glowOp}" filter="url(#sg1-glow)"/>
+    <!-- Head box -->
+    <rect x="22" y="30" width="76" height="72" rx="8" fill="url(#sg1-head)"/>
+    <rect x="22" y="30" width="76" height="72" rx="8" fill="none" stroke="${dark}" stroke-width="1.8"/>
+    <!-- Top panel strip -->
+    <rect x="22" y="30" width="76" height="14" rx="8" fill="${dark}" opacity="0.3"/>
+    <rect x="22" y="30" width="76" height="8" rx="8" fill="none" stroke="${primary}" stroke-width="0.6" opacity="0.4"/>
+    <!-- Ear squares -->
+    <rect x="10" y="52" width="12" height="22" rx="4" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <rect x="13" y="58" width="6" height="10" rx="2" fill="#0a0a1a" stroke="${mid}" stroke-width="0.8"/>
+    <rect x="98" y="52" width="12" height="22" rx="4" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <rect x="101" y="58" width="6" height="10" rx="2" fill="#0a0a1a" stroke="${mid}" stroke-width="0.8"/>
+    <!-- Eyes -->
+    ${eye(mood, 45, 60, eyeColor)}
+    ${eye(mood, 75, 60, eyeColor)}
+    <!-- Mouth -->
+    ${mouth(mood, 38, 73, 44, 16, primary)}
+    <!-- Spring antenna base -->
+    <rect x="56" y="22" width="8" height="6" rx="2" fill="${mid}" stroke="${dark}" stroke-width="1"/>
+    <!-- Spring coils -->
+    <path d="${springCoils}" fill="none" stroke="${dark}" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="${springCoils}" fill="none" stroke="${primary}" stroke-width="1.2" stroke-linecap="round" opacity="0.8"/>
+    <!-- Spring disc -->
+    <ellipse cx="60" cy="${springY}" rx="5" ry="3" fill="${mid}" stroke="${dark}" stroke-width="1"/>
+    <ellipse cx="60" cy="${springY}" rx="5" ry="3" fill="${glowColor}" opacity="0.5" filter="url(#sg1-glow)"/>
+  `;
+}
+
+/* ---------- Character 2: Triangle Bot ---------- */
+function triangleBot(mood) {
+  const primary = '#66bb6a', dark = '#1b5e20', mid = '#388e3c';
+  const eyeColor = '#76ff03', bodyColor = '#2e7d32';
+  const glowColor = mood === 'happy' ? '#76ff03' : mood === 'sad' ? '#546e7a' : '#66bb6a';
+  const glowOp = mood === 'happy' ? 0.4 : mood === 'sad' ? 0.15 : 0.25;
+
+  const dishCx = mood === 'happy' ? 60 : mood === 'sad' ? 56 : 60;
+  const dishCy = mood === 'happy' ? 6  : mood === 'sad' ? 12 : 8;
+  const dishRx = mood === 'happy' ? 12 : mood === 'sad' ? 8  : 10;
+  const dishRy = mood === 'happy' ? 4  : mood === 'sad' ? 2.5: 3;
+  const dishRot= mood === 'happy' ? -15: mood === 'sad' ? 25  : 0;
+  const stemPath= mood === 'happy' ? 'M 60 30 L 62 16' : mood === 'sad' ? 'M 60 30 L 57 18' : 'M 60 30 L 60 14';
+
+  const hexPts = (cx, cy, r) => Array.from({length:6}, (_,i) => {
+    const a = Math.PI/3*i - Math.PI/2;
+    return `${cx+r*Math.cos(a)},${cy+r*Math.sin(a)}`;
+  }).join(' ');
+
+  return `
+    <defs>
+      <linearGradient id="tg2-head" x1="20%" y1="0%" x2="80%" y2="100%">
+        <stop offset="0%" stop-color="#a5d6a7"/>
+        <stop offset="50%" stop-color="${primary}"/>
+        <stop offset="100%" stop-color="${dark}"/>
+      </linearGradient>
+      <linearGradient id="tg2-body" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#81c784"/>
+        <stop offset="100%" stop-color="${dark}"/>
+      </linearGradient>
+      <filter id="tg2-glow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- Body -->
+    <path d="M 30 107 L 24 152 L 96 152 L 90 107 Z" fill="url(#tg2-body)"/>
+    <path d="M 30 107 L 24 152 L 96 152 L 90 107 Z" fill="none" stroke="${dark}" stroke-width="1.5"/>
+    <path d="M 30 107 L 24 152 L 96 152 L 90 107 Z" fill="${glowColor}" opacity="${glowOp*0.4}" filter="url(#tg2-glow)"/>
+    <line x1="42" y1="107" x2="38" y2="152" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <line x1="78" y1="107" x2="82" y2="152" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <line x1="28" y1="130" x2="92" y2="130" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <!-- Hex chest -->
+    <polygon points="${hexPts(60,124,12)}" fill="#0a0a1a" stroke="${mid}" stroke-width="1.2"/>
+    <polygon points="${hexPts(60,124,10)}" fill="${glowColor}" opacity="${mood==='happy'?0.5:0.2}"/>
+    <polygon points="${hexPts(60,124,7)}" fill="#0a0a1a" opacity="0.6"/>
+    <circle cx="60" cy="124" r="3" fill="${eyeColor}" opacity="0.9"/>
+    <!-- Corner bolts -->
+    <circle cx="32" cy="109" r="2" fill="${dark}" stroke="${mid}" stroke-width="0.6"/>
+    <circle cx="88" cy="109" r="2" fill="${dark}" stroke="${mid}" stroke-width="0.6"/>
+    <circle cx="26" cy="150" r="2" fill="${dark}" stroke="${mid}" stroke-width="0.6"/>
+    <circle cx="94" cy="150" r="2" fill="${dark}" stroke="${mid}" stroke-width="0.6"/>
+    <!-- Arms -->
+    <path d="M 10 112 L 28 108 L 30 120 L 12 124 Z" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="10" cy="118" r="5" fill="${bodyColor}" stroke="${dark}" stroke-width="1"/>
+    <path d="M 110 112 L 92 108 L 90 120 L 108 124 Z" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="110" cy="118" r="5" fill="${bodyColor}" stroke="${dark}" stroke-width="1"/>
+    <!-- Neck -->
+    <rect x="50" y="99" width="20" height="10" rx="3" fill="${mid}" stroke="${dark}" stroke-width="1"/>
+    <!-- Head glow -->
+    <path d="M 60 22 L 96 96 Q 96 100 92 100 L 28 100 Q 24 100 24 96 Z"
+          fill="${glowColor}" opacity="${glowOp}" filter="url(#tg2-glow)"/>
+    <!-- Triangle head -->
+    <path d="M 60 24 L 92 96 Q 92 100 88 100 L 32 100 Q 28 100 28 96 Z"
+          fill="url(#tg2-head)"/>
+    <path d="M 60 24 L 92 96 Q 92 100 88 100 L 32 100 Q 28 100 28 96 Z"
+          fill="none" stroke="${dark}" stroke-width="1.8"/>
+    <!-- Side sensors -->
+    <circle cx="27" cy="78" r="6" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="27" cy="78" r="2.5" fill="${eyeColor}" opacity="0.6"/>
+    <circle cx="93" cy="78" r="6" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="93" cy="78" r="2.5" fill="${eyeColor}" opacity="0.6"/>
+    <!-- Panel line -->
+    <path d="M 38 75 Q 60 70 82 75" fill="none" stroke="${dark}" stroke-width="0.7" opacity="0.4"/>
+    <!-- Eyes -->
+    ${eye(mood, 47, 68, eyeColor)}
+    ${eye(mood, 73, 68, eyeColor)}
+    <!-- Mouth -->
+    ${mouth(mood, 41, 80, 38, 14, primary)}
+    <!-- Radar stem -->
+    <path d="${stemPath}" fill="none" stroke="${dark}" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="${stemPath}" fill="none" stroke="${mid}" stroke-width="1.2" stroke-linecap="round"/>
+    <!-- Radar dish -->
+    <ellipse cx="${dishCx}" cy="${dishCy}" rx="${dishRx}" ry="${dishRy}"
+             fill="${mid}" stroke="${dark}" stroke-width="1.2"
+             transform="rotate(${dishRot} ${dishCx} ${dishCy})"/>
+    <ellipse cx="${dishCx}" cy="${dishCy}" rx="${dishRx}" ry="${dishRy}"
+             fill="${glowColor}" opacity="0.45" filter="url(#tg2-glow)"
+             transform="rotate(${dishRot} ${dishCx} ${dishCy})"/>
+    <circle cx="${dishCx}" cy="${dishCy}" r="1.8" fill="${eyeColor}" opacity="0.9"/>
+  `;
+}
+
+/* ---------- Character 3: Star Bot ---------- */
+function starBot(mood) {
+  const primary = '#f48fb1', dark = '#880e4f', mid = '#c2185b';
+  const eyeColor = '#ff80ab', bodyColor = '#ad1457', accentColor = '#ce93d8';
+  const glowColor = mood === 'happy' ? '#ff80ab' : mood === 'sad' ? '#9c6490' : '#f48fb1';
+  const glowOp = mood === 'happy' ? 0.45 : mood === 'sad' ? 0.15 : 0.28;
+
+  function starPts(cx, cy, outerR, innerR, n=5) {
+    return Array.from({length: n*2}, (_,i) => {
+      const angle = Math.PI/n*i - Math.PI/2;
+      const r = i%2===0 ? outerR : innerR;
+      return `${cx + r*Math.cos(angle)},${cy + r*Math.sin(angle)}`;
+    }).join(' ');
+  }
+
+  const hcx = mood === 'happy' ? 60 : mood === 'sad' ? 57 : 60;
+  const hcy = mood === 'happy' ? 4  : mood === 'sad' ? 9  : 6;
+  const heartPath = `M ${hcx} ${hcy+4} C ${hcx-8} ${hcy-4} ${hcx-14} ${hcy+6} ${hcx} ${hcy+12} C ${hcx+14} ${hcy+6} ${hcx+8} ${hcy-4} ${hcx} ${hcy+4} Z`;
+  const stemEnd = mood === 'happy'
+    ? `M 60 30 C 58 22 58 14 ${hcx} ${hcy+12}`
+    : mood === 'sad'
+    ? `M 60 30 C 59 24 58 18 ${hcx} ${hcy+12}`
+    : `M 60 30 C 60 22 60 16 ${hcx} ${hcy+12}`;
+
+  const sparkles = mood === 'happy' ? `
+    <text x="34" y="142" font-size="8" fill="${accentColor}" opacity="0.8">✦</text>
+    <text x="76" y="145" font-size="6" fill="${accentColor}" opacity="0.7">✦</text>
+    <text x="28" y="120" font-size="5" fill="${primary}" opacity="0.6">★</text>
+  ` : '';
+
+  const blushOp = mood === 'sad' ? 0 : mood === 'happy' ? 0.35 : 0.15;
+
+  return `
+    <defs>
+      <radialGradient id="sg3-head" cx="40%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#fce4ec"/>
+        <stop offset="45%" stop-color="${primary}"/>
+        <stop offset="100%" stop-color="${dark}"/>
+      </radialGradient>
+      <linearGradient id="sg3-body" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f06292"/>
+        <stop offset="100%" stop-color="${dark}"/>
+      </linearGradient>
+      <filter id="sg3-glow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="3.5" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- Body -->
+    <path d="M 34 108 Q 26 108 24 116 L 22 152 L 98 152 L 96 116 Q 94 108 86 108 Z"
+          fill="url(#sg3-body)"/>
+    <path d="M 34 108 Q 26 108 24 116 L 22 152 L 98 152 L 96 116 Q 94 108 86 108 Z"
+          fill="none" stroke="${dark}" stroke-width="1.5"/>
+    <path d="M 34 108 Q 26 108 24 116 L 22 152 L 98 152 L 96 116 Q 94 108 86 108 Z"
+          fill="${glowColor}" opacity="${glowOp * 0.35}" filter="url(#sg3-glow)"/>
+    <line x1="40" y1="108" x2="38" y2="152" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <line x1="80" y1="108" x2="82" y2="152" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <line x1="25" y1="130" x2="95" y2="130" stroke="${dark}" stroke-width="0.8" opacity="0.4"/>
+    <!-- Star badge chest -->
+    <polygon points="${starPts(60,122,12,5)}" fill="#0a0a1a" stroke="${mid}" stroke-width="1"/>
+    <polygon points="${starPts(60,122,10,4)}" fill="${glowColor}" opacity="${mood==='happy'?0.7:0.3}"/>
+    <circle cx="60" cy="122" r="3" fill="${eyeColor}" opacity="0.9"/>
+    ${sparkles}
+    <!-- Belly lights -->
+    <rect x="46" y="135" width="28" height="8" rx="3" fill="#0a0a1a" stroke="${mid}" stroke-width="0.8"/>
+    <circle cx="52" cy="139" r="2.2" fill="${accentColor}" opacity="0.85"/>
+    <circle cx="60" cy="139" r="2.2" fill="${eyeColor}" opacity="0.85"/>
+    <circle cx="68" cy="139" r="2.2" fill="${accentColor}" opacity="0.85"/>
+    <!-- Rivets -->
+    <circle cx="26" cy="110" r="1.5" fill="${dark}"/><circle cx="94" cy="110" r="1.5" fill="${dark}"/>
+    <circle cx="24" cy="150" r="1.5" fill="${dark}"/><circle cx="96" cy="150" r="1.5" fill="${dark}"/>
+    <!-- Arms -->
+    <ellipse cx="18" cy="118" rx="10" ry="7" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="12" cy="116" r="4" fill="${bodyColor}" stroke="${dark}" stroke-width="1"/>
+    <ellipse cx="102" cy="118" rx="10" ry="7" fill="${bodyColor}" stroke="${dark}" stroke-width="1.2"/>
+    <circle cx="108" cy="116" r="4" fill="${bodyColor}" stroke="${dark}" stroke-width="1"/>
+    <!-- Neck -->
+    <rect x="50" y="100" width="20" height="10" rx="3" fill="${mid}" stroke="${dark}" stroke-width="1"/>
+    <line x1="50" y1="104" x2="70" y2="104" stroke="${dark}" stroke-width="0.8" opacity="0.5"/>
+    <line x1="50" y1="107" x2="70" y2="107" stroke="${dark}" stroke-width="0.8" opacity="0.5"/>
+    <!-- Head star glow -->
+    <polygon points="${starPts(60,62,44,20)}"
+             fill="${glowColor}" opacity="${glowOp}" filter="url(#sg3-glow)"/>
+    <!-- Star head -->
+    <polygon points="${starPts(60,62,40,18)}" fill="url(#sg3-head)"/>
+    <polygon points="${starPts(60,62,40,18)}" fill="none" stroke="${dark}" stroke-width="1.8"/>
+    <!-- Inner star highlight -->
+    <polygon points="${starPts(60,62,24,11)}" fill="none" stroke="${primary}" stroke-width="0.8" opacity="0.4"/>
+    <!-- Cheek blush -->
+    ${blushOp > 0 ? `
+    <circle cx="35" cy="72" r="5" fill="#ff6090" opacity="${blushOp}"/>
+    <circle cx="85" cy="72" r="5" fill="#ff6090" opacity="${blushOp}"/>
+    ` : ''}
+    <!-- Eyes -->
+    ${eye(mood, 48, 60, eyeColor)}
+    ${eye(mood, 72, 60, eyeColor)}
+    <!-- Mouth -->
+    ${mouth(mood, 42, 72, 36, 14, primary)}
+    <!-- Heart antenna stem -->
+    <path d="${stemEnd}" fill="none" stroke="${dark}" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="${stemEnd}" fill="none" stroke="${mid}" stroke-width="1.2" stroke-linecap="round"/>
+    <!-- Heart -->
+    <path d="${heartPath}" fill="${mid}" stroke="${dark}" stroke-width="1.2"/>
+    <path d="${heartPath}" fill="${glowColor}" opacity="0.5" filter="url(#sg3-glow)"/>
+    <circle cx="${hcx-3}" cy="${hcy+3}" r="2" fill="white" opacity="0.4"/>
+  `;
+}
+
+/* ---------- Build the grid ---------- */
+const robots = [
+  { fn: roundBot,    name: 'Round Bot',    color: '#f5c842' },
+  { fn: squareBot,   name: 'Square Bot',   color: '#4fc3f7' },
+  { fn: triangleBot, name: 'Triangle Bot', color: '#66bb6a' },
+  { fn: starBot,     name: 'Star Bot',     color: '#f48fb1' },
+];
+
+const moods = ['neutral', 'happy', 'sad'];
+const moodLabels = { neutral: 'Neutral', happy: 'Happy', sad: 'Sad' };
+const moodBadgeClass = { neutral: 'mood-neutral', happy: 'mood-happy', sad: 'mood-sad' };
+
+const grid = document.getElementById('main-grid');
+
+moods.forEach((mood, mi) => {
+  // Row label
+  const label = document.createElement('div');
+  label.className = 'row-label';
+  label.innerHTML = `<span class="mood-badge ${moodBadgeClass[mood]}">${moodLabels[mood]}</span>`;
+  grid.appendChild(label);
+
+  // Character cards
+  robots.forEach(({ fn, name, color }) => {
+    const card = document.createElement('div');
+    card.className = 'char-card';
+
+    const svgId = `svg-${name.replace(/\s/g,'')}-${mood}`;
+    const innerSVG = fn(mood);
+
+    card.innerHTML = `
+      <svg id="${svgId}" width="120" height="160" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+        ${innerSVG}
+      </svg>
+      <span class="char-name" style="color:${color}">${name}</span>
+    `;
+    grid.appendChild(card);
+  });
+
+  // Row divider (except after last)
+  if (mi < moods.length - 1) {
+    const div = document.createElement('div');
+    div.className = 'row-divider';
+    grid.appendChild(div);
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pizza DividableObject — Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { font-family: 'Segoe UI', system-ui, sans-serif; }
+
+  section {
+    padding: 32px 40px;
+  }
+
+  .warm {
+    background: #fff8ee;
+  }
+
+  .dark {
+    background: #0f1729;
+  }
+
+  h2 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .warm h2 { color: #7a4010; }
+  .dark h2  { color: #94a3b8; }
+
+  h3 {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    margin-top: 4px;
+  }
+
+  .warm h3 { color: #a0580a; }
+  .dark h3  { color: #64748b; }
+
+  .row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .label {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .warm .label { color: #b06020; }
+  .dark .label  { color: #60a3c8; }
+
+  .halves-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .quarters-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+  }
+
+  /* Selected bounce/glow animation */
+  @keyframes pizza-bounce {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    30% { transform: scale(1.10) rotate(-3deg); }
+    60% { transform: scale(1.06) rotate(1.5deg); }
+  }
+
+  .selected-wrap {
+    animation: pizza-bounce 0.7s ease-in-out infinite;
+    transform-origin: center center;
+    display: inline-block;
+  }
+
+  .divider {
+    height: 1px;
+    margin: 8px 0 20px;
+    opacity: 0.15;
+  }
+
+  .warm .divider { background: #7a4010; }
+  .dark .divider  { background: #94a3b8; }
+</style>
+</head>
+<body>
+
+<!-- ===================================================================
+     LIGHT SECTION
+==================================================================== -->
+<section class="warm">
+  <h2>Pizza — DividableObject</h2>
+  <h3>Light background · whole / halves / quarters / selected</h3>
+  <hr class="divider" />
+
+  <!-- Whole pizza at 3 sizes -->
+  <div class="row">
+    <div class="col">
+      <span class="label">whole · 80px</span>
+      <div id="whole-80-light"></div>
+    </div>
+    <div class="col">
+      <span class="label">whole · 120px</span>
+      <div id="whole-120-light"></div>
+    </div>
+    <div class="col">
+      <span class="label">whole · 160px</span>
+      <div id="whole-160-light"></div>
+    </div>
+  </div>
+
+  <!-- Halves side by side -->
+  <div class="row">
+    <div class="col">
+      <span class="label">half-left + half-right · 120px</span>
+      <div class="halves-wrap">
+        <div id="half-left-light"></div>
+        <div id="half-right-light"></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <span class="label">half-left + half-right · 80px</span>
+      <div class="halves-wrap">
+        <div id="half-left-sm-light"></div>
+        <div id="half-right-sm-light"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 quarters arranged as a pizza -->
+  <div class="row">
+    <div class="col">
+      <span class="label">4 quarters · 120px</span>
+      <div class="quarters-wrap">
+        <div id="q1-light" style="transform:rotate(180deg)"></div>
+        <div id="q2-light" style="transform:rotate(270deg)"></div>
+        <div id="q3-light" style="transform:rotate(90deg)"></div>
+        <div id="q4-light"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected states -->
+  <div class="row">
+    <div class="col">
+      <span class="label">whole · selected</span>
+      <div class="selected-wrap" id="sel-whole-light"></div>
+    </div>
+    <div class="col">
+      <span class="label">half-left · selected</span>
+      <div class="selected-wrap" id="sel-half-light"></div>
+    </div>
+    <div class="col">
+      <span class="label">quarter · selected</span>
+      <div class="selected-wrap" id="sel-quarter-light"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================
+     DARK SECTION
+==================================================================== -->
+<section class="dark">
+  <h2>Pizza — DividableObject</h2>
+  <h3>Dark background (#0f1729) · all variants</h3>
+  <hr class="divider" />
+
+  <div class="row">
+    <div class="col">
+      <span class="label">whole · 80px</span>
+      <div id="whole-80-dark"></div>
+    </div>
+    <div class="col">
+      <span class="label">whole · 120px</span>
+      <div id="whole-120-dark"></div>
+    </div>
+    <div class="col">
+      <span class="label">whole · 160px</span>
+      <div id="whole-160-dark"></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <span class="label">half-left + half-right · 120px</span>
+      <div class="halves-wrap">
+        <div id="half-left-dark"></div>
+        <div id="half-right-dark"></div>
+      </div>
+    </div>
+    <div class="col">
+      <span class="label">half-left + half-right · 80px</span>
+      <div class="halves-wrap">
+        <div id="half-left-sm-dark"></div>
+        <div id="half-right-sm-dark"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <span class="label">4 quarters · 120px</span>
+      <div class="quarters-wrap">
+        <div id="q1-dark" style="transform:rotate(180deg)"></div>
+        <div id="q2-dark" style="transform:rotate(270deg)"></div>
+        <div id="q3-dark" style="transform:rotate(90deg)"></div>
+        <div id="q4-dark"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <span class="label">whole · selected</span>
+      <div class="selected-wrap" id="sel-whole-dark"></div>
+    </div>
+    <div class="col">
+      <span class="label">half-right · selected</span>
+      <div class="selected-wrap" id="sel-halfr-dark"></div>
+    </div>
+    <div class="col">
+      <span class="label">quarter · selected</span>
+      <div class="selected-wrap" id="sel-quarter-dark"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+// ============================================================================
+// Inline SVG pizza renderer — mirrors DividableObject.tsx logic exactly
+// ============================================================================
+
+// --- PRNG ---
+function mulberry32(seed) {
+  return function() {
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const TYPE_SEEDS = { whole: 42, "half-left": 101, "half-right": 202, quarter: 303 };
+
+function inPizzaCircle(cx, cy, r) {
+  r = r !== undefined ? r : 43;
+  return (cx - 50) ** 2 + (cy - 50) ** 2 <= r * r;
+}
+
+function inRegion(cx, cy, type) {
+  if (!inPizzaCircle(cx, cy)) return false;
+  switch (type) {
+    case "whole":      return true;
+    case "half-left":  return cx <= 51;
+    case "half-right": return cx >= 49;
+    case "quarter":    return cx >= 49 && cy <= 51;
+  }
+  return false;
+}
+
+// --- Toppings generation ---
+function generateToppings(type) {
+  const seed = TYPE_SEEDS[type];
+  const rng = mulberry32(seed);
+
+  function candidatePoint(innerR, outerR) {
+    innerR = innerR !== undefined ? innerR : 10;
+    outerR = outerR !== undefined ? outerR : 38;
+    const angle = rng() * Math.PI * 2;
+    const dist = innerR + rng() * (outerR - innerR);
+    return [50 + Math.cos(angle) * dist, 50 + Math.sin(angle) * dist];
+  }
+
+  const pepperoni = [];
+  for (let i = 0; i < 9; i++) {
+    const [cx, cy] = candidatePoint(8, 36);
+    if (inRegion(cx, cy, type)) pepperoni.push({ cx, cy, r: 4.5 + rng() * 1.5 });
+    else rng();
+  }
+
+  const mushrooms = [];
+  for (let i = 0; i < 6; i++) {
+    const [cx, cy] = candidatePoint(12, 40);
+    if (inRegion(cx, cy, type)) mushrooms.push({ cx, cy, angle: rng() * 360 });
+    else rng();
+  }
+
+  const olives = [];
+  for (let i = 0; i < 5; i++) {
+    const [cx, cy] = candidatePoint(10, 38);
+    if (inRegion(cx, cy, type)) olives.push({ cx, cy });
+    else rng();
+  }
+
+  const peppers = [];
+  for (let i = 0; i < 5; i++) {
+    const [cx, cy] = candidatePoint(10, 38);
+    if (inRegion(cx, cy, type)) peppers.push({ cx, cy, angle: rng() * 360 });
+    else rng();
+  }
+
+  return { pepperoni, mushrooms, olives, peppers };
+}
+
+// --- Cheese strings ---
+function cheeseStrings(axis, cutPos, start, end, rng, count) {
+  count = count || 5;
+  const paths = [];
+  for (let i = 0; i < count; i++) {
+    const along = start + ((end - start) * (i + 0.5 + (rng() - 0.5) * 0.4)) / count;
+    const dripLen = 2 + rng() * 3.5;
+    const wobble = (rng() - 0.5) * 2;
+    if (axis === "vertical") {
+      const x0 = cutPos, y0 = along;
+      const x1 = cutPos - dripLen, y1 = y0 + wobble;
+      paths.push(`M ${x0} ${y0} Q ${(x0+x1)/2} ${y0+wobble*0.5} ${x1} ${y1}`);
+    } else {
+      const x0 = along, y0 = cutPos;
+      const x1 = x0 + wobble, y1 = cutPos + dripLen;
+      paths.push(`M ${x0} ${y0} Q ${x0+wobble*0.5} ${(y0+y1)/2} ${x1} ${y1}`);
+    }
+  }
+  return paths;
+}
+
+// --- SVG namespace helper ---
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+function el(tag, attrs, children) {
+  const e = document.createElementNS(SVG_NS, tag);
+  if (attrs) Object.entries(attrs).forEach(([k, v]) => {
+    if (v !== null && v !== undefined) e.setAttribute(k, v);
+  });
+  if (children) children.forEach(c => c && e.appendChild(c));
+  return e;
+}
+
+function elH(tag, attrs, children) {
+  const e = document.createElement(tag);
+  if (attrs) Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, String(v)));
+  if (children) children.forEach(c => c && e.appendChild(c));
+  return e;
+}
+
+let _uid = 0;
+
+// --- Build defs ---
+function buildDefs(uid, type) {
+  const d = el("defs");
+
+  // linearGradient: crust
+  d.appendChild(el("linearGradient", { id: `${uid}-crust`, x1:"0", y1:"0", x2:"1", y2:"1" }, [
+    el("stop", { offset:"0%",   "stop-color":"#f0c070" }),
+    el("stop", { offset:"30%",  "stop-color":"#e8a84a" }),
+    el("stop", { offset:"65%",  "stop-color":"#d4813a" }),
+    el("stop", { offset:"100%", "stop-color":"#b86020" }),
+  ]));
+
+  // radialGradient: crustRim
+  d.appendChild(el("radialGradient", { id:`${uid}-crustRim`, cx:"50%", cy:"50%", r:"50%" }, [
+    el("stop", { offset:"72%",  "stop-color":"transparent" }),
+    el("stop", { offset:"88%",  "stop-color":"#c87830", "stop-opacity":"0.4" }),
+    el("stop", { offset:"100%", "stop-color":"#8a4510", "stop-opacity":"0.7" }),
+  ]));
+
+  // radialGradient: sauce
+  d.appendChild(el("radialGradient", { id:`${uid}-sauce`, cx:"42%", cy:"38%", r:"55%" }, [
+    el("stop", { offset:"0%",   "stop-color":"#e84030" }),
+    el("stop", { offset:"40%",  "stop-color":"#cc2a1a" }),
+    el("stop", { offset:"80%",  "stop-color":"#b01e12" }),
+    el("stop", { offset:"100%", "stop-color":"#8a1408" }),
+  ]));
+
+  // radialGradient: cheese
+  d.appendChild(el("radialGradient", { id:`${uid}-cheese`, cx:"48%", cy:"45%", r:"52%" }, [
+    el("stop", { offset:"0%",   "stop-color":"#fdf0a0" }),
+    el("stop", { offset:"35%",  "stop-color":"#f5d85a" }),
+    el("stop", { offset:"70%",  "stop-color":"#e8c035" }),
+    el("stop", { offset:"100%", "stop-color":"#d4a820" }),
+  ]));
+
+  // radialGradient: cheeseShine
+  d.appendChild(el("radialGradient", { id:`${uid}-cheeseShine`, cx:"35%", cy:"30%", r:"40%" }, [
+    el("stop", { offset:"0%",   "stop-color":"white", "stop-opacity":"0.28" }),
+    el("stop", { offset:"100%", "stop-color":"white", "stop-opacity":"0" }),
+  ]));
+
+  // linearGradient: cheeseCut
+  d.appendChild(el("linearGradient", { id:`${uid}-cheeseCut`, x1:"0", y1:"0", x2:"1", y2:"0" }, [
+    el("stop", { offset:"0%",   "stop-color":"#fce878" }),
+    el("stop", { offset:"50%",  "stop-color":"#fff3a8" }),
+    el("stop", { offset:"100%", "stop-color":"#fce878" }),
+  ]));
+
+  // radialGradient: pepp
+  d.appendChild(el("radialGradient", { id:`${uid}-pepp`, cx:"40%", cy:"35%", r:"60%" }, [
+    el("stop", { offset:"0%",   "stop-color":"#d44030" }),
+    el("stop", { offset:"50%",  "stop-color":"#b82818" }),
+    el("stop", { offset:"100%", "stop-color":"#8a1508" }),
+  ]));
+
+  // radialGradient: peppShine
+  d.appendChild(el("radialGradient", { id:`${uid}-peppShine`, cx:"35%", cy:"30%", r:"50%" }, [
+    el("stop", { offset:"0%",   "stop-color":"#ff8070", "stop-opacity":"0.5" }),
+    el("stop", { offset:"100%", "stop-color":"#ff8070", "stop-opacity":"0" }),
+  ]));
+
+  // radialGradient: olive
+  d.appendChild(el("radialGradient", { id:`${uid}-olive`, cx:"40%", cy:"35%", r:"60%" }, [
+    el("stop", { offset:"0%",   "stop-color":"#4a4a4a" }),
+    el("stop", { offset:"60%",  "stop-color":"#282828" }),
+    el("stop", { offset:"100%", "stop-color":"#111111" }),
+  ]));
+
+  // filter: drop shadow
+  const fDrop = el("filter", { id:`${uid}-drop`, x:"-15%", y:"-10%", width:"130%", height:"135%" });
+  fDrop.innerHTML = `
+    <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
+    <feOffset dx="0" dy="3" result="shadow"/>
+    <feFlood flood-color="#000000" flood-opacity="0.28"/>
+    <feComposite in2="shadow" operator="in" result="ds"/>
+    <feMerge><feMergeNode in="ds"/><feMergeNode in="SourceGraphic"/></feMerge>
+  `;
+  d.appendChild(fDrop);
+
+  // filter: cheese texture
+  const fCheese = el("filter", { id:`${uid}-cheeseTex`, x:"-5%", y:"-5%", width:"110%", height:"110%" });
+  fCheese.innerHTML = `
+    <feTurbulence type="fractalNoise" baseFrequency="0.055" numOctaves="3" seed="17" result="noise"/>
+    <feColorMatrix type="matrix" in="noise"
+      values="0 0 0 0 0.95
+              0 0 0 0 0.82
+              0 0 0 0 0.20
+              0 0 0 0.10 0"
+      result="colorNoise"/>
+    <feBlend in="SourceGraphic" in2="colorNoise" mode="overlay"/>
+  `;
+  d.appendChild(fCheese);
+
+  // filter: crust texture
+  const fCrust = el("filter", { id:`${uid}-crustTex`, x:"-5%", y:"-5%", width:"110%", height:"110%" });
+  fCrust.innerHTML = `
+    <feTurbulence type="fractalNoise" baseFrequency="0.07" numOctaves="4" seed="5" result="noise"/>
+    <feColorMatrix type="matrix" in="noise"
+      values="0 0 0 0 0.82
+              0 0 0 0 0.55
+              0 0 0 0 0.22
+              0 0 0 0.12 0"
+      result="colorNoise"/>
+    <feBlend in="SourceGraphic" in2="colorNoise" mode="multiply"/>
+  `;
+  d.appendChild(fCrust);
+
+  // filter: selection glow
+  const fGlow = el("filter", { id:`${uid}-glow`, x:"-25%", y:"-25%", width:"150%", height:"150%" });
+  fGlow.innerHTML = `
+    <feGaussianBlur stdDeviation="3.5" result="blur"/>
+    <feFlood flood-color="#fbbf24" flood-opacity="0.75" result="color"/>
+    <feComposite in="color" in2="blur" operator="in" result="glow"/>
+    <feMerge>
+      <feMergeNode in="glow"/>
+      <feMergeNode in="glow"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  `;
+  d.appendChild(fGlow);
+
+  // clip paths
+  if (type === "half-left") {
+    const cp = el("clipPath", { id:`${uid}-clip` });
+    cp.appendChild(el("rect", { x:"0", y:"0", width:"51", height:"100" }));
+    d.appendChild(cp);
+  } else if (type === "half-right") {
+    const cp = el("clipPath", { id:`${uid}-clip` });
+    cp.appendChild(el("rect", { x:"49", y:"0", width:"51", height:"100" }));
+    d.appendChild(cp);
+  } else if (type === "quarter") {
+    const cp = el("clipPath", { id:`${uid}-clip` });
+    cp.appendChild(el("rect", { x:"49", y:"0", width:"51", height:"51" }));
+    d.appendChild(cp);
+  }
+
+  return d;
+}
+
+// --- Build toppings ---
+function buildToppings(toppings, uid, type) {
+  const g = el("g");
+
+  // Peppers
+  toppings.peppers.forEach((p, i) => {
+    const pg = el("g", { transform:`rotate(${p.angle} ${p.cx} ${p.cy})` });
+    pg.appendChild(el("path", {
+      d:`M ${p.cx-4} ${p.cy+1} Q ${p.cx} ${p.cy+2.5} ${p.cx+4} ${p.cy+1}`,
+      fill:"none", stroke:"#1a0808", "stroke-width":"2.2", "stroke-linecap":"round", opacity:"0.25"
+    }));
+    pg.appendChild(el("path", {
+      d:`M ${p.cx-4} ${p.cy} Q ${p.cx} ${p.cy+2} ${p.cx+4} ${p.cy}`,
+      fill:"none", stroke:"#22bb22", "stroke-width":"2", "stroke-linecap":"round"
+    }));
+    pg.appendChild(el("path", {
+      d:`M ${p.cx-3} ${p.cy-0.3} Q ${p.cx} ${p.cy+1.2} ${p.cx+3} ${p.cy-0.3}`,
+      fill:"none", stroke:"#55ee55", "stroke-width":"0.6", "stroke-linecap":"round", opacity:"0.6"
+    }));
+    g.appendChild(pg);
+  });
+
+  // Mushrooms
+  toppings.mushrooms.forEach((m, i) => {
+    const mg = el("g", { transform:`rotate(${m.angle} ${m.cx} ${m.cy})` });
+    mg.appendChild(el("ellipse", { cx:m.cx+0.5, cy:m.cy+0.8, rx:"4.5", ry:"3", fill:"#2a1a08", opacity:"0.25" }));
+    mg.appendChild(el("ellipse", { cx:m.cx, cy:m.cy-1, rx:"4.2", ry:"2.6", fill:"#d4b88a" }));
+    mg.appendChild(el("ellipse", { cx:m.cx, cy:m.cy-1, rx:"4.2", ry:"2.6", fill:"none", stroke:"#b09060", "stroke-width":"0.4", opacity:"0.7" }));
+    mg.appendChild(el("line", { x1:m.cx-3.5, y1:m.cy+0.8, x2:m.cx+3.5, y2:m.cy+0.8, stroke:"#c8a070", "stroke-width":"0.5", opacity:"0.6" }));
+    mg.appendChild(el("rect", { x:m.cx-1.5, y:m.cy+0.5, width:"3", height:"3.5", rx:"0.8", fill:"#e8d0a8" }));
+    mg.appendChild(el("rect", { x:m.cx-1.5, y:m.cy+0.5, width:"3", height:"3.5", rx:"0.8", fill:"none", stroke:"#c8a870", "stroke-width":"0.3", opacity:"0.5" }));
+    g.appendChild(mg);
+  });
+
+  // Olives
+  toppings.olives.forEach((o, i) => {
+    const og = el("g");
+    og.appendChild(el("ellipse", { cx:o.cx+0.5, cy:o.cy+0.8, rx:"4.5", ry:"3", fill:"#080808", opacity:"0.3" }));
+    og.appendChild(el("ellipse", { cx:o.cx, cy:o.cy, rx:"4", ry:"2.8", fill:`url(#${uid}-olive)` }));
+    og.appendChild(el("ellipse", { cx:o.cx, cy:o.cy, rx:"1.5", ry:"1.2", fill:"#e03020" }));
+    og.appendChild(el("ellipse", { cx:o.cx-1, cy:o.cy-0.8, rx:"1.2", ry:"0.7", fill:"white", opacity:"0.18" }));
+    g.appendChild(og);
+  });
+
+  // Pepperoni
+  toppings.pepperoni.forEach((p, i) => {
+    const pg = el("g");
+    pg.appendChild(el("circle", { cx:p.cx+0.8, cy:p.cy+1, r:p.r+0.5, fill:"#4a0800", opacity:"0.3" }));
+    pg.appendChild(el("circle", { cx:p.cx, cy:p.cy, r:p.r, fill:`url(#${uid}-pepp)` }));
+    pg.appendChild(el("circle", { cx:p.cx, cy:p.cy, r:p.r*0.85, fill:`url(#${uid}-peppShine)` }));
+    pg.appendChild(el("circle", { cx:p.cx, cy:p.cy, r:p.r, fill:"none", stroke:"#7a1008", "stroke-width":"0.6", opacity:"0.5" }));
+    const s1 = mulberry32(TYPE_SEEDS[type] + 400 + i);
+    pg.appendChild(el("circle", { cx:p.cx-p.r*0.3, cy:p.cy-p.r*0.35, r:p.r*0.15, fill:"#c83020", opacity:"0.6" }));
+    pg.appendChild(el("circle", { cx:p.cx+p.r*0.2, cy:p.cy+p.r*0.25, r:p.r*0.10, fill:"#c83020", opacity:"0.5" }));
+    g.appendChild(pg);
+  });
+
+  return g;
+}
+
+// --- Build full pizza SVG body ---
+function buildPizzaBody(uid, type, selected, toppings) {
+  const CRUST_R = 46, SAUCE_R = 40, CHEESE_R = 37;
+  const seed = TYPE_SEEDS[type];
+
+  const outerG = el("g", { filter: selected ? `url(#${uid}-glow)` : `url(#${uid}-drop)` });
+
+  // Clipped group
+  const clipAttr = type !== "whole" ? { "clip-path":`url(#${uid}-clip)` } : {};
+  const clipG = el("g", clipAttr);
+
+  // 1. Crust
+  clipG.appendChild(el("circle", { cx:"50", cy:"50", r:CRUST_R, fill:`url(#${uid}-crust)`, filter:`url(#${uid}-crustTex)` }));
+  clipG.appendChild(el("circle", { cx:"50", cy:"50", r:CRUST_R, fill:`url(#${uid}-crust)`, opacity:"0.4" }));
+  clipG.appendChild(el("circle", { cx:"50", cy:"50", r:CRUST_R, fill:`url(#${uid}-crustRim)` }));
+
+  // Crust bumps
+  for (let i = 0; i < 18; i++) {
+    const a = (i / 18) * Math.PI * 2;
+    const bumpR = mulberry32(seed + 800 + i);
+    const bumpOff = 1 + bumpR() * 1.2;
+    const bx = 50 + Math.cos(a) * (CRUST_R - bumpOff);
+    const by = 50 + Math.sin(a) * (CRUST_R - bumpOff);
+    clipG.appendChild(el("circle", { cx:bx, cy:by, r:1+bumpR()*0.8, fill:"#d4813a", opacity:"0.22" }));
+  }
+
+  // Crust highlight arc
+  clipG.appendChild(el("path", {
+    d:"M 14 30 A 44 44 0 0 1 30 14",
+    fill:"none", stroke:"#f5d880", "stroke-width":"2.5", "stroke-linecap":"round", opacity:"0.35"
+  }));
+
+  // 2. Sauce
+  clipG.appendChild(el("circle", { cx:"50", cy:"50", r:SAUCE_R, fill:`url(#${uid}-sauce)` }));
+
+  // Sauce bubbles
+  for (let i = 0; i < 7; i++) {
+    const brng = mulberry32(seed + 700 + i);
+    const a = brng() * Math.PI * 2;
+    const d = 4 + brng() * 28;
+    const bx = 50 + Math.cos(a) * d;
+    const by = 50 + Math.sin(a) * d;
+    if (!inRegion(bx, by, type)) continue;
+    if ((bx-50)**2 + (by-50)**2 > SAUCE_R*SAUCE_R) continue;
+    clipG.appendChild(el("circle", { cx:bx, cy:by, r:1.2+brng()*1.5, fill:"#e83820", opacity:"0.4" }));
+  }
+
+  // 3. Cheese
+  clipG.appendChild(el("circle", { cx:"50", cy:"50", r:CHEESE_R, fill:`url(#${uid}-cheese)`, filter:`url(#${uid}-cheeseTex)` }));
+  clipG.appendChild(el("circle", { cx:"50", cy:"50", r:CHEESE_R, fill:`url(#${uid}-cheese)`, opacity:"0.45" }));
+
+  // Cheese blobs
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2 + 0.2;
+    const dr = mulberry32(seed + 600 + i)() * 5 - 1;
+    const br = CHEESE_R + dr;
+    const bx = 50 + Math.cos(a) * br;
+    const by = 50 + Math.sin(a) * br;
+    if (!inRegion(bx, by, type)) continue;
+    if ((bx-50)**2 + (by-50)**2 > CRUST_R*CRUST_R - 4) continue;
+    const r = 3.5 + mulberry32(seed + 610 + i)() * 2;
+    clipG.appendChild(el("circle", { cx:bx, cy:by, r, fill:"#f0d050", opacity:"0.65" }));
+  }
+
+  // Cheese shine
+  clipG.appendChild(el("circle", { cx:"50", cy:"50", r:CHEESE_R, fill:`url(#${uid}-cheeseShine)` }));
+
+  // Cheese burnt spots
+  for (let i = 0; i < 4; i++) {
+    const brng = mulberry32(seed + 650 + i);
+    const a = brng() * Math.PI * 2;
+    const d = 10 + brng() * 20;
+    const bx = 50 + Math.cos(a) * d;
+    const by = 50 + Math.sin(a) * d;
+    if (!inRegion(bx, by, type)) continue;
+    if ((bx-50)**2 + (by-50)**2 > CHEESE_R*CHEESE_R) continue;
+    const rx = 2 + brng() * 3;
+    const ry = 1.5 + brng() * 2;
+    const rot = brng() * 180;
+    clipG.appendChild(el("ellipse", { cx:bx, cy:by, rx, ry, fill:"#c8900a", opacity:"0.35", transform:`rotate(${rot} ${bx} ${by})` }));
+  }
+
+  // 4. Toppings
+  clipG.appendChild(buildToppings(toppings, uid, type));
+
+  // 5. Overall top-light
+  clipG.appendChild(el("circle", { cx:"50", cy:"50", r:CRUST_R, fill:"none", stroke:"white", "stroke-width":"1", opacity:"0.08" }));
+
+  outerG.appendChild(clipG);
+
+  // Cheese strings on cut edges
+  if (type === "half-left" || type === "half-right") {
+    const cheeseRng = mulberry32(seed + 900);
+    const drips = cheeseStrings("vertical", 50, 11, 89, cheeseRng, 6);
+    const stringsG = el("g", { opacity:"0.9" });
+    drips.forEach((d, i) => {
+      let dPath = d;
+      if (type === "half-right") {
+        // flip x around x=50: x' = 100 - x
+        dPath = dPath.replace(/M ([\d.]+) ([\d.]+)/, (_, mx, my) => `M ${100 - parseFloat(mx)} ${my}`);
+        dPath = dPath.replace(/Q ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)/, (_, qx, qy, ex, ey) =>
+          `Q ${100 - parseFloat(qx)} ${qy} ${100 - parseFloat(ex)} ${ey}`);
+      }
+      const sw = 1.2 + mulberry32(seed + 910 + i)() * 0.8;
+      const op = 0.7 + mulberry32(seed + 920 + i)() * 0.3;
+      stringsG.appendChild(el("path", { d:dPath, fill:"none", stroke:"#fce050", "stroke-width":sw, "stroke-linecap":"round", opacity:op }));
+    });
+    outerG.appendChild(stringsG);
+  }
+
+  if (type === "quarter") {
+    const cheeseRngV = mulberry32(seed + 900);
+    const cheeseRngH = mulberry32(seed + 950);
+    const dripsV = cheeseStrings("vertical", 50, 11, 49, cheeseRngV, 3);
+    const dripsH = cheeseStrings("horizontal", 50, 51, 89, cheeseRngH, 3);
+    const stringsG = el("g", { opacity:"0.9" });
+    [...dripsV, ...dripsH].forEach((d, i) => {
+      const sw = 1.2 + mulberry32(seed + 910 + i)() * 0.8;
+      stringsG.appendChild(el("path", { d, fill:"none", stroke:"#fce050", "stroke-width":sw, "stroke-linecap":"round", opacity:"0.85" }));
+    });
+    outerG.appendChild(stringsG);
+  }
+
+  // Cut-edge cheese face lines
+  if (type === "half-left" || type === "half-right") {
+    outerG.appendChild(el("line", { x1:"50", y1:"10", x2:"50", y2:"90", stroke:`url(#${uid}-cheeseCut)`, "stroke-width":"2.5", "stroke-linecap":"round", opacity:"0.8" }));
+  }
+  if (type === "quarter") {
+    outerG.appendChild(el("line", { x1:"50", y1:"10", x2:"50", y2:"50", stroke:`url(#${uid}-cheeseCut)`, "stroke-width":"2.5", "stroke-linecap":"round", opacity:"0.8" }));
+    outerG.appendChild(el("line", { x1:"50", y1:"50", x2:"90", y2:"50", stroke:`url(#${uid}-cheeseCut)`, "stroke-width":"2.5", "stroke-linecap":"round", opacity:"0.8" }));
+  }
+
+  // Selected dashed slice line on whole
+  if (selected && type === "whole") {
+    outerG.appendChild(el("line", { x1:"50", y1:"5", x2:"50", y2:"95", stroke:"white", "stroke-width":"1.8", "stroke-dasharray":"5 4", opacity:"0.75" }));
+  }
+
+  return outerG;
+}
+
+// --- Viewbox/size config per type ---
+function pizzaConfig(type, size) {
+  switch (type) {
+    case "whole":      return { w:size, h:size, vb:"-3 -3 106 106" };
+    case "half-left":  return { w:Math.round(size*0.5), h:Math.round(size*0.96), vb:"-3 2 55 96" };
+    case "half-right": return { w:Math.round(size*0.5), h:Math.round(size*0.96), vb:"48 2 55 96" };
+    case "quarter":    return { w:Math.round(size*0.52), h:Math.round(size*0.52), vb:"48 2 55 52" };
+  }
+}
+
+// --- Main render function ---
+function renderPizza(containerId, type, size, selected) {
+  size = size || 120;
+  selected = !!selected;
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const uid = `pz${++_uid}`;
+  const cfg = pizzaConfig(type, size);
+  const toppings = generateToppings(type);
+
+  const svg = el("svg", {
+    width: cfg.w,
+    height: cfg.h,
+    viewBox: cfg.vb,
+    xmlns: SVG_NS,
+    overflow: "visible"
+  });
+
+  svg.appendChild(buildDefs(uid, type));
+  svg.appendChild(buildPizzaBody(uid, type, selected, toppings));
+
+  container.appendChild(svg);
+}
+
+// ============================================================================
+// Render all pizzas
+// ============================================================================
+
+// Light section
+renderPizza("whole-80-light",       "whole",      80,  false);
+renderPizza("whole-120-light",      "whole",      120, false);
+renderPizza("whole-160-light",      "whole",      160, false);
+
+renderPizza("half-left-light",      "half-left",  120, false);
+renderPizza("half-right-light",     "half-right", 120, false);
+renderPizza("half-left-sm-light",   "half-left",  80,  false);
+renderPizza("half-right-sm-light",  "half-right", 80,  false);
+
+renderPizza("q1-light",  "quarter", 120, false);
+renderPizza("q2-light",  "quarter", 120, false);
+renderPizza("q3-light",  "quarter", 120, false);
+renderPizza("q4-light",  "quarter", 120, false);
+
+renderPizza("sel-whole-light",   "whole",     120, true);
+renderPizza("sel-half-light",    "half-left", 120, true);
+renderPizza("sel-quarter-light", "quarter",   120, true);
+
+// Dark section
+renderPizza("whole-80-dark",       "whole",      80,  false);
+renderPizza("whole-120-dark",      "whole",      120, false);
+renderPizza("whole-160-dark",      "whole",      160, false);
+
+renderPizza("half-left-dark",      "half-left",  120, false);
+renderPizza("half-right-dark",     "half-right", 120, false);
+renderPizza("half-left-sm-dark",   "half-left",  80,  false);
+renderPizza("half-right-sm-dark",  "half-right", 80,  false);
+
+renderPizza("q1-dark",  "quarter", 120, false);
+renderPizza("q2-dark",  "quarter", 120, false);
+renderPizza("q3-dark",  "quarter", 120, false);
+renderPizza("q4-dark",  "quarter", 120, false);
+
+renderPizza("sel-whole-dark",    "whole",      120, true);
+renderPizza("sel-halfr-dark",    "half-right", 120, true);
+renderPizza("sel-quarter-dark",  "quarter",    120, true);
+
+</script>
+</body>
+</html>

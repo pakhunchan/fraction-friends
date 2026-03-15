@@ -1,0 +1,18 @@
+{
+  "attempt3": {
+    "object": "Pizza",
+    "brief": "A classic round pizza with colorful toppings (pepperoni, cheese, basil) that naturally divides into pizza slices. Bright, appealing circular shape with texture details makes learning fractions feel like sharing a meal."
+  },
+  "attempt4": {
+    "object": "Watermelon",
+    "brief": "A round watermelon with green rind and pink/red flesh with black seeds. Cuts dramatically with contrasting colors when split into halves and quarters. Very different visual style from pizza—organic and summery."
+  },
+  "attempt5": {
+    "object": "Chocolate Bar",
+    "brief": "A rectangular candy bar with distinct segments (like a 4x4 or 3x4 grid of squares). Can be divided by showing broken segments for halves and quarters. Geometric, clean design with shiny highlights for appeal."
+  },
+  "attempt6": {
+    "object": "Orange",
+    "brief": "A spherical citrus fruit that naturally peels and segments. Can show the peel and individual segments inside when divided. Warm orange color with texture details (dimpled surface, juice drops) appeals to younger kids."
+  }
+}

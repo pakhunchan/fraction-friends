@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Character Preview -- Math Tutor</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    padding: 2rem;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+    color: #ffd700;
+  }
+  .subtitle {
+    text-align: center;
+    margin-bottom: 2rem;
+    opacity: 0.6;
+    font-size: 0.95rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 120px repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 700px;
+    margin: 0 auto;
+    align-items: center;
+  }
+  .header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+  }
+  .row-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding-right: 1rem;
+    text-align: right;
+  }
+  .cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    transition: background 0.2s;
+  }
+  .cell:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  .cell svg {
+    display: block;
+  }
+  .legend {
+    max-width: 700px;
+    margin: 2rem auto 0;
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<h1>Cookie Sharing Characters</h1>
+<p class="subtitle">4 characters x 3 moods -- preview at native 100x100 size</p>
+
+<div class="grid">
+  <!-- Header row -->
+  <div></div>
+  <div class="header">Neutral</div>
+  <div class="header">Happy</div>
+  <div class="header">Sad</div>
+
+  <!-- Character 0: Boy, curly hair, brown skin, gold shirt -->
+  <div class="row-label">Boy 1<br><small style="opacity:0.6">Curly hair</small></div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin0n" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#c48a3f"/><stop offset="100%" stop-color="#9b6b2f"/></radialGradient>
+        <radialGradient id="hair0n" cx="50%" cy="30%" r="60%"><stop offset="0%" stop-color="#3d2b1f"/><stop offset="100%" stop-color="#1a1200"/></radialGradient>
+      </defs>
+      <path d="M 22 76 Q 22 66 50 64 Q 78 66 78 76 L 78 100 L 22 100 Z" fill="#e6b422"/>
+      <path d="M 42 66 L 50 72 L 58 66" fill="none" stroke="#c99a10" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 30 80 Q 50 84 70 80" fill="none" stroke="#c99a10" stroke-width="0.8" opacity="0.5"/>
+      <ellipse cx="50" cy="30" rx="28" ry="24" fill="url(#hair0n)"/>
+      <circle cx="28" cy="26" r="7" fill="url(#hair0n)"/>
+      <circle cx="38" cy="16" r="7.5" fill="url(#hair0n)"/>
+      <circle cx="50" cy="13" r="7" fill="url(#hair0n)"/>
+      <circle cx="62" cy="16" r="7.5" fill="url(#hair0n)"/>
+      <circle cx="72" cy="26" r="7" fill="url(#hair0n)"/>
+      <circle cx="24" cy="36" r="5.5" fill="url(#hair0n)"/>
+      <circle cx="76" cy="36" r="5.5" fill="url(#hair0n)"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin0n)"/>
+      <ellipse cx="26" cy="43" rx="4" ry="5" fill="url(#skin0n)"/>
+      <ellipse cx="74" cy="43" rx="4" ry="5" fill="url(#skin0n)"/>
+      <ellipse cx="50" cy="47" rx="2.2" ry="1.5" fill="#a57835" opacity="0.6"/>
+      <!-- Neutral brows -->
+      <path d="M 33 33 Q 38 30 43 33" fill="none" stroke="#1a1200" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M 57 33 Q 62 30 67 33" fill="none" stroke="#1a1200" stroke-width="1.6" stroke-linecap="round"/>
+      <!-- Neutral eyes -->
+      <ellipse cx="38" cy="40" rx="5" ry="5.5" fill="white"/>
+      <ellipse cx="62" cy="40" rx="5" ry="5.5" fill="white"/>
+      <ellipse cx="38" cy="40.5" rx="3" ry="3.4" fill="#3d2b1f"/>
+      <ellipse cx="62" cy="40.5" rx="3" ry="3.4" fill="#3d2b1f"/>
+      <circle cx="38" cy="40.5" r="1.6" fill="#1a1200"/>
+      <circle cx="62" cy="40.5" r="1.6" fill="#1a1200"/>
+      <circle cx="36.5" cy="39" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.5" cy="39" r="1.4" fill="white" opacity="0.92"/>
+      <!-- Neutral mouth -->
+      <path d="M 42 52 Q 50 57 58 52" fill="none" stroke="#3d2b1f" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin0h" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#c48a3f"/><stop offset="100%" stop-color="#9b6b2f"/></radialGradient>
+        <radialGradient id="hair0h" cx="50%" cy="30%" r="60%"><stop offset="0%" stop-color="#3d2b1f"/><stop offset="100%" stop-color="#1a1200"/></radialGradient>
+      </defs>
+      <path d="M 22 76 Q 22 66 50 64 Q 78 66 78 76 L 78 100 L 22 100 Z" fill="#e6b422"/>
+      <path d="M 42 66 L 50 72 L 58 66" fill="none" stroke="#c99a10" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 30 80 Q 50 84 70 80" fill="none" stroke="#c99a10" stroke-width="0.8" opacity="0.5"/>
+      <ellipse cx="50" cy="30" rx="28" ry="24" fill="url(#hair0h)"/>
+      <circle cx="28" cy="26" r="7" fill="url(#hair0h)"/>
+      <circle cx="38" cy="16" r="7.5" fill="url(#hair0h)"/>
+      <circle cx="50" cy="13" r="7" fill="url(#hair0h)"/>
+      <circle cx="62" cy="16" r="7.5" fill="url(#hair0h)"/>
+      <circle cx="72" cy="26" r="7" fill="url(#hair0h)"/>
+      <circle cx="24" cy="36" r="5.5" fill="url(#hair0h)"/>
+      <circle cx="76" cy="36" r="5.5" fill="url(#hair0h)"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin0h)"/>
+      <ellipse cx="26" cy="43" rx="4" ry="5" fill="url(#skin0h)"/>
+      <ellipse cx="74" cy="43" rx="4" ry="5" fill="url(#skin0h)"/>
+      <ellipse cx="50" cy="47" rx="2.2" ry="1.5" fill="#a57835" opacity="0.6"/>
+      <!-- Happy brows -->
+      <path d="M 33 31 Q 38 27 43 31" fill="none" stroke="#1a1200" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M 57 31 Q 62 27 67 31" fill="none" stroke="#1a1200" stroke-width="1.6" stroke-linecap="round"/>
+      <!-- Happy eyes -->
+      <path d="M 33 41 Q 38 35 43 41" fill="white"/>
+      <path d="M 33 41 Q 38 44 43 41" fill="white"/>
+      <path d="M 57 41 Q 62 35 67 41" fill="white"/>
+      <path d="M 57 41 Q 62 44 67 41" fill="white"/>
+      <ellipse cx="38" cy="40" rx="3" ry="2.5" fill="#3d2b1f"/>
+      <ellipse cx="62" cy="40" rx="3" ry="2.5" fill="#3d2b1f"/>
+      <circle cx="38" cy="39.8" r="1.4" fill="#1a1200"/>
+      <circle cx="62" cy="39.8" r="1.4" fill="#1a1200"/>
+      <circle cx="36.8" cy="38.8" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.8" cy="38.8" r="1.4" fill="white" opacity="0.92"/>
+      <!-- Blush -->
+      <ellipse cx="30" cy="47" rx="4" ry="2.5" fill="#e8967a" opacity="0.45"/>
+      <ellipse cx="70" cy="47" rx="4" ry="2.5" fill="#e8967a" opacity="0.45"/>
+      <!-- Happy mouth -->
+      <path d="M 39 50 Q 50 60 61 50" fill="#c0392b" stroke="#3d2b1f" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 42 51 Q 50 54 58 51" fill="white"/>
+    </svg>
+  </div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin0s" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#c48a3f"/><stop offset="100%" stop-color="#9b6b2f"/></radialGradient>
+        <radialGradient id="hair0s" cx="50%" cy="30%" r="60%"><stop offset="0%" stop-color="#3d2b1f"/><stop offset="100%" stop-color="#1a1200"/></radialGradient>
+      </defs>
+      <path d="M 22 76 Q 22 66 50 64 Q 78 66 78 76 L 78 100 L 22 100 Z" fill="#e6b422"/>
+      <path d="M 42 66 L 50 72 L 58 66" fill="none" stroke="#c99a10" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 30 80 Q 50 84 70 80" fill="none" stroke="#c99a10" stroke-width="0.8" opacity="0.5"/>
+      <ellipse cx="50" cy="30" rx="28" ry="24" fill="url(#hair0s)"/>
+      <circle cx="28" cy="26" r="7" fill="url(#hair0s)"/>
+      <circle cx="38" cy="16" r="7.5" fill="url(#hair0s)"/>
+      <circle cx="50" cy="13" r="7" fill="url(#hair0s)"/>
+      <circle cx="62" cy="16" r="7.5" fill="url(#hair0s)"/>
+      <circle cx="72" cy="26" r="7" fill="url(#hair0s)"/>
+      <circle cx="24" cy="36" r="5.5" fill="url(#hair0s)"/>
+      <circle cx="76" cy="36" r="5.5" fill="url(#hair0s)"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin0s)"/>
+      <ellipse cx="26" cy="43" rx="4" ry="5" fill="url(#skin0s)"/>
+      <ellipse cx="74" cy="43" rx="4" ry="5" fill="url(#skin0s)"/>
+      <ellipse cx="50" cy="47" rx="2.2" ry="1.5" fill="#a57835" opacity="0.6"/>
+      <!-- Sad brows -->
+      <path d="M 33 32 Q 38 34 43 33" fill="none" stroke="#1a1200" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M 57 33 Q 62 34 67 32" fill="none" stroke="#1a1200" stroke-width="1.6" stroke-linecap="round"/>
+      <!-- Sad eyes -->
+      <ellipse cx="38" cy="41" rx="5" ry="5" fill="white"/>
+      <ellipse cx="62" cy="41" rx="5" ry="5" fill="white"/>
+      <path d="M 33 39 Q 38 37 43 40" fill="none" stroke="#6b4f2e" stroke-width="1.2"/>
+      <path d="M 57 40 Q 62 37 67 39" fill="none" stroke="#6b4f2e" stroke-width="1.2"/>
+      <ellipse cx="38" cy="42" rx="3" ry="3.2" fill="#3d2b1f"/>
+      <ellipse cx="62" cy="42" rx="3" ry="3.2" fill="#3d2b1f"/>
+      <circle cx="38" cy="42" r="1.6" fill="#1a1200"/>
+      <circle cx="62" cy="42" r="1.6" fill="#1a1200"/>
+      <circle cx="36.5" cy="40.5" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.5" cy="40.5" r="1.4" fill="white" opacity="0.92"/>
+      <!-- Sad mouth -->
+      <path d="M 42 56 Q 50 50 58 56" fill="none" stroke="#3d2b1f" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <!-- Character 1: Girl, long brown hair, light skin, blue shirt -->
+  <div class="row-label">Girl 1<br><small style="opacity:0.6">Long hair</small></div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin1n" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#fde8d0"/><stop offset="100%" stop-color="#f0c8a0"/></radialGradient>
+        <linearGradient id="hair1n" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a0622e"/><stop offset="100%" stop-color="#6b3a1f"/></linearGradient>
+      </defs>
+      <path d="M 22 76 Q 22 66 50 64 Q 78 66 78 76 L 78 100 L 22 100 Z" fill="#4a90d9"/>
+      <path d="M 43 65 Q 50 70 57 65" fill="none" stroke="#3570b0" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M 30 80 Q 50 84 70 80" fill="none" stroke="#3570b0" stroke-width="0.8" opacity="0.4"/>
+      <ellipse cx="50" cy="32" rx="29" ry="26" fill="url(#hair1n)"/>
+      <path d="M 21 32 Q 18 50 20 75 Q 22 78 26 76 Q 28 55 27 38 Z" fill="url(#hair1n)"/>
+      <path d="M 79 32 Q 82 50 80 75 Q 78 78 74 76 Q 72 55 73 38 Z" fill="url(#hair1n)"/>
+      <path d="M 22 28 Q 50 22 78 28" fill="none" stroke="#e05080" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 68 26 L 72 23 L 74 27 L 72 29 Z" fill="#e05080"/>
+      <circle cx="72" cy="26" r="1.2" fill="#c03060"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin1n)"/>
+      <ellipse cx="26" cy="43" rx="3.5" ry="4.5" fill="url(#skin1n)"/>
+      <ellipse cx="74" cy="43" rx="3.5" ry="4.5" fill="url(#skin1n)"/>
+      <path d="M 49 47 Q 50 49 51 47" fill="none" stroke="#d4a888" stroke-width="1.2" stroke-linecap="round"/>
+      <!-- Neutral brows -->
+      <path d="M 33 33 Q 38 31 43 33" fill="none" stroke="#5a3e28" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M 57 33 Q 62 31 67 33" fill="none" stroke="#5a3e28" stroke-width="1.4" stroke-linecap="round"/>
+      <!-- Neutral eyes -->
+      <ellipse cx="38" cy="40" rx="5.2" ry="5.8" fill="white"/>
+      <ellipse cx="62" cy="40" rx="5.2" ry="5.8" fill="white"/>
+      <ellipse cx="38" cy="40.5" rx="3.2" ry="3.6" fill="#5b88a5"/>
+      <ellipse cx="62" cy="40.5" rx="3.2" ry="3.6" fill="#5b88a5"/>
+      <circle cx="38" cy="40.5" r="1.8" fill="#1a1a2e"/>
+      <circle cx="62" cy="40.5" r="1.8" fill="#1a1a2e"/>
+      <circle cx="36.2" cy="39" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.2" cy="39" r="1.4" fill="white" opacity="0.92"/>
+      <path d="M 33 38 Q 34 36 36 37" fill="none" stroke="#5a3e28" stroke-width="0.8"/>
+      <path d="M 67 38 Q 66 36 64 37" fill="none" stroke="#5a3e28" stroke-width="0.8"/>
+      <!-- Neutral mouth -->
+      <path d="M 43 52 Q 50 56 57 52" fill="none" stroke="#a04050" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin1h" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#fde8d0"/><stop offset="100%" stop-color="#f0c8a0"/></radialGradient>
+        <linearGradient id="hair1h" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a0622e"/><stop offset="100%" stop-color="#6b3a1f"/></linearGradient>
+      </defs>
+      <path d="M 22 76 Q 22 66 50 64 Q 78 66 78 76 L 78 100 L 22 100 Z" fill="#4a90d9"/>
+      <path d="M 43 65 Q 50 70 57 65" fill="none" stroke="#3570b0" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M 30 80 Q 50 84 70 80" fill="none" stroke="#3570b0" stroke-width="0.8" opacity="0.4"/>
+      <ellipse cx="50" cy="32" rx="29" ry="26" fill="url(#hair1h)"/>
+      <path d="M 21 32 Q 18 50 20 75 Q 22 78 26 76 Q 28 55 27 38 Z" fill="url(#hair1h)"/>
+      <path d="M 79 32 Q 82 50 80 75 Q 78 78 74 76 Q 72 55 73 38 Z" fill="url(#hair1h)"/>
+      <path d="M 22 28 Q 50 22 78 28" fill="none" stroke="#e05080" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 68 26 L 72 23 L 74 27 L 72 29 Z" fill="#e05080"/>
+      <circle cx="72" cy="26" r="1.2" fill="#c03060"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin1h)"/>
+      <ellipse cx="26" cy="43" rx="3.5" ry="4.5" fill="url(#skin1h)"/>
+      <ellipse cx="74" cy="43" rx="3.5" ry="4.5" fill="url(#skin1h)"/>
+      <path d="M 49 47 Q 50 49 51 47" fill="none" stroke="#d4a888" stroke-width="1.2" stroke-linecap="round"/>
+      <!-- Happy brows -->
+      <path d="M 33 31 Q 38 28 43 31" fill="none" stroke="#5a3e28" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M 57 31 Q 62 28 67 31" fill="none" stroke="#5a3e28" stroke-width="1.4" stroke-linecap="round"/>
+      <!-- Happy eyes -->
+      <path d="M 33 41 Q 38 35 43 41" fill="white"/>
+      <path d="M 33 41 Q 38 44 43 41" fill="white"/>
+      <path d="M 57 41 Q 62 35 67 41" fill="white"/>
+      <path d="M 57 41 Q 62 44 67 41" fill="white"/>
+      <ellipse cx="38" cy="40" rx="3" ry="2.6" fill="#5b88a5"/>
+      <ellipse cx="62" cy="40" rx="3" ry="2.6" fill="#5b88a5"/>
+      <circle cx="38" cy="39.8" r="1.5" fill="#1a1a2e"/>
+      <circle cx="62" cy="39.8" r="1.5" fill="#1a1a2e"/>
+      <circle cx="36.5" cy="38.8" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.5" cy="38.8" r="1.4" fill="white" opacity="0.92"/>
+      <path d="M 33 39 Q 34 37 36 38" fill="none" stroke="#5a3e28" stroke-width="0.8"/>
+      <path d="M 67 39 Q 66 37 64 38" fill="none" stroke="#5a3e28" stroke-width="0.8"/>
+      <!-- Blush -->
+      <ellipse cx="29" cy="47" rx="4" ry="2.5" fill="#f0a0a0" opacity="0.4"/>
+      <ellipse cx="71" cy="47" rx="4" ry="2.5" fill="#f0a0a0" opacity="0.4"/>
+      <!-- Happy mouth -->
+      <path d="M 40 50 Q 50 60 60 50" fill="#d45060" stroke="#a04050" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M 43 51 Q 50 54 57 51" fill="white"/>
+    </svg>
+  </div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin1s" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#fde8d0"/><stop offset="100%" stop-color="#f0c8a0"/></radialGradient>
+        <linearGradient id="hair1s" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a0622e"/><stop offset="100%" stop-color="#6b3a1f"/></linearGradient>
+      </defs>
+      <path d="M 22 76 Q 22 66 50 64 Q 78 66 78 76 L 78 100 L 22 100 Z" fill="#4a90d9"/>
+      <path d="M 43 65 Q 50 70 57 65" fill="none" stroke="#3570b0" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M 30 80 Q 50 84 70 80" fill="none" stroke="#3570b0" stroke-width="0.8" opacity="0.4"/>
+      <ellipse cx="50" cy="32" rx="29" ry="26" fill="url(#hair1s)"/>
+      <path d="M 21 32 Q 18 50 20 75 Q 22 78 26 76 Q 28 55 27 38 Z" fill="url(#hair1s)"/>
+      <path d="M 79 32 Q 82 50 80 75 Q 78 78 74 76 Q 72 55 73 38 Z" fill="url(#hair1s)"/>
+      <path d="M 22 28 Q 50 22 78 28" fill="none" stroke="#e05080" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 68 26 L 72 23 L 74 27 L 72 29 Z" fill="#e05080"/>
+      <circle cx="72" cy="26" r="1.2" fill="#c03060"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin1s)"/>
+      <ellipse cx="26" cy="43" rx="3.5" ry="4.5" fill="url(#skin1s)"/>
+      <ellipse cx="74" cy="43" rx="3.5" ry="4.5" fill="url(#skin1s)"/>
+      <path d="M 49 47 Q 50 49 51 47" fill="none" stroke="#d4a888" stroke-width="1.2" stroke-linecap="round"/>
+      <!-- Sad brows -->
+      <path d="M 34 32 Q 38 34 43 33" fill="none" stroke="#5a3e28" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M 57 33 Q 62 34 66 32" fill="none" stroke="#5a3e28" stroke-width="1.4" stroke-linecap="round"/>
+      <!-- Sad eyes -->
+      <ellipse cx="38" cy="41" rx="5.2" ry="5.2" fill="white"/>
+      <ellipse cx="62" cy="41" rx="5.2" ry="5.2" fill="white"/>
+      <path d="M 33 39 Q 38 37.5 43 40" fill="none" stroke="#5a3e28" stroke-width="1"/>
+      <path d="M 57 40 Q 62 37.5 67 39" fill="none" stroke="#5a3e28" stroke-width="1"/>
+      <ellipse cx="38" cy="42" rx="3.2" ry="3.4" fill="#5b88a5"/>
+      <ellipse cx="62" cy="42" rx="3.2" ry="3.4" fill="#5b88a5"/>
+      <circle cx="38" cy="42" r="1.8" fill="#1a1a2e"/>
+      <circle cx="62" cy="42" r="1.8" fill="#1a1a2e"/>
+      <circle cx="36.2" cy="40.5" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.2" cy="40.5" r="1.4" fill="white" opacity="0.92"/>
+      <!-- Sad mouth -->
+      <path d="M 43 56 Q 50 50 57 56" fill="none" stroke="#a04050" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <!-- Character 2: Boy, spiky black hair, medium skin, purple hoodie -->
+  <div class="row-label">Boy 2<br><small style="opacity:0.6">Spiky hair</small></div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin2n" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#f0d4b0"/><stop offset="100%" stop-color="#d4b48c"/></radialGradient>
+        <linearGradient id="hair2n" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2d2d40"/><stop offset="100%" stop-color="#0e0e1a"/></linearGradient>
+      </defs>
+      <path d="M 20 76 Q 20 64 50 62 Q 80 64 80 76 L 80 100 L 20 100 Z" fill="#8e44ad"/>
+      <path d="M 30 70 Q 36 66 42 68 Q 50 72 58 68 Q 64 66 70 70" fill="none" stroke="#6c2d88" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 36 86 Q 50 90 64 86" fill="none" stroke="#6c2d88" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="46" y1="70" x2="44" y2="80" stroke="#c0c0c0" stroke-width="0.8"/>
+      <line x1="54" y1="70" x2="56" y2="80" stroke="#c0c0c0" stroke-width="0.8"/>
+      <ellipse cx="50" cy="30" rx="26" ry="22" fill="url(#hair2n)"/>
+      <path d="M 30 20 L 26 6 L 34 18 Z" fill="url(#hair2n)"/>
+      <path d="M 40 14 L 38 1 L 46 12 Z" fill="url(#hair2n)"/>
+      <path d="M 50 12 L 52 0 L 56 12 Z" fill="url(#hair2n)"/>
+      <path d="M 58 14 L 64 2 L 64 14 Z" fill="url(#hair2n)"/>
+      <path d="M 68 20 L 76 8 L 72 20 Z" fill="url(#hair2n)"/>
+      <path d="M 24 30 L 16 22 L 24 26 Z" fill="url(#hair2n)"/>
+      <path d="M 76 30 L 84 22 L 76 26 Z" fill="url(#hair2n)"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin2n)"/>
+      <ellipse cx="26" cy="43" rx="4" ry="5" fill="url(#skin2n)"/>
+      <ellipse cx="74" cy="43" rx="4" ry="5" fill="url(#skin2n)"/>
+      <ellipse cx="50" cy="47" rx="2" ry="1.5" fill="#c4a080" opacity="0.5"/>
+      <!-- Neutral brows -->
+      <path d="M 33 33 Q 38 31 43 34" fill="none" stroke="#1a1a2e" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 57 34 Q 62 31 67 33" fill="none" stroke="#1a1a2e" stroke-width="1.8" stroke-linecap="round"/>
+      <!-- Neutral eyes -->
+      <ellipse cx="38" cy="40" rx="5" ry="5.5" fill="white"/>
+      <ellipse cx="62" cy="40" rx="5" ry="5.5" fill="white"/>
+      <ellipse cx="38.5" cy="40.5" rx="3" ry="3.5" fill="#4a6741"/>
+      <ellipse cx="62.5" cy="40.5" rx="3" ry="3.5" fill="#4a6741"/>
+      <circle cx="38.5" cy="40.5" r="1.7" fill="#1a1a2e"/>
+      <circle cx="62.5" cy="40.5" r="1.7" fill="#1a1a2e"/>
+      <circle cx="36.8" cy="39" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.8" cy="39" r="1.4" fill="white" opacity="0.92"/>
+      <!-- Neutral mouth -->
+      <path d="M 42 52 Q 50 56 58 52" fill="none" stroke="#2d2d40" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin2h" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#f0d4b0"/><stop offset="100%" stop-color="#d4b48c"/></radialGradient>
+        <linearGradient id="hair2h" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2d2d40"/><stop offset="100%" stop-color="#0e0e1a"/></linearGradient>
+      </defs>
+      <path d="M 20 76 Q 20 64 50 62 Q 80 64 80 76 L 80 100 L 20 100 Z" fill="#8e44ad"/>
+      <path d="M 30 70 Q 36 66 42 68 Q 50 72 58 68 Q 64 66 70 70" fill="none" stroke="#6c2d88" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 36 86 Q 50 90 64 86" fill="none" stroke="#6c2d88" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="46" y1="70" x2="44" y2="80" stroke="#c0c0c0" stroke-width="0.8"/>
+      <line x1="54" y1="70" x2="56" y2="80" stroke="#c0c0c0" stroke-width="0.8"/>
+      <ellipse cx="50" cy="30" rx="26" ry="22" fill="url(#hair2h)"/>
+      <path d="M 30 20 L 26 6 L 34 18 Z" fill="url(#hair2h)"/>
+      <path d="M 40 14 L 38 1 L 46 12 Z" fill="url(#hair2h)"/>
+      <path d="M 50 12 L 52 0 L 56 12 Z" fill="url(#hair2h)"/>
+      <path d="M 58 14 L 64 2 L 64 14 Z" fill="url(#hair2h)"/>
+      <path d="M 68 20 L 76 8 L 72 20 Z" fill="url(#hair2h)"/>
+      <path d="M 24 30 L 16 22 L 24 26 Z" fill="url(#hair2h)"/>
+      <path d="M 76 30 L 84 22 L 76 26 Z" fill="url(#hair2h)"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin2h)"/>
+      <ellipse cx="26" cy="43" rx="4" ry="5" fill="url(#skin2h)"/>
+      <ellipse cx="74" cy="43" rx="4" ry="5" fill="url(#skin2h)"/>
+      <ellipse cx="50" cy="47" rx="2" ry="1.5" fill="#c4a080" opacity="0.5"/>
+      <!-- Happy brows -->
+      <path d="M 33 30 Q 38 27 43 31" fill="none" stroke="#1a1a2e" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 57 31 Q 62 27 67 30" fill="none" stroke="#1a1a2e" stroke-width="1.8" stroke-linecap="round"/>
+      <!-- Happy eyes (closed arcs) -->
+      <path d="M 33 40 Q 38 35 43 40" fill="none" stroke="#1a1a2e" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M 57 40 Q 62 35 67 40" fill="none" stroke="#1a1a2e" stroke-width="2.2" stroke-linecap="round"/>
+      <!-- Blush -->
+      <ellipse cx="30" cy="47" rx="4" ry="2.5" fill="#e8a090" opacity="0.4"/>
+      <ellipse cx="70" cy="47" rx="4" ry="2.5" fill="#e8a090" opacity="0.4"/>
+      <!-- Happy mouth (big grin) -->
+      <path d="M 38 49 Q 50 61 62 49" fill="#c0392b" stroke="#2d2d40" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 42 50 Q 50 53 58 50" fill="white"/>
+    </svg>
+  </div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin2s" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#f0d4b0"/><stop offset="100%" stop-color="#d4b48c"/></radialGradient>
+        <linearGradient id="hair2s" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2d2d40"/><stop offset="100%" stop-color="#0e0e1a"/></linearGradient>
+      </defs>
+      <path d="M 20 76 Q 20 64 50 62 Q 80 64 80 76 L 80 100 L 20 100 Z" fill="#8e44ad"/>
+      <path d="M 30 70 Q 36 66 42 68 Q 50 72 58 68 Q 64 66 70 70" fill="none" stroke="#6c2d88" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 36 86 Q 50 90 64 86" fill="none" stroke="#6c2d88" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="46" y1="70" x2="44" y2="80" stroke="#c0c0c0" stroke-width="0.8"/>
+      <line x1="54" y1="70" x2="56" y2="80" stroke="#c0c0c0" stroke-width="0.8"/>
+      <ellipse cx="50" cy="30" rx="26" ry="22" fill="url(#hair2s)"/>
+      <path d="M 30 20 L 26 6 L 34 18 Z" fill="url(#hair2s)"/>
+      <path d="M 40 14 L 38 1 L 46 12 Z" fill="url(#hair2s)"/>
+      <path d="M 50 12 L 52 0 L 56 12 Z" fill="url(#hair2s)"/>
+      <path d="M 58 14 L 64 2 L 64 14 Z" fill="url(#hair2s)"/>
+      <path d="M 68 20 L 76 8 L 72 20 Z" fill="url(#hair2s)"/>
+      <path d="M 24 30 L 16 22 L 24 26 Z" fill="url(#hair2s)"/>
+      <path d="M 76 30 L 84 22 L 76 26 Z" fill="url(#hair2s)"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin2s)"/>
+      <ellipse cx="26" cy="43" rx="4" ry="5" fill="url(#skin2s)"/>
+      <ellipse cx="74" cy="43" rx="4" ry="5" fill="url(#skin2s)"/>
+      <ellipse cx="50" cy="47" rx="2" ry="1.5" fill="#c4a080" opacity="0.5"/>
+      <!-- Sad brows -->
+      <path d="M 34 32 Q 38 35 43 34" fill="none" stroke="#1a1a2e" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 57 34 Q 62 35 66 32" fill="none" stroke="#1a1a2e" stroke-width="1.8" stroke-linecap="round"/>
+      <!-- Sad eyes -->
+      <ellipse cx="38" cy="41" rx="5" ry="5" fill="white"/>
+      <ellipse cx="62" cy="41" rx="5" ry="5" fill="white"/>
+      <path d="M 33 39.5 Q 38 38 43 41" fill="none" stroke="#1a1a2e" stroke-width="1"/>
+      <path d="M 57 41 Q 62 38 67 39.5" fill="none" stroke="#1a1a2e" stroke-width="1"/>
+      <ellipse cx="38" cy="42" rx="3" ry="3.2" fill="#4a6741"/>
+      <ellipse cx="62" cy="42" rx="3" ry="3.2" fill="#4a6741"/>
+      <circle cx="38" cy="42" r="1.7" fill="#1a1a2e"/>
+      <circle cx="62" cy="42" r="1.7" fill="#1a1a2e"/>
+      <circle cx="36.5" cy="40.5" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.5" cy="40.5" r="1.4" fill="white" opacity="0.92"/>
+      <!-- Sad mouth -->
+      <path d="M 42 56 Q 50 50 58 56" fill="none" stroke="#2d2d40" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <!-- Character 3: Girl, red pigtails, freckles, fair skin, green shirt -->
+  <div class="row-label">Girl 2<br><small style="opacity:0.6">Red pigtails</small></div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin3n" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#ffeede"/><stop offset="100%" stop-color="#f5d5b8"/></radialGradient>
+        <linearGradient id="hair3n" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e04020"/><stop offset="100%" stop-color="#b03018"/></linearGradient>
+      </defs>
+      <path d="M 22 76 Q 22 66 50 64 Q 78 66 78 76 L 78 100 L 22 100 Z" fill="#27ae60"/>
+      <ellipse cx="42" cy="67" rx="7" ry="4" fill="#2ecc71"/>
+      <ellipse cx="58" cy="67" rx="7" ry="4" fill="#2ecc71"/>
+      <path d="M 30 80 Q 50 84 70 80" fill="none" stroke="#1e8c4c" stroke-width="0.8" opacity="0.4"/>
+      <!-- Pigtails behind -->
+      <ellipse cx="20" cy="38" rx="9" ry="18" fill="url(#hair3n)" transform="rotate(-12 20 38)"/>
+      <circle cx="16" cy="52" r="5" fill="url(#hair3n)"/>
+      <ellipse cx="80" cy="38" rx="9" ry="18" fill="url(#hair3n)" transform="rotate(12 80 38)"/>
+      <circle cx="84" cy="52" r="5" fill="url(#hair3n)"/>
+      <ellipse cx="50" cy="28" rx="28" ry="22" fill="url(#hair3n)"/>
+      <circle cx="24" cy="28" r="3.5" fill="#ffd700"/>
+      <circle cx="76" cy="28" r="3.5" fill="#ffd700"/>
+      <path d="M 28 28 Q 34 36 38 28 Q 42 20 46 30 Q 50 20 54 30 Q 58 20 62 28 Q 66 36 72 28" fill="url(#hair3n)"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin3n)"/>
+      <ellipse cx="26" cy="43" rx="3.5" ry="4.5" fill="url(#skin3n)"/>
+      <ellipse cx="74" cy="43" rx="3.5" ry="4.5" fill="url(#skin3n)"/>
+      <circle cx="50" cy="48" r="2" fill="#f0bfa0" opacity="0.6"/>
+      <!-- Freckles -->
+      <circle cx="32" cy="46" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="35" cy="48" r="0.8" fill="#c07040" opacity="0.5"/>
+      <circle cx="33" cy="50" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="68" cy="46" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="65" cy="48" r="0.8" fill="#c07040" opacity="0.5"/>
+      <circle cx="67" cy="50" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="48" cy="45" r="0.6" fill="#c07040" opacity="0.4"/>
+      <circle cx="52" cy="45" r="0.6" fill="#c07040" opacity="0.4"/>
+      <circle cx="50" cy="44" r="0.6" fill="#c07040" opacity="0.4"/>
+      <!-- Neutral brows -->
+      <path d="M 33 33 Q 38 31 43 33" fill="none" stroke="#a04020" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M 57 33 Q 62 31 67 33" fill="none" stroke="#a04020" stroke-width="1.3" stroke-linecap="round"/>
+      <!-- Neutral eyes -->
+      <ellipse cx="38" cy="40" rx="5.2" ry="5.8" fill="white"/>
+      <ellipse cx="62" cy="40" rx="5.2" ry="5.8" fill="white"/>
+      <ellipse cx="38" cy="40.5" rx="3.2" ry="3.6" fill="#5a8f4a"/>
+      <ellipse cx="62" cy="40.5" rx="3.2" ry="3.6" fill="#5a8f4a"/>
+      <circle cx="38" cy="40.5" r="1.8" fill="#1a2e1a"/>
+      <circle cx="62" cy="40.5" r="1.8" fill="#1a2e1a"/>
+      <circle cx="36.2" cy="39" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.2" cy="39" r="1.4" fill="white" opacity="0.92"/>
+      <path d="M 33 38 Q 34 35.5 36 37" fill="none" stroke="#a04020" stroke-width="0.7"/>
+      <path d="M 67 38 Q 66 35.5 64 37" fill="none" stroke="#a04020" stroke-width="0.7"/>
+      <!-- Neutral mouth -->
+      <path d="M 43 52 Q 50 56 57 52" fill="none" stroke="#a04040" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin3h" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#ffeede"/><stop offset="100%" stop-color="#f5d5b8"/></radialGradient>
+        <linearGradient id="hair3h" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e04020"/><stop offset="100%" stop-color="#b03018"/></linearGradient>
+      </defs>
+      <path d="M 22 76 Q 22 66 50 64 Q 78 66 78 76 L 78 100 L 22 100 Z" fill="#27ae60"/>
+      <ellipse cx="42" cy="67" rx="7" ry="4" fill="#2ecc71"/>
+      <ellipse cx="58" cy="67" rx="7" ry="4" fill="#2ecc71"/>
+      <path d="M 30 80 Q 50 84 70 80" fill="none" stroke="#1e8c4c" stroke-width="0.8" opacity="0.4"/>
+      <ellipse cx="20" cy="38" rx="9" ry="18" fill="url(#hair3h)" transform="rotate(-12 20 38)"/>
+      <circle cx="16" cy="52" r="5" fill="url(#hair3h)"/>
+      <ellipse cx="80" cy="38" rx="9" ry="18" fill="url(#hair3h)" transform="rotate(12 80 38)"/>
+      <circle cx="84" cy="52" r="5" fill="url(#hair3h)"/>
+      <ellipse cx="50" cy="28" rx="28" ry="22" fill="url(#hair3h)"/>
+      <circle cx="24" cy="28" r="3.5" fill="#ffd700"/>
+      <circle cx="76" cy="28" r="3.5" fill="#ffd700"/>
+      <path d="M 28 28 Q 34 36 38 28 Q 42 20 46 30 Q 50 20 54 30 Q 58 20 62 28 Q 66 36 72 28" fill="url(#hair3h)"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin3h)"/>
+      <ellipse cx="26" cy="43" rx="3.5" ry="4.5" fill="url(#skin3h)"/>
+      <ellipse cx="74" cy="43" rx="3.5" ry="4.5" fill="url(#skin3h)"/>
+      <circle cx="50" cy="48" r="2" fill="#f0bfa0" opacity="0.6"/>
+      <!-- Freckles -->
+      <circle cx="32" cy="46" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="35" cy="48" r="0.8" fill="#c07040" opacity="0.5"/>
+      <circle cx="33" cy="50" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="68" cy="46" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="65" cy="48" r="0.8" fill="#c07040" opacity="0.5"/>
+      <circle cx="67" cy="50" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="48" cy="45" r="0.6" fill="#c07040" opacity="0.4"/>
+      <circle cx="52" cy="45" r="0.6" fill="#c07040" opacity="0.4"/>
+      <circle cx="50" cy="44" r="0.6" fill="#c07040" opacity="0.4"/>
+      <!-- Happy brows -->
+      <path d="M 33 30 Q 38 27 43 31" fill="none" stroke="#a04020" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M 57 31 Q 62 27 67 30" fill="none" stroke="#a04020" stroke-width="1.3" stroke-linecap="round"/>
+      <!-- Happy eyes -->
+      <path d="M 33 41 Q 38 35 43 41" fill="white"/>
+      <path d="M 33 41 Q 38 44 43 41" fill="white"/>
+      <path d="M 57 41 Q 62 35 67 41" fill="white"/>
+      <path d="M 57 41 Q 62 44 67 41" fill="white"/>
+      <ellipse cx="38" cy="40" rx="3.2" ry="2.6" fill="#5a8f4a"/>
+      <ellipse cx="62" cy="40" rx="3.2" ry="2.6" fill="#5a8f4a"/>
+      <circle cx="38" cy="39.8" r="1.5" fill="#1a2e1a"/>
+      <circle cx="62" cy="39.8" r="1.5" fill="#1a2e1a"/>
+      <circle cx="36.5" cy="38.8" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.5" cy="38.8" r="1.4" fill="white" opacity="0.92"/>
+      <path d="M 33 39 Q 34 36.5 36 38" fill="none" stroke="#a04020" stroke-width="0.7"/>
+      <path d="M 67 39 Q 66 36.5 64 38" fill="none" stroke="#a04020" stroke-width="0.7"/>
+      <!-- Blush -->
+      <ellipse cx="30" cy="47" rx="4" ry="2.5" fill="#f0a0a0" opacity="0.5"/>
+      <ellipse cx="70" cy="47" rx="4" ry="2.5" fill="#f0a0a0" opacity="0.5"/>
+      <!-- Happy mouth -->
+      <path d="M 40 50 Q 50 60 60 50" fill="#d45060" stroke="#a04040" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M 43 51 Q 50 54 57 51" fill="white"/>
+    </svg>
+  </div>
+
+  <div class="cell">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <defs>
+        <radialGradient id="skin3s" cx="50%" cy="40%" r="55%"><stop offset="0%" stop-color="#ffeede"/><stop offset="100%" stop-color="#f5d5b8"/></radialGradient>
+        <linearGradient id="hair3s" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e04020"/><stop offset="100%" stop-color="#b03018"/></linearGradient>
+      </defs>
+      <path d="M 22 76 Q 22 66 50 64 Q 78 66 78 76 L 78 100 L 22 100 Z" fill="#27ae60"/>
+      <ellipse cx="42" cy="67" rx="7" ry="4" fill="#2ecc71"/>
+      <ellipse cx="58" cy="67" rx="7" ry="4" fill="#2ecc71"/>
+      <path d="M 30 80 Q 50 84 70 80" fill="none" stroke="#1e8c4c" stroke-width="0.8" opacity="0.4"/>
+      <ellipse cx="20" cy="38" rx="9" ry="18" fill="url(#hair3s)" transform="rotate(-12 20 38)"/>
+      <circle cx="16" cy="52" r="5" fill="url(#hair3s)"/>
+      <ellipse cx="80" cy="38" rx="9" ry="18" fill="url(#hair3s)" transform="rotate(12 80 38)"/>
+      <circle cx="84" cy="52" r="5" fill="url(#hair3s)"/>
+      <ellipse cx="50" cy="28" rx="28" ry="22" fill="url(#hair3s)"/>
+      <circle cx="24" cy="28" r="3.5" fill="#ffd700"/>
+      <circle cx="76" cy="28" r="3.5" fill="#ffd700"/>
+      <path d="M 28 28 Q 34 36 38 28 Q 42 20 46 30 Q 50 20 54 30 Q 58 20 62 28 Q 66 36 72 28" fill="url(#hair3s)"/>
+      <ellipse cx="50" cy="42" rx="24" ry="25" fill="url(#skin3s)"/>
+      <ellipse cx="26" cy="43" rx="3.5" ry="4.5" fill="url(#skin3s)"/>
+      <ellipse cx="74" cy="43" rx="3.5" ry="4.5" fill="url(#skin3s)"/>
+      <circle cx="50" cy="48" r="2" fill="#f0bfa0" opacity="0.6"/>
+      <!-- Freckles -->
+      <circle cx="32" cy="46" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="35" cy="48" r="0.8" fill="#c07040" opacity="0.5"/>
+      <circle cx="33" cy="50" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="68" cy="46" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="65" cy="48" r="0.8" fill="#c07040" opacity="0.5"/>
+      <circle cx="67" cy="50" r="0.9" fill="#c07040" opacity="0.5"/>
+      <circle cx="48" cy="45" r="0.6" fill="#c07040" opacity="0.4"/>
+      <circle cx="52" cy="45" r="0.6" fill="#c07040" opacity="0.4"/>
+      <circle cx="50" cy="44" r="0.6" fill="#c07040" opacity="0.4"/>
+      <!-- Sad brows -->
+      <path d="M 34 32 Q 38 34 43 33" fill="none" stroke="#a04020" stroke-width="1.3" stroke-linecap="round"/>
+      <path d="M 57 33 Q 62 34 66 32" fill="none" stroke="#a04020" stroke-width="1.3" stroke-linecap="round"/>
+      <!-- Sad eyes -->
+      <ellipse cx="38" cy="41" rx="5.2" ry="5.2" fill="white"/>
+      <ellipse cx="62" cy="41" rx="5.2" ry="5.2" fill="white"/>
+      <path d="M 33 39.5 Q 38 38 43 41" fill="none" stroke="#a04020" stroke-width="0.9"/>
+      <path d="M 57 41 Q 62 38 67 39.5" fill="none" stroke="#a04020" stroke-width="0.9"/>
+      <ellipse cx="38" cy="42" rx="3.2" ry="3.4" fill="#5a8f4a"/>
+      <ellipse cx="62" cy="42" rx="3.2" ry="3.4" fill="#5a8f4a"/>
+      <circle cx="38" cy="42" r="1.8" fill="#1a2e1a"/>
+      <circle cx="62" cy="42" r="1.8" fill="#1a2e1a"/>
+      <circle cx="36.2" cy="40.5" r="1.4" fill="white" opacity="0.92"/>
+      <circle cx="60.2" cy="40.5" r="1.4" fill="white" opacity="0.92"/>
+      <!-- Sad mouth -->
+      <path d="M 43 56 Q 50 50 57 56" fill="none" stroke="#a04040" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </div>
+</div>
+
+<div class="legend">
+  <span>Boy 1: Curly hair, brown skin, gold shirt</span>
+  <span>Girl 1: Long hair, headband, blue shirt</span>
+  <span>Boy 2: Spiky hair, purple hoodie</span>
+  <span>Girl 2: Red pigtails, freckles, green shirt</span>
+</div>
+
+</body>
+</html>

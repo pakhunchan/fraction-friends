@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cookie SVG Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5efe6;
+      color: #3a2a1a;
+      padding: 40px 24px;
+    }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    h2 { font-size: 20px; margin-bottom: 12px; color: #6b4c2a; }
+    p.subtitle { color: #7a6a5a; margin-bottom: 32px; }
+    section {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .cookie-row {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .cookie-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .cookie-cell span {
+      font-size: 12px;
+      color: #8a7a6a;
+    }
+    .halves-pair {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .selected-ring {
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px #60a5fa;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+<h1>Cookie Component Preview</h1>
+<p class="subtitle">Beautiful SVG cookies for the fractions tutor</p>
+
+<!-- ============================================================= -->
+<!-- SHARED DEFS (referenced by all cookies on the page)            -->
+<!-- ============================================================= -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <!-- Main body gradient -->
+    <radialGradient id="body" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#eab06a" />
+      <stop offset="45%" stop-color="#d4894e" />
+      <stop offset="85%" stop-color="#c07a3e" />
+      <stop offset="100%" stop-color="#a86830" />
+    </radialGradient>
+    <!-- Top-left highlight -->
+    <radialGradient id="highlight" cx="35%" cy="30%" r="40%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.30" />
+      <stop offset="100%" stop-color="white" stop-opacity="0" />
+    </radialGradient>
+    <!-- Bottom shadow -->
+    <radialGradient id="shadow" cx="55%" cy="65%" r="50%">
+      <stop offset="0%" stop-color="transparent" />
+      <stop offset="60%" stop-color="transparent" />
+      <stop offset="100%" stop-color="#5a3010" stop-opacity="0.25" />
+    </radialGradient>
+    <!-- Texture filter -->
+    <filter id="texture" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" result="noise" />
+      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise" />
+      <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="textured" />
+      <feComponentTransfer in="textured">
+        <feFuncA type="linear" slope="1" />
+      </feComponentTransfer>
+    </filter>
+    <!-- Drop shadow -->
+    <filter id="dropshadow" x="-15%" y="-10%" width="130%" height="135%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#3a1a00" flood-opacity="0.35" />
+    </filter>
+    <!-- Chocolate chip gradient -->
+    <radialGradient id="chip" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#5a3820" />
+      <stop offset="50%" stop-color="#3d2314" />
+      <stop offset="100%" stop-color="#2a1508" />
+    </radialGradient>
+    <!-- Chip highlight -->
+    <radialGradient id="chipHL" cx="35%" cy="30%" r="45%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="white" stop-opacity="0" />
+    </radialGradient>
+    <!-- Cut edge gradient -->
+    <linearGradient id="cutEdge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e8c088" />
+      <stop offset="50%" stop-color="#dbb478" />
+      <stop offset="100%" stop-color="#e8c088" />
+    </linearGradient>
+    <!-- Selected glow -->
+    <filter id="glow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feFlood flood-color="#60a5fa" flood-opacity="0.7" result="color" />
+      <feComposite in="color" in2="blur" operator="in" result="glow" />
+      <feMerge>
+        <feMergeNode in="glow" />
+        <feMergeNode in="glow" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
+
+<!-- ============================================================= -->
+<!-- WHOLE COOKIES                                                   -->
+<!-- ============================================================= -->
+<section>
+  <h2>Whole Cookie</h2>
+  <div class="cookie-row">
+
+    <!-- 80px -->
+    <div class="cookie-cell">
+      <svg width="80" height="80" viewBox="-2 -2 104 104" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#dropshadow)">
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#body)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <!-- dimples -->
+          <g opacity="0.12">
+            <circle cx="25" cy="25" r="1.8" fill="#a06020"/>
+            <circle cx="40" cy="18" r="1.8" fill="#a06020"/>
+            <circle cx="60" cy="35" r="1.8" fill="#a06020"/>
+            <circle cx="75" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="20" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="55" cy="45" r="1.8" fill="#a06020"/>
+            <circle cx="35" cy="70" r="1.8" fill="#a06020"/>
+            <circle cx="65" cy="75" r="1.8" fill="#a06020"/>
+            <circle cx="45" cy="60" r="1.8" fill="#a06020"/>
+            <circle cx="30" cy="85" r="1.8" fill="#a06020"/>
+            <circle cx="70" cy="25" r="1.8" fill="#a06020"/>
+            <circle cx="80" cy="68" r="1.8" fill="#a06020"/>
+          </g>
+          <!-- chips -->
+          <g>
+            <g transform="rotate(-15 30 32)"><ellipse cx="30.5" cy="33" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="30" cy="32" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="30" cy="32" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(10 56 24)"><ellipse cx="56.5" cy="25" rx="4.5" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/><ellipse cx="56" cy="24" rx="3.6" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(25 72 38)"><ellipse cx="72.5" cy="39" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="72" cy="38" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-5 22 58)"><ellipse cx="22.5" cy="59" rx="4" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="22" cy="58" rx="4" ry="5" fill="url(#chip)"/><ellipse cx="22" cy="58" rx="3.2" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(35 44 52)"><ellipse cx="44.5" cy="53" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="44" cy="52" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="44" cy="52" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-20 65 62)"><ellipse cx="65.5" cy="63" rx="4.5" ry="5.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="65" cy="62" rx="4.5" ry="5.5" fill="url(#chip)"/><ellipse cx="65" cy="62" rx="3.6" ry="4.4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(15 36 76)"><ellipse cx="36.5" cy="77" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="36" cy="76" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="36" cy="76" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-30 58 78)"><ellipse cx="58.5" cy="79" rx="4" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="58" cy="78" rx="4" ry="4.5" fill="url(#chip)"/><ellipse cx="58" cy="78" rx="3.2" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(5 78 58)"><ellipse cx="78.5" cy="59" rx="4.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="78" cy="58" rx="4.5" ry="4" fill="url(#chip)"/><ellipse cx="78" cy="58" rx="3.6" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(40 42 36)"><ellipse cx="42.5" cy="37" rx="3.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="42" cy="36" rx="3.5" ry="4" fill="url(#chip)"/><ellipse cx="42" cy="36" rx="2.8" ry="3.2" fill="url(#chipHL)"/></g>
+          </g>
+          <!-- highlight + shadow overlays -->
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#highlight)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#shadow)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+        </g>
+      </svg>
+      <span>80px</span>
+    </div>
+
+    <!-- 120px -->
+    <div class="cookie-cell">
+      <svg width="120" height="120" viewBox="-2 -2 104 104" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#dropshadow)">
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#body)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <g opacity="0.12">
+            <circle cx="25" cy="25" r="1.8" fill="#a06020"/>
+            <circle cx="40" cy="18" r="1.8" fill="#a06020"/>
+            <circle cx="60" cy="35" r="1.8" fill="#a06020"/>
+            <circle cx="75" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="20" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="55" cy="45" r="1.8" fill="#a06020"/>
+            <circle cx="35" cy="70" r="1.8" fill="#a06020"/>
+            <circle cx="65" cy="75" r="1.8" fill="#a06020"/>
+            <circle cx="45" cy="60" r="1.8" fill="#a06020"/>
+            <circle cx="30" cy="85" r="1.8" fill="#a06020"/>
+            <circle cx="70" cy="25" r="1.8" fill="#a06020"/>
+            <circle cx="80" cy="68" r="1.8" fill="#a06020"/>
+          </g>
+          <g>
+            <g transform="rotate(-15 30 32)"><ellipse cx="30.5" cy="33" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="30" cy="32" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="30" cy="32" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(10 56 24)"><ellipse cx="56.5" cy="25" rx="4.5" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/><ellipse cx="56" cy="24" rx="3.6" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(25 72 38)"><ellipse cx="72.5" cy="39" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="72" cy="38" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-5 22 58)"><ellipse cx="22.5" cy="59" rx="4" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="22" cy="58" rx="4" ry="5" fill="url(#chip)"/><ellipse cx="22" cy="58" rx="3.2" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(35 44 52)"><ellipse cx="44.5" cy="53" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="44" cy="52" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="44" cy="52" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-20 65 62)"><ellipse cx="65.5" cy="63" rx="4.5" ry="5.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="65" cy="62" rx="4.5" ry="5.5" fill="url(#chip)"/><ellipse cx="65" cy="62" rx="3.6" ry="4.4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(15 36 76)"><ellipse cx="36.5" cy="77" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="36" cy="76" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="36" cy="76" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-30 58 78)"><ellipse cx="58.5" cy="79" rx="4" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="58" cy="78" rx="4" ry="4.5" fill="url(#chip)"/><ellipse cx="58" cy="78" rx="3.2" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(5 78 58)"><ellipse cx="78.5" cy="59" rx="4.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="78" cy="58" rx="4.5" ry="4" fill="url(#chip)"/><ellipse cx="78" cy="58" rx="3.6" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(40 42 36)"><ellipse cx="42.5" cy="37" rx="3.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="42" cy="36" rx="3.5" ry="4" fill="url(#chip)"/><ellipse cx="42" cy="36" rx="2.8" ry="3.2" fill="url(#chipHL)"/></g>
+          </g>
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#highlight)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#shadow)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+        </g>
+      </svg>
+      <span>120px (default)</span>
+    </div>
+
+    <!-- 160px -->
+    <div class="cookie-cell">
+      <svg width="160" height="160" viewBox="-2 -2 104 104" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#dropshadow)">
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#body)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <g opacity="0.12">
+            <circle cx="25" cy="25" r="1.8" fill="#a06020"/>
+            <circle cx="40" cy="18" r="1.8" fill="#a06020"/>
+            <circle cx="60" cy="35" r="1.8" fill="#a06020"/>
+            <circle cx="75" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="20" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="55" cy="45" r="1.8" fill="#a06020"/>
+            <circle cx="35" cy="70" r="1.8" fill="#a06020"/>
+            <circle cx="65" cy="75" r="1.8" fill="#a06020"/>
+            <circle cx="45" cy="60" r="1.8" fill="#a06020"/>
+            <circle cx="30" cy="85" r="1.8" fill="#a06020"/>
+            <circle cx="70" cy="25" r="1.8" fill="#a06020"/>
+            <circle cx="80" cy="68" r="1.8" fill="#a06020"/>
+          </g>
+          <g>
+            <g transform="rotate(-15 30 32)"><ellipse cx="30.5" cy="33" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="30" cy="32" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="30" cy="32" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(10 56 24)"><ellipse cx="56.5" cy="25" rx="4.5" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/><ellipse cx="56" cy="24" rx="3.6" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(25 72 38)"><ellipse cx="72.5" cy="39" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="72" cy="38" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-5 22 58)"><ellipse cx="22.5" cy="59" rx="4" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="22" cy="58" rx="4" ry="5" fill="url(#chip)"/><ellipse cx="22" cy="58" rx="3.2" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(35 44 52)"><ellipse cx="44.5" cy="53" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="44" cy="52" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="44" cy="52" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-20 65 62)"><ellipse cx="65.5" cy="63" rx="4.5" ry="5.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="65" cy="62" rx="4.5" ry="5.5" fill="url(#chip)"/><ellipse cx="65" cy="62" rx="3.6" ry="4.4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(15 36 76)"><ellipse cx="36.5" cy="77" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="36" cy="76" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="36" cy="76" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-30 58 78)"><ellipse cx="58.5" cy="79" rx="4" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="58" cy="78" rx="4" ry="4.5" fill="url(#chip)"/><ellipse cx="58" cy="78" rx="3.2" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(5 78 58)"><ellipse cx="78.5" cy="59" rx="4.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="78" cy="58" rx="4.5" ry="4" fill="url(#chip)"/><ellipse cx="78" cy="58" rx="3.6" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(40 42 36)"><ellipse cx="42.5" cy="37" rx="3.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="42" cy="36" rx="3.5" ry="4" fill="url(#chip)"/><ellipse cx="42" cy="36" rx="2.8" ry="3.2" fill="url(#chipHL)"/></g>
+          </g>
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#highlight)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#shadow)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+        </g>
+      </svg>
+      <span>160px</span>
+    </div>
+
+    <!-- 120px selected -->
+    <div class="cookie-cell">
+      <svg width="120" height="120" viewBox="-2 -2 104 104" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#glow)">
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#body)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <g opacity="0.12">
+            <circle cx="25" cy="25" r="1.8" fill="#a06020"/>
+            <circle cx="40" cy="18" r="1.8" fill="#a06020"/>
+            <circle cx="60" cy="35" r="1.8" fill="#a06020"/>
+            <circle cx="75" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="20" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="55" cy="45" r="1.8" fill="#a06020"/>
+            <circle cx="35" cy="70" r="1.8" fill="#a06020"/>
+            <circle cx="65" cy="75" r="1.8" fill="#a06020"/>
+            <circle cx="45" cy="60" r="1.8" fill="#a06020"/>
+            <circle cx="30" cy="85" r="1.8" fill="#a06020"/>
+            <circle cx="70" cy="25" r="1.8" fill="#a06020"/>
+            <circle cx="80" cy="68" r="1.8" fill="#a06020"/>
+          </g>
+          <g>
+            <g transform="rotate(-15 30 32)"><ellipse cx="30.5" cy="33" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="30" cy="32" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="30" cy="32" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(10 56 24)"><ellipse cx="56.5" cy="25" rx="4.5" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/><ellipse cx="56" cy="24" rx="3.6" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(25 72 38)"><ellipse cx="72.5" cy="39" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="72" cy="38" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-5 22 58)"><ellipse cx="22.5" cy="59" rx="4" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="22" cy="58" rx="4" ry="5" fill="url(#chip)"/><ellipse cx="22" cy="58" rx="3.2" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(35 44 52)"><ellipse cx="44.5" cy="53" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="44" cy="52" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="44" cy="52" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-20 65 62)"><ellipse cx="65.5" cy="63" rx="4.5" ry="5.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="65" cy="62" rx="4.5" ry="5.5" fill="url(#chip)"/><ellipse cx="65" cy="62" rx="3.6" ry="4.4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(15 36 76)"><ellipse cx="36.5" cy="77" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="36" cy="76" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="36" cy="76" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-30 58 78)"><ellipse cx="58.5" cy="79" rx="4" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="58" cy="78" rx="4" ry="4.5" fill="url(#chip)"/><ellipse cx="58" cy="78" rx="3.2" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(5 78 58)"><ellipse cx="78.5" cy="59" rx="4.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="78" cy="58" rx="4.5" ry="4" fill="url(#chip)"/><ellipse cx="78" cy="58" rx="3.6" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(40 42 36)"><ellipse cx="42.5" cy="37" rx="3.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="42" cy="36" rx="3.5" ry="4" fill="url(#chip)"/><ellipse cx="42" cy="36" rx="2.8" ry="3.2" fill="url(#chipHL)"/></g>
+          </g>
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#highlight)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#shadow)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+          <!-- dashed slice line -->
+          <line x1="50" y1="4" x2="50" y2="96" stroke="white" stroke-width="2" stroke-dasharray="4 4" opacity="0.7" />
+        </g>
+      </svg>
+      <span>120px selected</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- HALF COOKIES                                                    -->
+<!-- ============================================================= -->
+<section>
+  <h2>Half Cookies (Left + Right)</h2>
+  <div class="cookie-row">
+
+    <!-- Left half 120px -->
+    <div class="cookie-cell">
+      <svg width="54" height="102" viewBox="-2 -2 56 104" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#dropshadow)">
+          <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#body)" />
+          <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <g opacity="0.12">
+            <circle cx="25" cy="25" r="1.8" fill="#a06020"/>
+            <circle cx="40" cy="18" r="1.8" fill="#a06020"/>
+            <circle cx="20" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="35" cy="70" r="1.8" fill="#a06020"/>
+            <circle cx="45" cy="60" r="1.8" fill="#a06020"/>
+            <circle cx="30" cy="85" r="1.8" fill="#a06020"/>
+          </g>
+          <g>
+            <g transform="rotate(-15 30 32)"><ellipse cx="30.5" cy="33" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="30" cy="32" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="30" cy="32" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-5 22 58)"><ellipse cx="22.5" cy="59" rx="4" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="22" cy="58" rx="4" ry="5" fill="url(#chip)"/><ellipse cx="22" cy="58" rx="3.2" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(35 44 52)"><ellipse cx="44.5" cy="53" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="44" cy="52" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="44" cy="52" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(15 36 76)"><ellipse cx="36.5" cy="77" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="36" cy="76" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="36" cy="76" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(40 42 36)"><ellipse cx="42.5" cy="37" rx="3.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="42" cy="36" rx="3.5" ry="4" fill="url(#chip)"/><ellipse cx="42" cy="36" rx="2.8" ry="3.2" fill="url(#chipHL)"/></g>
+          </g>
+          <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#highlight)" />
+          <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#shadow)" />
+          <line x1="50" y1="5" x2="50" y2="96" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+        </g>
+      </svg>
+      <span>Left half</span>
+    </div>
+
+    <!-- Right half 120px -->
+    <div class="cookie-cell">
+      <svg width="54" height="102" viewBox="46 -2 56 104" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#dropshadow)">
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 Z" fill="url(#body)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <g opacity="0.12">
+            <circle cx="60" cy="35" r="1.8" fill="#a06020"/>
+            <circle cx="75" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="55" cy="45" r="1.8" fill="#a06020"/>
+            <circle cx="65" cy="75" r="1.8" fill="#a06020"/>
+            <circle cx="70" cy="25" r="1.8" fill="#a06020"/>
+            <circle cx="80" cy="68" r="1.8" fill="#a06020"/>
+          </g>
+          <g>
+            <g transform="rotate(10 56 24)"><ellipse cx="56.5" cy="25" rx="4.5" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/><ellipse cx="56" cy="24" rx="3.6" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(25 72 38)"><ellipse cx="72.5" cy="39" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="72" cy="38" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-20 65 62)"><ellipse cx="65.5" cy="63" rx="4.5" ry="5.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="65" cy="62" rx="4.5" ry="5.5" fill="url(#chip)"/><ellipse cx="65" cy="62" rx="3.6" ry="4.4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(-30 58 78)"><ellipse cx="58.5" cy="79" rx="4" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="58" cy="78" rx="4" ry="4.5" fill="url(#chip)"/><ellipse cx="58" cy="78" rx="3.2" ry="3.6" fill="url(#chipHL)"/></g>
+            <g transform="rotate(5 78 58)"><ellipse cx="78.5" cy="59" rx="4.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="78" cy="58" rx="4.5" ry="4" fill="url(#chip)"/><ellipse cx="78" cy="58" rx="3.6" ry="3.2" fill="url(#chipHL)"/></g>
+          </g>
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 Z" fill="url(#highlight)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 Z" fill="url(#shadow)" />
+          <line x1="50" y1="5" x2="50" y2="96" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+        </g>
+      </svg>
+      <span>Right half</span>
+    </div>
+
+    <!-- Sliced cookie pair -->
+    <div class="cookie-cell">
+      <div class="halves-pair">
+        <svg width="54" height="102" viewBox="-2 -2 56 104" xmlns="http://www.w3.org/2000/svg">
+          <g filter="url(#dropshadow)">
+            <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#body)" />
+            <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+            <g>
+              <g transform="rotate(-15 30 32)"><ellipse cx="30.5" cy="33" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="30" cy="32" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="30" cy="32" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+              <g transform="rotate(-5 22 58)"><ellipse cx="22.5" cy="59" rx="4" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="22" cy="58" rx="4" ry="5" fill="url(#chip)"/><ellipse cx="22" cy="58" rx="3.2" ry="4" fill="url(#chipHL)"/></g>
+              <g transform="rotate(35 44 52)"><ellipse cx="44.5" cy="53" rx="5.5" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="44" cy="52" rx="5.5" ry="4.5" fill="url(#chip)"/><ellipse cx="44" cy="52" rx="4.4" ry="3.6" fill="url(#chipHL)"/></g>
+              <g transform="rotate(15 36 76)"><ellipse cx="36.5" cy="77" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="36" cy="76" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="36" cy="76" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+              <g transform="rotate(40 42 36)"><ellipse cx="42.5" cy="37" rx="3.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="42" cy="36" rx="3.5" ry="4" fill="url(#chip)"/><ellipse cx="42" cy="36" rx="2.8" ry="3.2" fill="url(#chipHL)"/></g>
+            </g>
+            <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#highlight)" />
+            <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#shadow)" />
+            <line x1="50" y1="5" x2="50" y2="96" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+          </g>
+        </svg>
+        <svg width="54" height="102" viewBox="46 -2 56 104" xmlns="http://www.w3.org/2000/svg">
+          <g filter="url(#dropshadow)">
+            <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 Z" fill="url(#body)" />
+            <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+            <g>
+              <g transform="rotate(10 56 24)"><ellipse cx="56.5" cy="25" rx="4.5" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/><ellipse cx="56" cy="24" rx="3.6" ry="4" fill="url(#chipHL)"/></g>
+              <g transform="rotate(25 72 38)"><ellipse cx="72.5" cy="39" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="72" cy="38" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+              <g transform="rotate(-20 65 62)"><ellipse cx="65.5" cy="63" rx="4.5" ry="5.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="65" cy="62" rx="4.5" ry="5.5" fill="url(#chip)"/><ellipse cx="65" cy="62" rx="3.6" ry="4.4" fill="url(#chipHL)"/></g>
+              <g transform="rotate(-30 58 78)"><ellipse cx="58.5" cy="79" rx="4" ry="4.5" fill="#1a0a00" opacity="0.25"/><ellipse cx="58" cy="78" rx="4" ry="4.5" fill="url(#chip)"/><ellipse cx="58" cy="78" rx="3.2" ry="3.6" fill="url(#chipHL)"/></g>
+              <g transform="rotate(5 78 58)"><ellipse cx="78.5" cy="59" rx="4.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="78" cy="58" rx="4.5" ry="4" fill="url(#chip)"/><ellipse cx="78" cy="58" rx="3.6" ry="3.2" fill="url(#chipHL)"/></g>
+            </g>
+            <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 Z" fill="url(#highlight)" />
+            <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 Z" fill="url(#shadow)" />
+            <line x1="50" y1="5" x2="50" y2="96" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+          </g>
+        </svg>
+      </div>
+      <span>Sliced pair (left + right)</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- QUARTER COOKIES                                                 -->
+<!-- ============================================================= -->
+<section>
+  <h2>Quarter Cookie</h2>
+  <div class="cookie-row">
+
+    <!-- Quarter 80px -->
+    <div class="cookie-cell">
+      <svg width="60" height="60" viewBox="44 -2 56 56" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#dropshadow)">
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#body)" />
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <g opacity="0.12">
+            <circle cx="60" cy="35" r="1.8" fill="#a06020"/>
+            <circle cx="75" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="70" cy="25" r="1.8" fill="#a06020"/>
+          </g>
+          <g>
+            <g transform="rotate(10 56 24)"><ellipse cx="56.5" cy="25" rx="4.5" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/><ellipse cx="56" cy="24" rx="3.6" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(25 72 38)"><ellipse cx="72.5" cy="39" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="72" cy="38" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(5 78 58)"><ellipse cx="78.5" cy="50" rx="4.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="78" cy="49" rx="4.5" ry="4" fill="url(#chip)"/><ellipse cx="78" cy="49" rx="3.6" ry="3.2" fill="url(#chipHL)"/></g>
+          </g>
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#highlight)" />
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#shadow)" />
+          <line x1="50" y1="5" x2="50" y2="50" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+          <line x1="50" y1="50" x2="96" y2="50" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+        </g>
+      </svg>
+      <span>Quarter (small)</span>
+    </div>
+
+    <!-- Quarter 120px -->
+    <div class="cookie-cell">
+      <svg width="90" height="90" viewBox="44 -2 56 56" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#dropshadow)">
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#body)" />
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <g opacity="0.12">
+            <circle cx="60" cy="35" r="1.8" fill="#a06020"/>
+            <circle cx="75" cy="50" r="1.8" fill="#a06020"/>
+            <circle cx="70" cy="25" r="1.8" fill="#a06020"/>
+          </g>
+          <g>
+            <g transform="rotate(10 56 24)"><ellipse cx="56.5" cy="25" rx="4.5" ry="5" fill="#1a0a00" opacity="0.25"/><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/><ellipse cx="56" cy="24" rx="3.6" ry="4" fill="url(#chipHL)"/></g>
+            <g transform="rotate(25 72 38)"><ellipse cx="72.5" cy="39" rx="5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/><ellipse cx="72" cy="38" rx="4" ry="3.2" fill="url(#chipHL)"/></g>
+            <g transform="rotate(5 78 58)"><ellipse cx="78.5" cy="50" rx="4.5" ry="4" fill="#1a0a00" opacity="0.25"/><ellipse cx="78" cy="49" rx="4.5" ry="4" fill="url(#chip)"/><ellipse cx="78" cy="49" rx="3.6" ry="3.2" fill="url(#chipHL)"/></g>
+          </g>
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#highlight)" />
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#shadow)" />
+          <line x1="50" y1="5" x2="50" y2="50" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+          <line x1="50" y1="50" x2="96" y2="50" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+        </g>
+      </svg>
+      <span>Quarter (large)</span>
+    </div>
+
+    <!-- Four quarters arranged -->
+    <div class="cookie-cell">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 3px;">
+        <!-- top-left (mirrored) -->
+        <svg width="50" height="50" viewBox="-2 -2 56 56" xmlns="http://www.w3.org/2000/svg" style="transform: scaleX(-1)">
+          <g filter="url(#dropshadow)">
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#body)" />
+            <g>
+              <g transform="rotate(10 56 24)"><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/></g>
+              <g transform="rotate(25 72 38)"><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/></g>
+            </g>
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#highlight)" />
+            <line x1="50" y1="5" x2="50" y2="50" stroke="url(#cutEdge)" stroke-width="2" stroke-linecap="round" />
+            <line x1="50" y1="50" x2="96" y2="50" stroke="url(#cutEdge)" stroke-width="2" stroke-linecap="round" />
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+          </g>
+        </svg>
+        <!-- top-right -->
+        <svg width="50" height="50" viewBox="44 -2 56 56" xmlns="http://www.w3.org/2000/svg">
+          <g filter="url(#dropshadow)">
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#body)" />
+            <g>
+              <g transform="rotate(10 56 24)"><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/></g>
+              <g transform="rotate(25 72 38)"><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/></g>
+            </g>
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#highlight)" />
+            <line x1="50" y1="5" x2="50" y2="50" stroke="url(#cutEdge)" stroke-width="2" stroke-linecap="round" />
+            <line x1="50" y1="50" x2="96" y2="50" stroke="url(#cutEdge)" stroke-width="2" stroke-linecap="round" />
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+          </g>
+        </svg>
+        <!-- bottom-left (mirrored both axes) -->
+        <svg width="50" height="50" viewBox="-2 -2 56 56" xmlns="http://www.w3.org/2000/svg" style="transform: scale(-1, -1)">
+          <g filter="url(#dropshadow)">
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#body)" />
+            <g>
+              <g transform="rotate(10 56 24)"><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/></g>
+              <g transform="rotate(25 72 38)"><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/></g>
+            </g>
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#highlight)" />
+            <line x1="50" y1="5" x2="50" y2="50" stroke="url(#cutEdge)" stroke-width="2" stroke-linecap="round" />
+            <line x1="50" y1="50" x2="96" y2="50" stroke="url(#cutEdge)" stroke-width="2" stroke-linecap="round" />
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+          </g>
+        </svg>
+        <!-- bottom-right (flipped Y) -->
+        <svg width="50" height="50" viewBox="44 -2 56 56" xmlns="http://www.w3.org/2000/svg" style="transform: scaleY(-1)">
+          <g filter="url(#dropshadow)">
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#body)" />
+            <g>
+              <g transform="rotate(10 56 24)"><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/></g>
+              <g transform="rotate(25 72 38)"><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/></g>
+            </g>
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#highlight)" />
+            <line x1="50" y1="5" x2="50" y2="50" stroke="url(#cutEdge)" stroke-width="2" stroke-linecap="round" />
+            <line x1="50" y1="50" x2="96" y2="50" stroke="url(#cutEdge)" stroke-width="2" stroke-linecap="round" />
+            <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+          </g>
+        </svg>
+      </div>
+      <span>Four quarters (conceptual)</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- COMPARISON                                                      -->
+<!-- ============================================================= -->
+<section>
+  <h2>Size Comparison</h2>
+  <div class="cookie-row" style="align-items: flex-end;">
+    <div class="cookie-cell">
+      <svg width="120" height="120" viewBox="-2 -2 104 104" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#dropshadow)">
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#body)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <g>
+            <g transform="rotate(-15 30 32)"><ellipse cx="30" cy="32" rx="5.5" ry="4.5" fill="url(#chip)"/></g>
+            <g transform="rotate(10 56 24)"><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/></g>
+            <g transform="rotate(25 72 38)"><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/></g>
+            <g transform="rotate(-5 22 58)"><ellipse cx="22" cy="58" rx="4" ry="5" fill="url(#chip)"/></g>
+            <g transform="rotate(35 44 52)"><ellipse cx="44" cy="52" rx="5.5" ry="4.5" fill="url(#chip)"/></g>
+            <g transform="rotate(-20 65 62)"><ellipse cx="65" cy="62" rx="4.5" ry="5.5" fill="url(#chip)"/></g>
+            <g transform="rotate(15 36 76)"><ellipse cx="36" cy="76" rx="5" ry="4" fill="url(#chip)"/></g>
+            <g transform="rotate(-30 58 78)"><ellipse cx="58" cy="78" rx="4" ry="4.5" fill="url(#chip)"/></g>
+            <g transform="rotate(5 78 58)"><ellipse cx="78" cy="58" rx="4.5" ry="4" fill="url(#chip)"/></g>
+            <g transform="rotate(40 42 36)"><ellipse cx="42" cy="36" rx="3.5" ry="4" fill="url(#chip)"/></g>
+          </g>
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#highlight)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="url(#shadow)" />
+          <path d="M50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 C97,62 92,76 84,84 C76,92 63,97 50,96.5 C37,96 24,91 16,83 C8,75 3,62 3.5,50 C4,38 9,25 17,17 C25,9 38,4.5 50,4 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+        </g>
+      </svg>
+      <span>Whole</span>
+    </div>
+    <div class="cookie-cell">
+      <svg width="54" height="102" viewBox="-2 -2 56 104" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#dropshadow)">
+          <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#body)" />
+          <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <g>
+            <g transform="rotate(-15 30 32)"><ellipse cx="30" cy="32" rx="5.5" ry="4.5" fill="url(#chip)"/></g>
+            <g transform="rotate(-5 22 58)"><ellipse cx="22" cy="58" rx="4" ry="5" fill="url(#chip)"/></g>
+            <g transform="rotate(35 44 52)"><ellipse cx="44" cy="52" rx="5.5" ry="4.5" fill="url(#chip)"/></g>
+            <g transform="rotate(15 36 76)"><ellipse cx="36" cy="76" rx="5" ry="4" fill="url(#chip)"/></g>
+            <g transform="rotate(40 42 36)"><ellipse cx="42" cy="36" rx="3.5" ry="4" fill="url(#chip)"/></g>
+          </g>
+          <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#highlight)" />
+          <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="url(#shadow)" />
+          <line x1="50" y1="5" x2="50" y2="96" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M50,4 C38,4.5 25,9 17,17 C9,25 4,38 3.5,50 C3,62 8,75 16,83 C24,91 37,96 50,96.5 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+        </g>
+      </svg>
+      <span>1/2</span>
+    </div>
+    <div class="cookie-cell">
+      <svg width="72" height="72" viewBox="44 -2 56 56" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#dropshadow)">
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#body)" />
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#body)" filter="url(#texture)" opacity="0.35" />
+          <g>
+            <g transform="rotate(10 56 24)"><ellipse cx="56" cy="24" rx="4.5" ry="5" fill="url(#chip)"/></g>
+            <g transform="rotate(25 72 38)"><ellipse cx="72" cy="38" rx="5" ry="4" fill="url(#chip)"/></g>
+          </g>
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#highlight)" />
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="url(#shadow)" />
+          <line x1="50" y1="5" x2="50" y2="50" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+          <line x1="50" y1="50" x2="96" y2="50" stroke="url(#cutEdge)" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M50,50 L50,4 C62,3.5 75,9 83,17 C91,25 96,38 96.5,50 Z" fill="none" stroke="#8b5a2a" stroke-width="1.5" opacity="0.5" />
+        </g>
+      </svg>
+      <span>1/4</span>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

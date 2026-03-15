@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sound Effects Sampler</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1729;
+      --surface:   #1a2540;
+      --surface2:  #1e2d4a;
+      --border:    #2a3d5e;
+      --text:      #e2e8f0;
+      --muted:     #8899b0;
+      --accent:    #4a9eff;
+
+      --green:     #22c55e;
+      --green-bg:  #052e16;
+      --green-bd:  #166534;
+
+      --blue:      #60a5fa;
+      --blue-bg:   #0c1a3a;
+      --blue-bd:   #1e3a6e;
+
+      --orange:    #fb923c;
+      --orange-bg: #2c1200;
+      --orange-bd: #7c2d12;
+
+      --purple:    #c084fc;
+      --purple-bg: #1a0a2e;
+      --purple-bd: #5b21b6;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 24px 16px 64px;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .site-header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    .site-header p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 36px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .legend-dot.green  { background: var(--green); }
+    .legend-dot.blue   { background: var(--blue); }
+    .legend-dot.orange { background: var(--orange); }
+    .legend-dot.purple { background: var(--purple); }
+
+    /* ── Attempt sections ── */
+    .attempt-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px 24px;
+      margin-bottom: 20px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .attempt-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .attempt-label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .attempt-style {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Button grid ── */
+    .sound-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    /* ── Sound buttons ── */
+    .sfx-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 80ms ease, filter 80ms ease, box-shadow 80ms ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .sfx-btn:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.12);
+    }
+    .sfx-btn:active {
+      transform: scale(0.94);
+      filter: brightness(0.9);
+    }
+    .sfx-btn .icon { font-size: 1rem; line-height: 1; }
+
+    /* Green — success / positive */
+    .sfx-btn.green {
+      background: var(--green-bg);
+      border-color: var(--green-bd);
+      color: var(--green);
+    }
+    /* Blue — neutral / action / transition */
+    .sfx-btn.blue {
+      background: var(--blue-bg);
+      border-color: var(--blue-bd);
+      color: var(--blue);
+    }
+    /* Orange — wrong / negative */
+    .sfx-btn.orange {
+      background: var(--orange-bg);
+      border-color: var(--orange-bd);
+      color: var(--orange);
+    }
+    /* Purple — ambient / mood */
+    .sfx-btn.purple {
+      background: var(--purple-bg);
+      border-color: var(--purple-bd);
+      color: var(--purple);
+    }
+
+    /* ── Selected section ── */
+    .selected-section {
+      background: linear-gradient(135deg, #1a2540 0%, #0f2030 100%);
+      border: 2px solid #4a9eff;
+      border-radius: 14px;
+      padding: 20px 22px 24px;
+      margin-bottom: 32px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+    }
+    .selected-section::before {
+      content: '⭐';
+      position: absolute;
+      top: -14px;
+      left: 20px;
+      background: var(--bg);
+      padding: 0 8px;
+      font-size: 1.2rem;
+    }
+    .selected-section .attempt-label {
+      color: #4a9eff;
+      font-size: 1.15rem;
+    }
+    .selected-section .attempt-style {
+      color: #8bb8e8;
+    }
+    .selected-section .empty-msg {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      padding: 12px 0;
+    }
+
+    /* ── Playing flash ── */
+    @keyframes playing-flash {
+      0%   { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+      50%  { box-shadow: 0 0 0 5px rgba(255,255,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+    .sfx-btn.playing {
+      animation: playing-flash 0.3s ease-out;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .sfx-btn { font-size: 0.78rem; padding: 8px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>Sound Effects Sampler</h1>
+  <p>All 6 attempts &mdash; click any button to hear the synthesized sound</p>
+</header>
+
+<div class="legend">
+  <span class="legend-item"><span class="legend-dot green"></span> Success / Positive</span>
+  <span class="legend-item"><span class="legend-dot blue"></span> Action / Transition</span>
+  <span class="legend-item"><span class="legend-dot orange"></span> Wrong / Negative</span>
+  <span class="legend-item"><span class="legend-dot purple"></span> Ambient / Mood</span>
+</div>
+
+<!-- Selected sounds card -->
+<section class="selected-section" id="selected-section">
+  <div class="attempt-header">
+    <span class="attempt-label">Selected Sounds</span>
+    <span class="attempt-style">— Your custom mix for the final app</span>
+  </div>
+  <div class="sound-grid" id="selected-grid">
+    <p class="empty-msg">Tell me which sounds to add here from the attempts below.</p>
+  </div>
+</section>
+
+<!-- Attempt sections rendered by JS -->
+<div id="sampler"></div>
+
+<script>
+// =============================================================================
+// AudioContext singleton
+// =============================================================================
+
+let _ctx = null;
+
+function getCtx() {
+  if (!_ctx) {
+    _ctx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (_ctx.state === 'suspended') _ctx.resume();
+  return _ctx;
+}
+
+// =============================================================================
+// Utility helpers (shared across attempts)
+// =============================================================================
+
+function midiToFreq(note) {
+  return 440 * Math.pow(2, (note - 69) / 12);
+}
+
+function makeNoiseBuffer(ctx, duration) {
+  const len = Math.floor(ctx.sampleRate * duration);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  return buf;
+}
+
+function makeNoise(ctx, duration) {
+  const src = ctx.createBufferSource();
+  src.buffer = makeNoiseBuffer(ctx, duration);
+  return src;
+}
+
+function makeGain(ctx, value) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(value, ctx.currentTime);
+  return g;
+}
+
+/** Procedural convolution reverb (attempt6 style) */
+function createReverb(ctx, seconds, decay) {
+  const rate = ctx.sampleRate;
+  const length = Math.floor(rate * seconds);
+  const impulse = ctx.createBuffer(2, length, rate);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = impulse.getChannelData(ch);
+    for (let i = 0; i < length; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+    }
+  }
+  const conv = ctx.createConvolver();
+  conv.buffer = impulse;
+  return conv;
+}
+
+/** attempt4 makeEnv helper */
+function makeEnv(ctx, dest, peakGain, attackTime, decayTime, startTime) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, startTime);
+  g.gain.linearRampToValueAtTime(peakGain, startTime + attackTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, startTime + attackTime + decayTime);
+  g.connect(dest);
+  return g;
+}
+
+/** attempt4 bellTone helper */
+function bellTone(ctx, dest, freqHz, peakGain, decaySeconds, startTime, partialRatio) {
+  if (partialRatio === undefined) partialRatio = 2.756;
+  const t = startTime;
+  const attack = 0.004;
+
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'sine';
+  osc1.frequency.value = freqHz;
+  const env1 = makeEnv(ctx, dest, peakGain, attack, decaySeconds, t);
+  osc1.connect(env1);
+  osc1.start(t);
+  osc1.stop(t + attack + decaySeconds + 0.05);
+
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.value = freqHz * partialRatio;
+  const env2 = makeEnv(ctx, dest, peakGain * 0.22, attack, decaySeconds * 0.45, t);
+  osc2.connect(env2);
+  osc2.start(t);
+  osc2.stop(t + attack + decaySeconds * 0.5 + 0.05);
+}
+
+// =============================================================================
+// ATTEMPT 1 — Warm & Friendly
+// Sounds: pop, slice, ding, boing, woosh, fanfare
+// =============================================================================
+
+const attempt1 = {
+  label: 'Attempt 1',
+  style: 'Warm & Friendly',
+  sounds: [
+    { name: 'pop',     label: 'Pop',     color: 'blue',   icon: '💥', fn: a1_pop },
+    { name: 'slice',   label: 'Slice',   color: 'blue',   icon: '🔪', fn: a1_slice },
+    { name: 'ding',    label: 'Ding',    color: 'green',  icon: '🔔', fn: a1_ding },
+    { name: 'boing',   label: 'Boing',   color: 'orange', icon: '🪃', fn: a1_boing },
+    { name: 'woosh',   label: 'Woosh',   color: 'blue',   icon: '💨', fn: a1_woosh },
+    { name: 'fanfare', label: 'Fanfare', color: 'green',  icon: '🎺', fn: a1_fanfare },
+  ]
+};
+
+function a1_pop() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(1200, t);
+  osc.frequency.exponentialRampToValueAtTime(300, t + 0.08);
+  gain.gain.setValueAtTime(0.35, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + 0.1);
+}
+
+function a1_slice() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(2000, t);
+  osc.frequency.exponentialRampToValueAtTime(200, t + 0.15);
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(4000, t);
+  filter.frequency.exponentialRampToValueAtTime(500, t + 0.15);
+  gain.gain.setValueAtTime(0.2, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + 0.2);
+}
+
+function a1_ding() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+
+  const osc1 = ctx.createOscillator();
+  const gain1 = ctx.createGain();
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(880, t);
+  gain1.gain.setValueAtTime(0.3, t);
+  gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+  osc1.connect(gain1);
+  gain1.connect(ctx.destination);
+  osc1.start(t);
+  osc1.stop(t + 0.6);
+
+  const osc2 = ctx.createOscillator();
+  const gain2 = ctx.createGain();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(880 * 2.756, t);
+  gain2.gain.setValueAtTime(0.08, t);
+  gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+  osc2.connect(gain2);
+  gain2.connect(ctx.destination);
+  osc2.start(t);
+  osc2.stop(t + 0.4);
+}
+
+function a1_boing() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(150, t);
+  osc.frequency.linearRampToValueAtTime(600, t + 0.05);
+  osc.frequency.linearRampToValueAtTime(200, t + 0.12);
+  osc.frequency.linearRampToValueAtTime(500, t + 0.18);
+  osc.frequency.linearRampToValueAtTime(250, t + 0.25);
+  osc.frequency.linearRampToValueAtTime(400, t + 0.30);
+  osc.frequency.exponentialRampToValueAtTime(300, t + 0.4);
+  gain.gain.setValueAtTime(0.3, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + 0.5);
+}
+
+function a1_woosh() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const duration = 0.25;
+  const noise = makeNoise(ctx, duration);
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.Q.setValueAtTime(2, t);
+  filter.frequency.setValueAtTime(500, t);
+  filter.frequency.exponentialRampToValueAtTime(4000, t + duration * 0.4);
+  filter.frequency.exponentialRampToValueAtTime(800, t + duration);
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.001, t);
+  gain.gain.linearRampToValueAtTime(0.3, t + duration * 0.15);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+  noise.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  noise.start(t);
+  noise.stop(t + duration);
+}
+
+function a1_fanfare() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const notes = [523.25, 659.25, 783.99];
+  const noteSpacing = 0.18;
+
+  notes.forEach(function(freq, i) {
+    const start = t + i * noteSpacing;
+    const noteDuration = (i === notes.length - 1) ? 0.6 : 0.22;
+    const peakGain = (i === notes.length - 1) ? 0.35 : 0.25;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, start);
+    gain.gain.setValueAtTime(0.001, start);
+    gain.gain.linearRampToValueAtTime(peakGain, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + noteDuration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + noteDuration);
+
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(freq * 2, start);
+    gain2.gain.setValueAtTime(0.001, start);
+    gain2.gain.linearRampToValueAtTime(peakGain * 0.2, start + 0.02);
+    gain2.gain.exponentialRampToValueAtTime(0.001, start + noteDuration * 0.7);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(start);
+    osc2.stop(start + noteDuration);
+  });
+}
+
+// =============================================================================
+// ATTEMPT 2 — Warm & Friendly + ambient/shimmer extensions
+// Sounds: pop, slice, ding, boing, woosh, fanfare, wrong, ambient
+// =============================================================================
+
+// Note constants (MIDI)
+const NOTE = {
+  C3: 48, E3: 52, G3: 55,
+  C4: 60, D4: 62, E4: 64, F4: 65, G4: 67, A4: 69, B4: 71,
+  C5: 72, D5: 74, E5: 76, F5: 77, G5: 79,
+  Bb3: 58, Ab3: 56
+};
+
+const attempt2 = {
+  label: 'Attempt 2',
+  style: 'Warm & Friendly + Ambient',
+  sounds: [
+    { name: 'pop',     label: 'Pop',     color: 'blue',   icon: '💥', fn: a2_pop },
+    { name: 'slice',   label: 'Slice',   color: 'blue',   icon: '🔪', fn: a2_slice },
+    { name: 'ding',    label: 'Ding',    color: 'green',  icon: '🔔', fn: a2_ding },
+    { name: 'boing',   label: 'Boing',   color: 'orange', icon: '🪃', fn: a2_boing },
+    { name: 'woosh',   label: 'Woosh',   color: 'blue',   icon: '💨', fn: a2_woosh },
+    { name: 'fanfare', label: 'Fanfare', color: 'green',  icon: '🎺', fn: a2_fanfare },
+    { name: 'wrong',   label: 'Wrong',   color: 'orange', icon: '❌', fn: a2_wrong },
+    { name: 'ambient', label: 'Ambient Pad', color: 'purple', icon: '🌊', fn: a2_ambient },
+  ]
+};
+
+function a2_pop() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const notes = [NOTE.C4, NOTE.E4, NOTE.G4];
+  for (const midi of notes) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(midiToFreq(midi), now);
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.18, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.3);
+  }
+}
+
+function a2_slice() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const duration = 0.35;
+
+  const osc = ctx.createOscillator();
+  const oscGain = ctx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(2400, now);
+  osc.frequency.exponentialRampToValueAtTime(300, now + duration);
+  oscGain.gain.setValueAtTime(0.12, now);
+  oscGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+  osc.connect(oscGain);
+  oscGain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + duration + 0.05);
+
+  const noise = makeNoise(ctx, 0.15);
+  const noiseFilt = ctx.createBiquadFilter();
+  noiseFilt.type = 'bandpass';
+  noiseFilt.frequency.setValueAtTime(3000, now);
+  noiseFilt.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+  noiseFilt.Q.value = 1.5;
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.25, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+  noise.connect(noiseFilt);
+  noiseFilt.connect(noiseGain);
+  noiseGain.connect(ctx.destination);
+  noise.start(now);
+  noise.stop(now + 0.2);
+}
+
+function a2_ding() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const notes = [NOTE.E5, NOTE.G5];
+  const offsets = [0, 0.12];
+
+  for (let i = 0; i < notes.length; i++) {
+    const freq = midiToFreq(notes[i]);
+    const t = now + offsets[i];
+
+    const osc1 = ctx.createOscillator();
+    osc1.type = 'sine';
+    osc1.frequency.value = freq;
+
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'sine';
+    osc2.frequency.value = freq * 2.76;
+
+    const gain1 = ctx.createGain();
+    gain1.gain.setValueAtTime(0, t);
+    gain1.gain.linearRampToValueAtTime(0.2, t + 0.005);
+    gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+
+    const gain2 = ctx.createGain();
+    gain2.gain.setValueAtTime(0, t);
+    gain2.gain.linearRampToValueAtTime(0.07, t + 0.005);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+
+    osc1.connect(gain1); gain1.connect(ctx.destination);
+    osc2.connect(gain2); gain2.connect(ctx.destination);
+    osc1.start(t); osc1.stop(t + 1.0);
+    osc2.start(t); osc2.stop(t + 0.6);
+  }
+}
+
+function a2_boing() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+
+  const carrier = ctx.createOscillator();
+  carrier.type = 'sine';
+  carrier.frequency.setValueAtTime(180, now);
+  carrier.frequency.exponentialRampToValueAtTime(600, now + 0.06);
+  carrier.frequency.exponentialRampToValueAtTime(280, now + 0.18);
+  carrier.frequency.exponentialRampToValueAtTime(220, now + 0.4);
+
+  const modulator = ctx.createOscillator();
+  modulator.type = 'sine';
+  modulator.frequency.setValueAtTime(45, now);
+  modulator.frequency.linearRampToValueAtTime(8, now + 0.4);
+
+  const modGain = ctx.createGain();
+  modGain.gain.setValueAtTime(300, now);
+  modGain.gain.exponentialRampToValueAtTime(10, now + 0.4);
+  modulator.connect(modGain);
+  modGain.connect(carrier.frequency);
+
+  const env = ctx.createGain();
+  env.gain.setValueAtTime(0, now);
+  env.gain.linearRampToValueAtTime(0.22, now + 0.01);
+  env.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+  carrier.connect(env);
+  env.connect(ctx.destination);
+  carrier.start(now); carrier.stop(now + 0.55);
+  modulator.start(now); modulator.stop(now + 0.55);
+}
+
+function a2_woosh() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const duration = 0.5;
+  const noise = makeNoise(ctx, duration);
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.Q.value = 2.0;
+  filter.frequency.setValueAtTime(200, now);
+  filter.frequency.exponentialRampToValueAtTime(4000, now + duration * 0.6);
+  filter.frequency.exponentialRampToValueAtTime(1500, now + duration);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.001, now);
+  gain.gain.linearRampToValueAtTime(0.2, now + duration * 0.4);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+  noise.connect(filter);
+  filter.connect(gain);
+
+  if (typeof ctx.createStereoPanner === 'function') {
+    const panner = ctx.createStereoPanner();
+    panner.pan.setValueAtTime(-0.8, now);
+    panner.pan.linearRampToValueAtTime(0.8, now + duration);
+    gain.connect(panner);
+    panner.connect(ctx.destination);
+  } else {
+    gain.connect(ctx.destination);
+  }
+
+  noise.start(now);
+  noise.stop(now + duration + 0.05);
+}
+
+function a2_fanfare() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const melody = [NOTE.C4, NOTE.E4, NOTE.G4, NOTE.C5];
+  const noteSpacing = 0.15;
+  const noteDuration = 0.45;
+
+  const delay = ctx.createDelay(0.5);
+  delay.delayTime.value = 0.18;
+  const feedback = ctx.createGain();
+  feedback.gain.value = 0.25;
+  const dryGain = ctx.createGain();
+  dryGain.gain.value = 1.0;
+  const wetGain = ctx.createGain();
+  wetGain.gain.value = 0.3;
+
+  delay.connect(feedback);
+  feedback.connect(delay);
+  delay.connect(wetGain);
+  wetGain.connect(ctx.destination);
+  dryGain.connect(ctx.destination);
+
+  const mixNode = ctx.createGain();
+  mixNode.gain.value = 1.0;
+  mixNode.connect(dryGain);
+  mixNode.connect(delay);
+
+  for (let i = 0; i < melody.length; i++) {
+    const t = now + i * noteSpacing;
+    const freq = midiToFreq(melody[i]);
+    const osc = ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    const lpf = ctx.createBiquadFilter();
+    lpf.type = 'lowpass';
+    lpf.frequency.value = freq * 4;
+    lpf.Q.value = 0.7;
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(0.15, t + 0.01);
+    const releaseTime = (i === melody.length - 1) ? noteDuration * 1.8 : noteDuration;
+    env.gain.exponentialRampToValueAtTime(0.001, t + releaseTime);
+    osc.connect(lpf);
+    lpf.connect(env);
+    env.connect(mixNode);
+    osc.start(t);
+    osc.stop(t + releaseTime + 0.1);
+  }
+}
+
+function a2_wrong() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const notes = [NOTE.E4, NOTE.C4];
+  const offsets = [0, 0.18];
+
+  for (let i = 0; i < notes.length; i++) {
+    const t = now + offsets[i];
+    const freq = midiToFreq(notes[i]);
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(0.14, t + 0.02);
+    env.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+    osc.connect(env);
+    env.connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.5);
+  }
+}
+
+// ambient: plays for 3 seconds then stops (for audition purposes)
+function a2_ambient() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const notes = [NOTE.C3, NOTE.E3, NOTE.G3];
+  const padGain = ctx.createGain();
+  padGain.gain.setValueAtTime(0, now);
+  padGain.gain.linearRampToValueAtTime(0.04, now + 2.0);
+  padGain.gain.setValueAtTime(0.04, now + 2.5);
+  padGain.gain.linearRampToValueAtTime(0.0, now + 3.5);
+  padGain.connect(ctx.destination);
+
+  for (const midi of notes) {
+    const freq = midiToFreq(midi);
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const lfo = ctx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.3 + Math.random() * 0.2;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 1.5;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+    const voiceGain = ctx.createGain();
+    voiceGain.gain.value = 0.35;
+    osc.connect(voiceGain);
+    voiceGain.connect(padGain);
+    osc.start(now);
+    osc.stop(now + 3.6);
+    lfo.start(now);
+    lfo.stop(now + 3.6);
+  }
+}
+
+// =============================================================================
+// ATTEMPT 3 — Game Show
+// Sounds: buzzer, winner-bell, applause, drum-roll, horn-fanfare,
+//         countdown-tick, whoosh, sparkle
+// =============================================================================
+
+const attempt3 = {
+  label: 'Attempt 3',
+  style: 'Game Show',
+  sounds: [
+    { name: 'buzzer',         label: 'Buzzer',         color: 'orange', icon: '🚫', fn: a3_buzzer },
+    { name: 'winner-bell',    label: 'Winner Bell',    color: 'green',  icon: '🔔', fn: a3_winnerBell },
+    { name: 'applause',       label: 'Applause',       color: 'green',  icon: '👏', fn: a3_applause },
+    { name: 'drum-roll',      label: 'Drum Roll',      color: 'blue',   icon: '🥁', fn: a3_drumRoll },
+    { name: 'horn-fanfare',   label: 'Horn Fanfare',   color: 'green',  icon: '📯', fn: a3_hornFanfare },
+    { name: 'countdown-tick', label: 'Countdown Tick', color: 'blue',   icon: '⏱️', fn: a3_countdownTick },
+    { name: 'whoosh',         label: 'Whoosh',         color: 'blue',   icon: '💨', fn: a3_whoosh },
+    { name: 'sparkle',        label: 'Sparkle',        color: 'purple', icon: '✨', fn: a3_sparkle },
+  ]
+};
+
+function a3_buzzer() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const duration = 0.55;
+
+  const osc = ctx.createOscillator();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(220, t);
+  osc.frequency.linearRampToValueAtTime(130, t + duration);
+
+  const lfo = ctx.createOscillator();
+  lfo.type = 'sine';
+  lfo.frequency.setValueAtTime(18, t);
+  const lfoGain = ctx.createGain();
+  lfoGain.gain.setValueAtTime(0.4, t);
+
+  const masterGain = ctx.createGain();
+  masterGain.gain.setValueAtTime(0.001, t);
+  masterGain.gain.linearRampToValueAtTime(0.45, t + 0.02);
+  masterGain.gain.setValueAtTime(0.45, t + duration - 0.05);
+  masterGain.gain.linearRampToValueAtTime(0.001, t + duration);
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(1800, t);
+  filter.Q.setValueAtTime(1.5, t);
+
+  lfo.connect(lfoGain);
+  lfoGain.connect(masterGain.gain);
+  osc.connect(filter);
+  filter.connect(masterGain);
+  masterGain.connect(ctx.destination);
+
+  osc.start(t); osc.stop(t + duration);
+  lfo.start(t); lfo.stop(t + duration);
+}
+
+function a3_winnerBell() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const notes = [1046.5, 1318.5, 1568.0];
+  const spacing = 0.16;
+
+  notes.forEach(function(freq, i) {
+    const start = t + i * spacing;
+    const isLast = i === notes.length - 1;
+    const sustain = isLast ? 1.1 : 0.28;
+    const peak = isLast ? 0.38 : 0.28;
+
+    const osc1 = ctx.createOscillator();
+    const g1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(freq, start);
+    g1.gain.setValueAtTime(0.001, start);
+    g1.gain.linearRampToValueAtTime(peak, start + 0.01);
+    g1.gain.exponentialRampToValueAtTime(0.001, start + sustain);
+    osc1.connect(g1); g1.connect(ctx.destination);
+    osc1.start(start); osc1.stop(start + sustain + 0.05);
+
+    const osc2 = ctx.createOscillator();
+    const g2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(freq * 2.756, start);
+    g2.gain.setValueAtTime(0.001, start);
+    g2.gain.linearRampToValueAtTime(peak * 0.25, start + 0.01);
+    g2.gain.exponentialRampToValueAtTime(0.001, start + sustain * 0.55);
+    osc2.connect(g2); g2.connect(ctx.destination);
+    osc2.start(start); osc2.stop(start + sustain);
+
+    if (isLast) {
+      const osc3 = ctx.createOscillator();
+      const g3 = ctx.createGain();
+      osc3.type = 'sine';
+      osc3.frequency.setValueAtTime(freq * 4, start);
+      g3.gain.setValueAtTime(0.001, start);
+      g3.gain.linearRampToValueAtTime(peak * 0.1, start + 0.01);
+      g3.gain.exponentialRampToValueAtTime(0.001, start + sustain * 0.35);
+      osc3.connect(g3); g3.connect(ctx.destination);
+      osc3.start(start); osc3.stop(start + sustain);
+    }
+  });
+}
+
+function a3_applause() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const totalDuration = 2.0;
+
+  // Layer 1: bandpass ~600 Hz
+  const n1 = makeNoise(ctx, totalDuration);
+  const f1 = ctx.createBiquadFilter();
+  f1.type = 'bandpass'; f1.frequency.setValueAtTime(600, t); f1.Q.setValueAtTime(0.8, t);
+  const g1 = ctx.createGain();
+  g1.gain.setValueAtTime(0.001, t);
+  g1.gain.linearRampToValueAtTime(0.28, t + 0.3);
+  g1.gain.setValueAtTime(0.28, t + totalDuration - 0.5);
+  g1.gain.exponentialRampToValueAtTime(0.001, t + totalDuration);
+  n1.connect(f1); f1.connect(g1); g1.connect(ctx.destination);
+  n1.start(t); n1.stop(t + totalDuration);
+
+  // Layer 2: bandpass ~2200 Hz
+  const n2 = makeNoise(ctx, totalDuration);
+  const f2 = ctx.createBiquadFilter();
+  f2.type = 'bandpass'; f2.frequency.setValueAtTime(2200, t); f2.Q.setValueAtTime(1.5, t);
+  const g2 = ctx.createGain();
+  g2.gain.setValueAtTime(0.001, t);
+  g2.gain.linearRampToValueAtTime(0.12, t + 0.45);
+  g2.gain.setValueAtTime(0.12, t + totalDuration - 0.6);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + totalDuration);
+  n2.connect(f2); f2.connect(g2); g2.connect(ctx.destination);
+  n2.start(t); n2.stop(t + totalDuration);
+
+  // Layer 3: lowpass 180 Hz rumble
+  const n3 = makeNoise(ctx, totalDuration);
+  const f3 = ctx.createBiquadFilter();
+  f3.type = 'lowpass'; f3.frequency.setValueAtTime(180, t);
+  const g3 = ctx.createGain();
+  g3.gain.setValueAtTime(0.001, t);
+  g3.gain.linearRampToValueAtTime(0.18, t + 0.2);
+  g3.gain.setValueAtTime(0.18, t + totalDuration - 0.7);
+  g3.gain.exponentialRampToValueAtTime(0.001, t + totalDuration);
+  n3.connect(f3); f3.connect(g3); g3.connect(ctx.destination);
+  n3.start(t); n3.stop(t + totalDuration);
+}
+
+function a3_drumRoll() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const rollDuration = 1.2;
+  const hitCount = 22;
+
+  for (let i = 0; i < hitCount; i++) {
+    const progress = i / (hitCount - 1);
+    const hitTime = t + rollDuration * (1 - Math.pow(1 - progress, 2.2));
+    const hitGain = 0.06 + 0.22 * progress;
+
+    const n = makeNoise(ctx, 0.04);
+    const f = ctx.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.setValueAtTime(2200 + 300 * progress, hitTime);
+    f.Q.setValueAtTime(4, hitTime);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(hitGain, hitTime);
+    g.gain.exponentialRampToValueAtTime(0.001, hitTime + 0.035);
+    n.connect(f); f.connect(g); g.connect(ctx.destination);
+    n.start(hitTime); n.stop(hitTime + 0.05);
+  }
+
+  // Final thud
+  const thudt = t + rollDuration + 0.01;
+  const thudOsc = ctx.createOscillator();
+  const thudGain = ctx.createGain();
+  thudOsc.type = 'sine';
+  thudOsc.frequency.setValueAtTime(160, thudt);
+  thudOsc.frequency.exponentialRampToValueAtTime(60, thudt + 0.15);
+  thudGain.gain.setValueAtTime(0.5, thudt);
+  thudGain.gain.exponentialRampToValueAtTime(0.001, thudt + 0.35);
+  thudOsc.connect(thudGain); thudGain.connect(ctx.destination);
+  thudOsc.start(thudt); thudOsc.stop(thudt + 0.4);
+
+  // Snare crack
+  const crack = makeNoise(ctx, 0.08);
+  const crackFilter = ctx.createBiquadFilter();
+  crackFilter.type = 'highpass'; crackFilter.frequency.setValueAtTime(3000, thudt);
+  const crackGain = ctx.createGain();
+  crackGain.gain.setValueAtTime(0.35, thudt);
+  crackGain.gain.exponentialRampToValueAtTime(0.001, thudt + 0.07);
+  crack.connect(crackFilter); crackFilter.connect(crackGain); crackGain.connect(ctx.destination);
+  crack.start(thudt); crack.stop(thudt + 0.09);
+}
+
+function a3_hornFanfare() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const frequencies = [523.25, 784.0, 1046.5, 1318.5];
+  const gains = [0.3, 0.22, 0.18, 0.12];
+  const totalDuration = 1.4;
+
+  frequencies.forEach(function(freq, i) {
+    const entryDelay = i * 0.04;
+    const osc = ctx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(freq, t + entryDelay);
+    osc.frequency.linearRampToValueAtTime(freq * 1.01, t + entryDelay + 0.08);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(2000 - i * 200, t + entryDelay);
+    filter.Q.setValueAtTime(2, t);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.001, t + entryDelay);
+    gain.gain.linearRampToValueAtTime(gains[i], t + entryDelay + 0.12);
+    gain.gain.setValueAtTime(gains[i], t + totalDuration - 0.4);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + totalDuration);
+
+    osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    osc.start(t + entryDelay); osc.stop(t + totalDuration + 0.05);
+  });
+}
+
+function a3_countdownTick() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+
+  const noise = makeNoise(ctx, 0.025);
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass'; filter.frequency.setValueAtTime(3500, t); filter.Q.setValueAtTime(6, t);
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.25, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+  noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+  noise.start(t); noise.stop(t + 0.03);
+
+  const osc = ctx.createOscillator();
+  const oscGain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(900, t);
+  osc.frequency.exponentialRampToValueAtTime(400, t + 0.018);
+  oscGain.gain.setValueAtTime(0.18, t);
+  oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+  osc.connect(oscGain); oscGain.connect(ctx.destination);
+  osc.start(t); osc.stop(t + 0.025);
+}
+
+function a3_whoosh() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const duration = 0.3;
+  const noise = makeNoise(ctx, duration);
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass'; filter.Q.setValueAtTime(1.5, t);
+  filter.frequency.setValueAtTime(300, t);
+  filter.frequency.exponentialRampToValueAtTime(5000, t + duration * 0.7);
+  filter.frequency.exponentialRampToValueAtTime(2000, t + duration);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.001, t);
+  gain.gain.linearRampToValueAtTime(0.35, t + duration * 0.2);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+  noise.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+  noise.start(t); noise.stop(t + duration + 0.01);
+}
+
+function a3_sparkle() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const count = 20;
+  const window = 0.55;
+
+  for (let i = 0; i < count; i++) {
+    const startOffset = Math.random() * window;
+    const freq = 2000 + Math.random() * 6000;
+    const peakGain = 0.04 + Math.random() * 0.09;
+    const decayTime = 0.04 + Math.random() * 0.12;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t + startOffset);
+    gain.gain.setValueAtTime(0.001, t + startOffset);
+    gain.gain.linearRampToValueAtTime(peakGain, t + startOffset + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + startOffset + decayTime);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(t + startOffset);
+    osc.stop(t + startOffset + decayTime + 0.01);
+  }
+}
+
+// =============================================================================
+// ATTEMPT 4 — Cozy PBS / Warm
+// Sounds: chime, harp-gliss, warm-pad, soft-bell, xylophone,
+//         music-box, gentle-whoosh, sparkle
+// =============================================================================
+
+// MIDI note constants for attempt4
+const A4_m = 69, C4_m = 60, D4_m = 62, E4_m = 64, F4_m = 65, G4_m = 67, B4_m = 71;
+const C5_m = 72, D5_m = 74, E5_m = 76, F5_m = 77, G5_m = 79, A5_m = 81, B5_m = 83;
+const C6_m = 84, D6_m = 86, E6_m = 88;
+const G3_m = 55, B3_m = 59, D3_m = 50;
+
+const attempt4 = {
+  label: 'Attempt 4',
+  style: 'Cozy & Warm (PBS)',
+  sounds: [
+    { name: 'chime',         label: 'Chime',         color: 'green',  icon: '🔔', fn: a4_chime },
+    { name: 'harp-gliss',    label: 'Harp Gliss',    color: 'blue',   icon: '🎵', fn: a4_harpGliss },
+    { name: 'warm-pad',      label: 'Warm Pad',      color: 'purple', icon: '🌅', fn: a4_warmPad },
+    { name: 'soft-bell',     label: 'Soft Bell',     color: 'blue',   icon: '🔕', fn: a4_softBell },
+    { name: 'xylophone',     label: 'Xylophone',     color: 'blue',   icon: '🎶', fn: a4_xylophone },
+    { name: 'music-box',     label: 'Music Box',     color: 'purple', icon: '🎁', fn: a4_musicBox },
+    { name: 'gentle-whoosh', label: 'Gentle Whoosh', color: 'blue',   icon: '💨', fn: a4_gentleWhoosh },
+    { name: 'sparkle',       label: 'Sparkle',       color: 'purple', icon: '✨', fn: a4_sparkle },
+  ]
+};
+
+function a4_chime() {
+  const ctx = getCtx();
+  bellTone(ctx, ctx.destination, midiToFreq(A5_m), 0.18, 1.4, ctx.currentTime);
+}
+
+function a4_harpGliss() {
+  const ctx = getCtx();
+  const glissNotes = [C4_m, D4_m, E4_m, G4_m, A4_m, C5_m, D5_m, E5_m];
+  const spacing = 0.07;
+  const now = ctx.currentTime;
+  glissNotes.forEach(function(note, i) {
+    const t = now + i * spacing;
+    const gain = 0.10 + i * 0.008;
+    bellTone(ctx, ctx.destination, midiToFreq(note), gain, 0.7, t, 2.1);
+  });
+}
+
+function a4_warmPad() {
+  const ctx = getCtx();
+  const padNotes = [D3_m, G3_m, B3_m, D4_m, F4_m];
+  const now = ctx.currentTime;
+  const attack = 1.6, sustain = 2.0, release = 2.5;
+
+  const lpf = ctx.createBiquadFilter();
+  lpf.type = 'lowpass'; lpf.frequency.value = 900; lpf.Q.value = 0.5;
+  lpf.connect(ctx.destination);
+
+  for (const note of padNotes) {
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = midiToFreq(note);
+
+    const lfo = ctx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.25 + Math.random() * 0.15;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0.8;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0001, now);
+    env.gain.linearRampToValueAtTime(0.06, now + attack);
+    env.gain.setValueAtTime(0.06, now + attack + sustain);
+    env.gain.exponentialRampToValueAtTime(0.0001, now + attack + sustain + release);
+    osc.connect(env); env.connect(lpf);
+    osc.start(now); osc.stop(now + attack + sustain + release + 0.1);
+    lfo.start(now); lfo.stop(now + attack + sustain + release + 0.1);
+  }
+}
+
+function a4_softBell() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const lpf = ctx.createBiquadFilter();
+  lpf.type = 'lowpass'; lpf.frequency.value = 1800; lpf.Q.value = 0.5;
+  lpf.connect(ctx.destination);
+  bellTone(ctx, lpf, midiToFreq(E4_m), 0.20, 1.1, now, 1.9);
+  bellTone(ctx, lpf, midiToFreq(E5_m), 0.06, 0.5, now, 1.9);
+}
+
+function a4_xylophone() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const freq = midiToFreq(G5_m);
+
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'triangle';
+  osc1.frequency.value = freq;
+  const env1 = ctx.createGain();
+  env1.gain.setValueAtTime(0.0001, now);
+  env1.gain.linearRampToValueAtTime(0.22, now + 0.003);
+  env1.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+  osc1.connect(env1); env1.connect(ctx.destination);
+  osc1.start(now); osc1.stop(now + 0.4);
+
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.value = freq * 3.0;
+  const env2 = ctx.createGain();
+  env2.gain.setValueAtTime(0.0001, now);
+  env2.gain.linearRampToValueAtTime(0.06, now + 0.002);
+  env2.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+  osc2.connect(env2); env2.connect(ctx.destination);
+  osc2.start(now); osc2.stop(now + 0.15);
+}
+
+function a4_musicBox() {
+  const ctx = getCtx();
+  const melody = [C5_m, E5_m, G5_m, E5_m, C5_m, D5_m, E5_m, C5_m];
+  const durations = [0.14, 0.14, 0.20, 0.14, 0.14, 0.14, 0.14, 0.40];
+  const now = ctx.currentTime;
+  let t = now;
+  for (let i = 0; i < melody.length; i++) {
+    const freq = midiToFreq(melody[i]);
+    bellTone(ctx, ctx.destination, freq, 0.14, 0.55, t, 3.5);
+    t += durations[i];
+  }
+}
+
+function a4_gentleWhoosh() {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const duration = 0.55;
+  const noise = makeNoise(ctx, duration);
+
+  const bpf = ctx.createBiquadFilter();
+  bpf.type = 'bandpass'; bpf.Q.value = 1.2;
+  bpf.frequency.setValueAtTime(600, now);
+  bpf.frequency.linearRampToValueAtTime(1200, now + duration * 0.5);
+  bpf.frequency.linearRampToValueAtTime(800, now + duration);
+
+  const lpf = ctx.createBiquadFilter();
+  lpf.type = 'lowpass'; lpf.frequency.value = 3000;
+  lpf.connect(ctx.destination);
+
+  const env = ctx.createGain();
+  env.gain.setValueAtTime(0.0001, now);
+  env.gain.linearRampToValueAtTime(0.12, now + duration * 0.3);
+  env.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  noise.connect(bpf); bpf.connect(env); env.connect(lpf);
+  noise.start(now); noise.stop(now + duration + 0.05);
+}
+
+function a4_sparkle() {
+  const ctx = getCtx();
+  const sparkleNotes = [C6_m, D6_m, E6_m, G5_m, A5_m, B5_m];
+  const now = ctx.currentTime;
+
+  const hpf = ctx.createBiquadFilter();
+  hpf.type = 'highpass'; hpf.frequency.value = 1500; hpf.Q.value = 0.5;
+  hpf.connect(ctx.destination);
+
+  const lpf = ctx.createBiquadFilter();
+  lpf.type = 'lowpass'; lpf.frequency.value = 8000; lpf.Q.value = 0.5;
+  lpf.connect(hpf);
+
+  sparkleNotes.forEach(function(note, i) {
+    const t = now + i * 0.013 + Math.random() * 0.02;
+    const centOffset = (Math.random() - 0.5) * 10;
+    const freq = midiToFreq(note) * Math.pow(2, centOffset / 1200);
+    const gain = 0.08 + Math.random() * 0.04;
+    const decay = 0.6 + Math.random() * 0.3;
+    bellTone(ctx, lpf, freq, gain, decay, t, 2.1 + Math.random() * 0.4);
+  });
+}
+
+// =============================================================================
+// ATTEMPT 5 — Silly Comedian / Cartoon-Vaudeville
+// Sounds: pop, slice, ding, fanfare, boing, slide-whistle,
+//         rimshot, sad-trombone, raspberry, giggle, woosh
+// =============================================================================
+
+const attempt5 = {
+  label: 'Attempt 5',
+  style: 'Silly Comedian (Cartoon)',
+  sounds: [
+    { name: 'pop',          label: 'Pop',          color: 'blue',   icon: '💥', fn: a5_pop },
+    { name: 'slice',        label: 'Slice',        color: 'blue',   icon: '🔪', fn: a5_slice },
+    { name: 'ding',         label: 'Ding',         color: 'green',  icon: '🔔', fn: a5_ding },
+    { name: 'fanfare',      label: 'Fanfare',      color: 'green',  icon: '🎺', fn: a5_fanfare },
+    { name: 'boing',        label: 'Boing',        color: 'orange', icon: '🪃', fn: a5_boing },
+    { name: 'slide-whistle',label: 'Slide Whistle',color: 'blue',   icon: '🎵', fn: a5_slideWhistle },
+    { name: 'rimshot',      label: 'Rimshot',      color: 'blue',   icon: '🥁', fn: a5_rimshot },
+    { name: 'sad-trombone', label: 'Sad Trombone', color: 'orange', icon: '😢', fn: a5_sadTrombone },
+    { name: 'raspberry',    label: 'Raspberry',    color: 'orange', icon: '🫐', fn: a5_raspberry },
+    { name: 'giggle',       label: 'Giggle',       color: 'green',  icon: '😄', fn: a5_giggle },
+    { name: 'woosh',        label: 'Woosh',        color: 'blue',   icon: '💨', fn: a5_woosh },
+  ]
+};
+
+function a5_fire(ctx, source, output, startTime, stopTime) {
+  output.connect(ctx.destination);
+  source.start(startTime);
+  source.stop(stopTime);
+}
+
+function a5_pop() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(1046, t);  // C6
+  osc.frequency.exponentialRampToValueAtTime(220, t + 0.07);
+  gain.gain.setValueAtTime(0.4, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+  osc.connect(gain);
+  a5_fire(ctx, osc, gain, t, t + 0.1);
+}
+
+function a5_slice() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const filter = ctx.createBiquadFilter();
+  const gain = ctx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(2400, t);
+  osc.frequency.exponentialRampToValueAtTime(180, t + 0.14);
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(5000, t);
+  filter.frequency.exponentialRampToValueAtTime(400, t + 0.14);
+  filter.Q.value = 1.5;
+  gain.gain.setValueAtTime(0.22, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+  osc.connect(filter); filter.connect(gain);
+  a5_fire(ctx, osc, gain, t, t + 0.2);
+}
+
+function a5_ding() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const partials = [
+    [880, 0.30, 0.70],
+    [880 * 2.756, 0.09, 0.38],
+    [880 * 5.404, 0.04, 0.20],
+  ];
+  for (const [freq, gainPeak, decay] of partials) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(gainPeak, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + decay);
+    osc.connect(gain);
+    a5_fire(ctx, osc, gain, t, t + decay + 0.05);
+  }
+}
+
+function a5_fanfare() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+  const spacing = 0.14;
+
+  notes.forEach(function(freq, i) {
+    const start = t + i * spacing;
+    const isLast = i === notes.length - 1;
+    const noteDur = isLast ? 0.65 : 0.18;
+    const peak = isLast ? 0.28 : 0.20;
+
+    const osc1 = ctx.createOscillator();
+    const g1 = ctx.createGain();
+    osc1.type = 'square';
+    osc1.frequency.setValueAtTime(freq, start);
+    g1.gain.setValueAtTime(0.001, start);
+    g1.gain.linearRampToValueAtTime(peak, start + 0.015);
+    g1.gain.exponentialRampToValueAtTime(0.001, start + noteDur);
+    osc1.connect(g1);
+    a5_fire(ctx, osc1, g1, start, start + noteDur + 0.05);
+
+    const osc2 = ctx.createOscillator();
+    const g2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(freq * 2, start);
+    g2.gain.setValueAtTime(0.001, start);
+    g2.gain.linearRampToValueAtTime(peak * 0.18, start + 0.015);
+    g2.gain.exponentialRampToValueAtTime(0.001, start + noteDur * 0.6);
+    osc2.connect(g2);
+    a5_fire(ctx, osc2, g2, start, start + noteDur);
+  });
+}
+
+function a5_boing() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(120, t);
+  osc.frequency.linearRampToValueAtTime(700, t + 0.04);
+  osc.frequency.linearRampToValueAtTime(210, t + 0.10);
+  osc.frequency.linearRampToValueAtTime(580, t + 0.16);
+  osc.frequency.linearRampToValueAtTime(260, t + 0.22);
+  osc.frequency.linearRampToValueAtTime(490, t + 0.27);
+  osc.frequency.linearRampToValueAtTime(300, t + 0.32);
+  osc.frequency.exponentialRampToValueAtTime(350, t + 0.44);
+  gain.gain.setValueAtTime(0.32, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.48);
+  osc.connect(gain);
+  a5_fire(ctx, osc, gain, t, t + 0.5);
+}
+
+function a5_slideWhistle() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(300, t);
+  osc.frequency.linearRampToValueAtTime(1800, t + 0.35);
+  osc.frequency.setValueAtTime(1800, t + 0.38);
+  osc.frequency.linearRampToValueAtTime(250, t + 0.80);
+  gain.gain.setValueAtTime(0.001, t);
+  gain.gain.linearRampToValueAtTime(0.28, t + 0.04);
+  gain.gain.setValueAtTime(0.28, t + 0.75);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.85);
+  osc.connect(gain);
+  a5_fire(ctx, osc, gain, t, t + 0.9);
+}
+
+function a5_rimshot() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+
+  // Snare crack
+  const snare = makeNoise(ctx, 0.12);
+  const snareFilter = ctx.createBiquadFilter();
+  snareFilter.type = 'bandpass'; snareFilter.frequency.value = 2200; snareFilter.Q.value = 0.8;
+  const snareGain = ctx.createGain();
+  snareGain.gain.setValueAtTime(0.6, t);
+  snareGain.gain.exponentialRampToValueAtTime(0.001, t + 0.10);
+  snare.connect(snareFilter); snareFilter.connect(snareGain);
+  a5_fire(ctx, snare, snareGain, t, t + 0.12);
+
+  // Bass thud
+  const bass = ctx.createOscillator();
+  bass.type = 'sine';
+  const bassGain = ctx.createGain();
+  bass.frequency.setValueAtTime(90, t + 0.12);
+  bass.frequency.exponentialRampToValueAtTime(40, t + 0.20);
+  bassGain.gain.setValueAtTime(0.35, t + 0.12);
+  bassGain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+  bass.connect(bassGain);
+  a5_fire(ctx, bass, bassGain, t + 0.12, t + 0.24);
+
+  // Cymbal tss
+  const cym = makeNoise(ctx, 0.10);
+  const cymFilter = ctx.createBiquadFilter();
+  cymFilter.type = 'highpass'; cymFilter.frequency.value = 7000;
+  const cymGain = ctx.createGain();
+  cymGain.gain.setValueAtTime(0.18, t + 0.24);
+  cymGain.gain.exponentialRampToValueAtTime(0.001, t + 0.34);
+  cym.connect(cymFilter); cymFilter.connect(cymGain);
+  a5_fire(ctx, cym, cymGain, t + 0.24, t + 0.36);
+}
+
+function a5_sadTrombone() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const notes = [
+    { freq: 311.13, start: 0.00 },  // Eb4
+    { freq: 277.18, start: 0.18 },  // C#4
+    { freq: 246.94, start: 0.36 },  // B3
+    { freq: 207.65, start: 0.54 },  // Ab3
+  ];
+
+  const osc = ctx.createOscillator();
+  osc.type = 'sawtooth';
+
+  const wahFilter = ctx.createBiquadFilter();
+  wahFilter.type = 'bandpass'; wahFilter.Q.value = 3.0;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.001, t);
+  gain.gain.linearRampToValueAtTime(0.22, t + 0.02);
+  gain.gain.setValueAtTime(0.22, t + 0.70);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + 0.82);
+
+  notes.forEach(function(n) {
+    const noteStart = t + n.start;
+    osc.frequency.setValueAtTime(n.freq, noteStart);
+    wahFilter.frequency.setValueAtTime(n.freq * 2.8, noteStart);
+    wahFilter.frequency.exponentialRampToValueAtTime(n.freq * 0.9, noteStart + 0.16);
+  });
+
+  osc.connect(wahFilter); wahFilter.connect(gain);
+  a5_fire(ctx, osc, gain, t, t + 0.85);
+}
+
+function a5_raspberry() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const dur = 0.5;
+  const noise = makeNoise(ctx, dur);
+
+  const lpf = ctx.createBiquadFilter();
+  lpf.type = 'lowpass'; lpf.frequency.setValueAtTime(600, t); lpf.Q.value = 1.0;
+
+  const modOsc = ctx.createOscillator();
+  modOsc.type = 'square';
+  modOsc.frequency.setValueAtTime(55, t);
+
+  const modGain = ctx.createGain();
+  modGain.gain.setValueAtTime(0.5, t);
+
+  const outGain = ctx.createGain();
+  outGain.gain.setValueAtTime(0.001, t);
+  outGain.gain.linearRampToValueAtTime(0.35, t + 0.03);
+  outGain.gain.setValueAtTime(0.35, t + 0.40);
+  outGain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+  noise.connect(lpf); lpf.connect(outGain);
+  modOsc.connect(modGain);
+  modGain.connect(outGain.gain);
+  outGain.connect(ctx.destination);
+
+  noise.start(t); noise.stop(t + dur);
+  modOsc.start(t); modOsc.stop(t + dur);
+}
+
+function a5_giggle() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const pips = [
+    [600, 0.00],
+    [750, 0.12],
+    [950, 0.24],
+  ];
+  for (const [freq, offset] of pips) {
+    const start = t + offset;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, start);
+    osc.frequency.linearRampToValueAtTime(freq * 1.15, start + 0.07);
+    gain.gain.setValueAtTime(0.001, start);
+    gain.gain.linearRampToValueAtTime(0.28, start + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.10);
+    osc.connect(gain);
+    a5_fire(ctx, osc, gain, start, start + 0.12);
+  }
+}
+
+function a5_woosh() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const dur = 0.28;
+  const noise = makeNoise(ctx, dur);
+  const bpf = ctx.createBiquadFilter();
+  bpf.type = 'bandpass'; bpf.Q.value = 1.8;
+  bpf.frequency.setValueAtTime(350, t);
+  bpf.frequency.exponentialRampToValueAtTime(5000, t + dur * 0.5);
+  bpf.frequency.exponentialRampToValueAtTime(900, t + dur);
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.001, t);
+  gain.gain.linearRampToValueAtTime(0.30, t + dur * 0.12);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  noise.connect(bpf); bpf.connect(gain);
+  a5_fire(ctx, noise, gain, t, t + dur + 0.02);
+}
+
+// =============================================================================
+// ATTEMPT 6 — Epic Adventure Quest
+// Sounds: sword-whoosh, magic-sparkle, stone-grind, chest-open,
+//         quest-horn, victory-fanfare, rumble, footsteps
+// =============================================================================
+
+const attempt6 = {
+  label: 'Attempt 6',
+  style: 'Epic Adventure Quest',
+  sounds: [
+    { name: 'sword-whoosh',   label: 'Sword Whoosh',   color: 'blue',   icon: '⚔️',  fn: a6_swordWhoosh },
+    { name: 'magic-sparkle',  label: 'Magic Sparkle',  color: 'purple', icon: '✨', fn: a6_magicSparkle },
+    { name: 'stone-grind',    label: 'Stone Grind',    color: 'orange', icon: '🪨', fn: a6_stoneGrind },
+    { name: 'chest-open',     label: 'Chest Open',     color: 'green',  icon: '📦', fn: a6_chestOpen },
+    { name: 'quest-horn',     label: 'Quest Horn',     color: 'green',  icon: '📯', fn: a6_questHorn },
+    { name: 'victory-fanfare',label: 'Victory Fanfare',color: 'green',  icon: '🏆', fn: a6_victoryFanfare },
+    { name: 'rumble',         label: 'Rumble',         color: 'orange', icon: '💢', fn: a6_rumble },
+    { name: 'footsteps',      label: 'Footsteps',      color: 'blue',   icon: '👣', fn: a6_footsteps },
+  ]
+};
+
+function a6_swordWhoosh() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const duration = 0.45;
+
+  const masterGain = makeGain(ctx, 0.0);
+  masterGain.gain.linearRampToValueAtTime(0.5, t + 0.02);
+  masterGain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+  const osc = ctx.createOscillator();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(2800, t);
+  osc.frequency.exponentialRampToValueAtTime(180, t + duration * 0.7);
+
+  const oscFilter = ctx.createBiquadFilter();
+  oscFilter.type = 'bandpass';
+  oscFilter.frequency.setValueAtTime(2200, t);
+  oscFilter.frequency.exponentialRampToValueAtTime(400, t + duration);
+  oscFilter.Q.setValueAtTime(3, t);
+
+  const oscGain = makeGain(ctx, 0.4);
+
+  const noise = makeNoise(ctx, duration);
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = 'bandpass';
+  noiseFilter.frequency.setValueAtTime(800, t);
+  noiseFilter.frequency.exponentialRampToValueAtTime(3500, t + 0.08);
+  noiseFilter.frequency.exponentialRampToValueAtTime(200, t + duration);
+  noiseFilter.Q.setValueAtTime(1.5, t);
+  const noiseGain = makeGain(ctx, 0.5);
+
+  const ping = ctx.createOscillator();
+  ping.type = 'sine';
+  ping.frequency.setValueAtTime(5400, t);
+  ping.frequency.exponentialRampToValueAtTime(1200, t + 0.12);
+  const pingGain = makeGain(ctx, 0.2);
+  pingGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+
+  const reverb = createReverb(ctx, 0.6, 4);
+  const reverbGain = makeGain(ctx, 0.25);
+
+  osc.connect(oscFilter); oscFilter.connect(oscGain);
+  noise.connect(noiseFilter); noiseFilter.connect(noiseGain);
+  ping.connect(pingGain);
+  oscGain.connect(masterGain); noiseGain.connect(masterGain); pingGain.connect(masterGain);
+  oscGain.connect(reverb); noiseGain.connect(reverb);
+  reverb.connect(reverbGain); reverbGain.connect(masterGain);
+  masterGain.connect(ctx.destination);
+
+  osc.start(t); osc.stop(t + duration + 0.1);
+  ping.start(t); ping.stop(t + 0.2);
+  noise.start(t); noise.stop(t + duration);
+}
+
+function a6_magicSparkle() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const freqs = [880, 1108, 1318, 1760, 2093, 2637, 3136, 4186];
+  const spacing = 0.07;
+
+  const reverb = createReverb(ctx, 1.2, 5);
+  const reverbGain = makeGain(ctx, 0.4);
+  reverb.connect(reverbGain); reverbGain.connect(ctx.destination);
+
+  freqs.forEach(function(freq, i) {
+    const start = t + i * spacing;
+    const noteDur = 0.55 - i * 0.02;
+
+    const osc1 = ctx.createOscillator();
+    osc1.type = 'sine'; osc1.frequency.setValueAtTime(freq, start);
+    const g1 = ctx.createGain();
+    g1.gain.setValueAtTime(0.001, start);
+    g1.gain.linearRampToValueAtTime(0.22, start + 0.008);
+    g1.gain.exponentialRampToValueAtTime(0.001, start + noteDur);
+
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'sine'; osc2.frequency.setValueAtTime(freq * 2.756, start);
+    const g2 = ctx.createGain();
+    g2.gain.setValueAtTime(0.001, start);
+    g2.gain.linearRampToValueAtTime(0.07, start + 0.006);
+    g2.gain.exponentialRampToValueAtTime(0.001, start + noteDur * 0.5);
+
+    osc1.connect(g1); osc2.connect(g2);
+    g1.connect(ctx.destination); g2.connect(ctx.destination);
+    g1.connect(reverb); g2.connect(reverb);
+
+    osc1.start(start); osc1.stop(start + noteDur + 0.05);
+    osc2.start(start); osc2.stop(start + noteDur + 0.05);
+  });
+}
+
+function a6_stoneGrind() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const duration = 1.4;
+
+  const masterGain = makeGain(ctx, 0.6);
+  masterGain.connect(ctx.destination);
+
+  const subOsc = ctx.createOscillator();
+  subOsc.type = 'sawtooth';
+  subOsc.frequency.setValueAtTime(55, t);
+  subOsc.frequency.linearRampToValueAtTime(38, t + duration);
+  const subGain = makeGain(ctx, 0.0);
+  subGain.gain.linearRampToValueAtTime(0.5, t + 0.1);
+  subGain.gain.setValueAtTime(0.5, t + duration - 0.2);
+  subGain.gain.linearRampToValueAtTime(0.0, t + duration);
+
+  const noise = makeNoise(ctx, duration);
+  const scrapeFilter = ctx.createBiquadFilter();
+  scrapeFilter.type = 'lowpass';
+  scrapeFilter.frequency.setValueAtTime(200, t);
+  scrapeFilter.frequency.linearRampToValueAtTime(600, t + duration * 0.5);
+  scrapeFilter.frequency.linearRampToValueAtTime(120, t + duration);
+  scrapeFilter.Q.setValueAtTime(8, t);
+  const scrapeGain = makeGain(ctx, 0.0);
+  scrapeGain.gain.linearRampToValueAtTime(0.6, t + 0.08);
+  scrapeGain.gain.setValueAtTime(0.6, t + duration - 0.25);
+  scrapeGain.gain.linearRampToValueAtTime(0.0, t + duration);
+
+  const lfo = ctx.createOscillator();
+  lfo.type = 'sine'; lfo.frequency.setValueAtTime(18, t);
+  const lfoGain = ctx.createGain(); lfoGain.gain.setValueAtTime(0.15, t);
+  lfo.connect(lfoGain); lfoGain.connect(subGain.gain);
+
+  const reverb = createReverb(ctx, 1.5, 3);
+  const reverbGain = makeGain(ctx, 0.5);
+  reverb.connect(reverbGain); reverbGain.connect(ctx.destination);
+
+  subOsc.connect(subGain); subGain.connect(masterGain); subGain.connect(reverb);
+  noise.connect(scrapeFilter); scrapeFilter.connect(scrapeGain);
+  scrapeGain.connect(masterGain); scrapeGain.connect(reverb);
+
+  lfo.start(t); lfo.stop(t + duration + 0.1);
+  subOsc.start(t); subOsc.stop(t + duration + 0.1);
+  noise.start(t); noise.stop(t + duration);
+}
+
+function a6_chestOpen() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+
+  // Stage 1: creak
+  const creakNoise = makeNoise(ctx, 0.3);
+  const creakFilter = ctx.createBiquadFilter();
+  creakFilter.type = 'bandpass';
+  creakFilter.frequency.setValueAtTime(120, t);
+  creakFilter.frequency.linearRampToValueAtTime(600, t + 0.15);
+  creakFilter.frequency.linearRampToValueAtTime(80, t + 0.3);
+  creakFilter.Q.setValueAtTime(6, t);
+  const creakGain = makeGain(ctx, 0.0);
+  creakGain.gain.linearRampToValueAtTime(0.45, t + 0.02);
+  creakGain.gain.setValueAtTime(0.45, t + 0.2);
+  creakGain.gain.linearRampToValueAtTime(0.0, t + 0.3);
+  creakNoise.connect(creakFilter); creakFilter.connect(creakGain); creakGain.connect(ctx.destination);
+  creakNoise.start(t); creakNoise.stop(t + 0.35);
+
+  // Stage 2: shimmer
+  const shimmerFreqs = [523, 659, 784, 1047, 1319, 1568, 2093, 2637, 3136, 4186];
+  const shimmerStart = t + 0.22;
+
+  const reverb = createReverb(ctx, 1.0, 4);
+  const reverbGain = makeGain(ctx, 0.5);
+  reverb.connect(reverbGain); reverbGain.connect(ctx.destination);
+
+  shimmerFreqs.forEach(function(freq, i) {
+    const onset = shimmerStart + i * 0.065;
+    const dur = 0.7 - i * 0.03;
+    const osc = ctx.createOscillator();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(freq, onset);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.001, onset);
+    g.gain.linearRampToValueAtTime(0.18, onset + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, onset + dur);
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'sine'; osc2.frequency.setValueAtTime(freq * 2.756, onset);
+    const g2 = ctx.createGain();
+    g2.gain.setValueAtTime(0.001, onset);
+    g2.gain.linearRampToValueAtTime(0.05, onset + 0.008);
+    g2.gain.exponentialRampToValueAtTime(0.001, onset + dur * 0.4);
+    osc.connect(g); osc2.connect(g2);
+    g.connect(ctx.destination); g2.connect(ctx.destination); g.connect(reverb);
+    osc.start(onset); osc.stop(onset + dur + 0.1);
+    osc2.start(onset); osc2.stop(onset + dur * 0.5);
+  });
+}
+
+function a6_questHorn() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const hornNotes = [
+    { freq: 392.0,  dur: 0.18, start: 0.0 },
+    { freq: 523.25, dur: 0.18, start: 0.22 },
+    { freq: 659.25, dur: 0.18, start: 0.44 },
+    { freq: 784.0,  dur: 0.65, start: 0.66 },
+  ];
+
+  const reverb = createReverb(ctx, 2.0, 4);
+  const reverbGain = makeGain(ctx, 0.5);
+  reverb.connect(reverbGain); reverbGain.connect(ctx.destination);
+
+  hornNotes.forEach(function(n) {
+    const onset = t + n.start;
+    const sq = ctx.createOscillator(); sq.type = 'square';
+    sq.frequency.setValueAtTime(n.freq, onset);
+    sq.frequency.linearRampToValueAtTime(n.freq * 1.015, onset + 0.04);
+    sq.frequency.setValueAtTime(n.freq, onset + 0.06);
+
+    const saw = ctx.createOscillator(); saw.type = 'sawtooth';
+    saw.frequency.setValueAtTime(n.freq * 1.006, onset);
+
+    const sqGain = makeGain(ctx, 0.0);
+    sqGain.gain.linearRampToValueAtTime(0.22, onset + 0.025);
+    sqGain.gain.setValueAtTime(0.22, onset + n.dur - 0.05);
+    sqGain.gain.linearRampToValueAtTime(0.0, onset + n.dur);
+
+    const sawGain = makeGain(ctx, 0.0);
+    sawGain.gain.linearRampToValueAtTime(0.12, onset + 0.03);
+    sawGain.gain.setValueAtTime(0.12, onset + n.dur - 0.05);
+    sawGain.gain.linearRampToValueAtTime(0.0, onset + n.dur);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass'; filter.frequency.setValueAtTime(1800, onset); filter.Q.setValueAtTime(0.8, onset);
+
+    sq.connect(sqGain); saw.connect(sawGain);
+    sqGain.connect(filter); sawGain.connect(filter);
+    filter.connect(ctx.destination); filter.connect(reverb);
+
+    sq.start(onset); sq.stop(onset + n.dur + 0.05);
+    saw.start(onset); saw.stop(onset + n.dur + 0.05);
+  });
+}
+
+function a6_victoryFanfare() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+
+  const reverb = createReverb(ctx, 2.5, 3.5);
+  const reverbGain = makeGain(ctx, 0.55);
+  reverb.connect(reverbGain); reverbGain.connect(ctx.destination);
+
+  // Phase 1: chord stab
+  [261.63, 329.63, 392.0, 523.25].forEach(function(freq) {
+    const osc = ctx.createOscillator(); osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(freq, t);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0, t);
+    g.gain.linearRampToValueAtTime(0.18, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+    const filt = ctx.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.setValueAtTime(2000, t);
+    osc.connect(filt); filt.connect(g); g.connect(ctx.destination); g.connect(reverb);
+    osc.start(t); osc.stop(t + 0.35);
+  });
+
+  // Phase 2: ascending run
+  const runNotes = [
+    523.25, 587.33, 659.25, 698.46, 783.99, 880.0,
+    987.77, 1046.5, 1174.66, 1318.51, 1568.0, 2093.0,
+  ];
+  const runStart = t + 0.32;
+  const noteLen = 0.09;
+
+  runNotes.forEach(function(freq, i) {
+    const onset = runStart + i * noteLen;
+    const isLast = i === runNotes.length - 1;
+    const dur = isLast ? 0.9 : noteLen + 0.02;
+    const peak = isLast ? 0.35 : 0.2;
+
+    const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.setValueAtTime(freq, onset);
+    const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.setValueAtTime(freq * 2, onset);
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.001, onset);
+    g.gain.linearRampToValueAtTime(peak, onset + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, onset + dur);
+
+    const g2 = ctx.createGain();
+    g2.gain.setValueAtTime(0.001, onset);
+    g2.gain.linearRampToValueAtTime(peak * 0.15, onset + 0.01);
+    g2.gain.exponentialRampToValueAtTime(0.001, onset + dur * 0.6);
+
+    osc.connect(g); osc2.connect(g2);
+    g.connect(ctx.destination); g2.connect(ctx.destination); g.connect(reverb);
+    osc.start(onset); osc.stop(onset + dur + 0.05);
+    osc2.start(onset); osc2.stop(onset + dur * 0.7);
+  });
+
+  // Phase 3: sparkle burst
+  const sparkleStart = runStart + runNotes.length * noteLen + 0.05;
+  [2093, 2637, 3136, 4186].forEach(function(freq, i) {
+    const onset = sparkleStart + i * 0.07;
+    const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.setValueAtTime(freq, onset);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.001, onset);
+    g.gain.linearRampToValueAtTime(0.15, onset + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.001, onset + 0.5);
+    osc.connect(g); g.connect(ctx.destination); g.connect(reverb);
+    osc.start(onset); osc.stop(onset + 0.6);
+  });
+}
+
+function a6_rumble() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const duration = 1.1;
+
+  const sub = ctx.createOscillator(); sub.type = 'sine';
+  sub.frequency.setValueAtTime(42, t);
+  sub.frequency.linearRampToValueAtTime(36, t + duration);
+
+  const pitchLfo = ctx.createOscillator(); pitchLfo.type = 'sine';
+  pitchLfo.frequency.setValueAtTime(3.5, t);
+  const pitchLfoGain = ctx.createGain(); pitchLfoGain.gain.setValueAtTime(4, t);
+  pitchLfo.connect(pitchLfoGain); pitchLfoGain.connect(sub.frequency);
+
+  const subGain = makeGain(ctx, 0.0);
+  subGain.gain.linearRampToValueAtTime(0.55, t + 0.08);
+  subGain.gain.setValueAtTime(0.55, t + duration - 0.15);
+  subGain.gain.linearRampToValueAtTime(0.0, t + duration);
+
+  const ampLfo = ctx.createOscillator(); ampLfo.type = 'sine';
+  ampLfo.frequency.setValueAtTime(12, t);
+  const ampLfoGain = ctx.createGain(); ampLfoGain.gain.setValueAtTime(0.12, t);
+  ampLfo.connect(ampLfoGain); ampLfoGain.connect(subGain.gain);
+
+  const noise = makeNoise(ctx, duration);
+  const noiseFilter = ctx.createBiquadFilter(); noiseFilter.type = 'lowpass';
+  noiseFilter.frequency.setValueAtTime(80, t);
+  noiseFilter.frequency.linearRampToValueAtTime(140, t + duration * 0.5);
+  noiseFilter.frequency.linearRampToValueAtTime(60, t + duration);
+  noiseFilter.Q.setValueAtTime(2, t);
+  const noiseGain = makeGain(ctx, 0.0);
+  noiseGain.gain.linearRampToValueAtTime(0.4, t + 0.05);
+  noiseGain.gain.setValueAtTime(0.4, t + duration - 0.1);
+  noiseGain.gain.linearRampToValueAtTime(0.0, t + duration);
+
+  const reverb = createReverb(ctx, 1.0, 2.5);
+  const reverbGain = makeGain(ctx, 0.4);
+  reverb.connect(reverbGain); reverbGain.connect(ctx.destination);
+
+  sub.connect(subGain); subGain.connect(ctx.destination); subGain.connect(reverb);
+  noise.connect(noiseFilter); noiseFilter.connect(noiseGain);
+  noiseGain.connect(ctx.destination); noiseGain.connect(reverb);
+
+  sub.start(t); sub.stop(t + duration + 0.1);
+  pitchLfo.start(t); pitchLfo.stop(t + duration + 0.1);
+  ampLfo.start(t); ampLfo.stop(t + duration + 0.1);
+  noise.start(t); noise.stop(t + duration);
+}
+
+function a6_footsteps() {
+  const ctx = getCtx();
+  const t = ctx.currentTime;
+  const steps = [
+    { time: 0.0, freq: 90 },
+    { time: 0.25, freq: 75 },
+    { time: 0.5, freq: 88 },
+  ];
+
+  steps.forEach(function(step) {
+    const onset = t + step.time;
+    const dur = 0.08;
+
+    const noise = makeNoise(ctx, dur + 0.04);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass'; filter.frequency.setValueAtTime(step.freq, onset); filter.Q.setValueAtTime(4, onset);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0, onset);
+    g.gain.linearRampToValueAtTime(0.6, onset + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, onset + dur);
+
+    const sub = ctx.createOscillator(); sub.type = 'sine';
+    sub.frequency.setValueAtTime(step.freq * 1.2, onset);
+    sub.frequency.exponentialRampToValueAtTime(step.freq * 0.5, onset + dur);
+    const subGain = makeGain(ctx, 0.0);
+    subGain.gain.linearRampToValueAtTime(0.4, onset + 0.003);
+    subGain.gain.exponentialRampToValueAtTime(0.001, onset + dur * 0.8);
+
+    noise.connect(filter); filter.connect(g); g.connect(ctx.destination);
+    sub.connect(subGain); subGain.connect(ctx.destination);
+
+    noise.start(onset); noise.stop(onset + dur + 0.05);
+    sub.start(onset); sub.stop(onset + dur + 0.02);
+  });
+}
+
+// =============================================================================
+// UI RENDERING
+// =============================================================================
+
+const attempts = [attempt1, attempt2, attempt3, attempt4, attempt5, attempt6];
+
+function buildUI() {
+  const container = document.getElementById('sampler');
+
+  attempts.forEach(function(attempt) {
+    const section = document.createElement('section');
+    section.className = 'attempt-section';
+
+    const header = document.createElement('div');
+    header.className = 'attempt-header';
+    header.innerHTML =
+      '<span class="attempt-label">' + attempt.label + '</span>' +
+      '<span class="attempt-style">— ' + attempt.style + '</span>';
+    section.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'sound-grid';
+
+    attempt.sounds.forEach(function(sound) {
+      const btn = document.createElement('button');
+      btn.className = 'sfx-btn ' + sound.color;
+      btn.innerHTML = '<span class="icon">' + sound.icon + '</span>' + sound.label;
+      btn.title = attempt.label + ' · ' + sound.name;
+
+      btn.addEventListener('click', function() {
+        try {
+          sound.fn();
+        } catch (err) {
+          console.error('[sound-sampler] Error playing ' + sound.name + ':', err);
+        }
+        btn.classList.remove('playing');
+        // Force reflow so the animation restarts even if clicked rapidly
+        void btn.offsetWidth;
+        btn.classList.add('playing');
+        btn.addEventListener('animationend', function() {
+          btn.classList.remove('playing');
+        }, { once: true });
+      });
+
+      grid.appendChild(btn);
+    });
+
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+
+buildUI();
+
+// =============================================================================
+// SELECTED SOUNDS — add entries here as the user picks favorites
+// Format: { source: 'Attempt N', name: 'sound-name', label: 'Display Name', color: 'green', icon: '🔔', fn: aN_functionName }
+// =============================================================================
+
+var selectedSounds = [
+  { source: 'Attempt 1', name: 'boing', label: 'Boing', color: 'blue', icon: '🎯', fn: a1_boing },
+  { source: 'Attempt 2', name: 'ding', label: 'Ding', color: 'green', icon: '🔔', fn: a2_ding },
+  { source: 'Attempt 2', name: 'fanfare', label: 'Fanfare', color: 'green', icon: '🎺', fn: a2_fanfare },
+  { source: 'Attempt 2', name: 'wrong', label: 'Wrong', color: 'orange', icon: '❌', fn: a2_wrong },
+  { source: 'Attempt 4', name: 'music-box', label: 'Music Box', color: 'purple', icon: '🎶', fn: a4_musicBox },
+  { source: 'Attempt 4', name: 'harp-gliss', label: 'Harp Gliss', color: 'blue', icon: '🎵', fn: a4_harpGliss },
+  { source: 'Attempt 6', name: 'magic-sparkle', label: 'Magic Sparkle', color: 'green', icon: '✨', fn: a6_magicSparkle },
+  { source: 'Attempt 6', name: 'chest-open', label: 'Chest Open', color: 'blue', icon: '🗝️', fn: a6_chestOpen },
+  { source: 'Attempt 6', name: 'quest-horn', label: 'Quest Horn', color: 'blue', icon: '📯', fn: a6_questHorn },
+  { source: 'Attempt 6', name: 'victory-fanfare', label: 'Victory Fanfare', color: 'green', icon: '🏆', fn: a6_victoryFanfare },
+];
+
+function buildSelected() {
+  var grid = document.getElementById('selected-grid');
+  if (selectedSounds.length === 0) return; // keep the empty message
+
+  grid.innerHTML = '';
+  selectedSounds.forEach(function(sound) {
+    var btn = document.createElement('button');
+    btn.className = 'sfx-btn ' + sound.color;
+    btn.innerHTML = '<span class="icon">' + sound.icon + '</span>' + sound.label +
+      '<span style="font-size:0.65rem;opacity:0.6;margin-left:4px">(' + sound.source + ')</span>';
+    btn.title = sound.source + ' · ' + sound.name;
+
+    btn.addEventListener('click', function() {
+      try { sound.fn(); } catch(e) { console.error(e); }
+      btn.classList.remove('playing');
+      void btn.offsetWidth;
+      btn.classList.add('playing');
+      btn.addEventListener('animationend', function() {
+        btn.classList.remove('playing');
+      }, { once: true });
+    });
+
+    grid.appendChild(btn);
+  });
+}
+
+buildSelected();
+</script>
+</body>
+</html>

@@ -17,14 +17,15 @@ misc/
 
 # Research artifacts, notes, and gallery viewers
 notes/
-research/
-gallery/
+/research/
+/gallery/
 
 # Playwright MCP logs
 .playwright-mcp/
 
 # Screenshots
 *.png
+!app/public/**/*.png
 
 # OS files
 .DS_Store

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brownie Component Preview — Attempt 8</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f1729;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #f0d8a8;
+  }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 28px 0 12px;
+    color: #a0b4d0;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    align-items: flex-end;
+  }
+  .item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .label {
+    font-size: 0.78rem;
+    color: #8899aa;
+    text-align: center;
+  }
+  .subtitle { font-size: 0.85rem; color: #667788; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<h1>Brownie — Attempt 8 (Kawaii / Playful Style)</h1>
+<p class="subtitle">Isometric cartoon brownie with glossy frosting and pastel sprinkles</p>
+
+<h2>Size 120 — Normal</h2>
+<div class="row" id="row-120"></div>
+
+<h2>Size 120 — Selected</h2>
+<div class="row" id="row-120-sel"></div>
+
+<h2>Size 72</h2>
+<div class="row" id="row-72"></div>
+
+<h2>Size 72 — Selected</h2>
+<div class="row" id="row-72-sel"></div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Brownie SVG generator — vanilla JS port of the React component
+// ---------------------------------------------------------------------------
+
+const FROSTING_DARK = "#2C1810";
+const FROSTING_MID = "#3D2317";
+const FROSTING_LIGHT = "#4A2C17";
+const CAKE_LIGHT = "#D4A574";
+const CAKE_MID = "#C49A6C";
+const CAKE_DARK = "#B08860";
+const CAKE_CRUMB = "#E0B88A";
+const SIDE_SHADOW = "#2E1A0E";
+const SPRINKLE_COLORS = ["#FFB6C1", "#FFE4A0", "#A8D8EA", "#C3B1E1", "#FFDAB9"];
+const FROST_THICK = 6;
+
+const W = {
+  tl: [15, 25], tr: [75, 15], bl: [10, 55], br: [70, 45],
+  fl: [10, 78], fr: [70, 68],
+  rr: [85, 38], rb: [85, 58],
+};
+
+const WHOLE_SPRINKLES = [
+  { x: 28, y: 30, rot: 35, ci: 0, len: 6 },
+  { x: 55, y: 22, rot: -20, ci: 1, len: 5 },
+  { x: 72, y: 38, rot: 60, ci: 2, len: 7 },
+  { x: 40, y: 48, rot: -45, ci: 3, len: 5 },
+  { x: 62, y: 55, rot: 15, ci: 4, len: 6 },
+  { x: 20, y: 52, rot: 80, ci: 0, len: 5 },
+];
+
+function mid(a, b) { return [(a[0]+b[0])/2, (a[1]+b[1])/2]; }
+function pts(arr) { return arr.map(p => p.join(",")).join(" "); }
+
+function buildPuffyEdge(left, right, amp) {
+  const steps = 5;
+  const dx = (right[0]-left[0])/steps, dy = (right[1]-left[1])/steps;
+  let d = `M ${left[0]},${left[1]}`;
+  for (let i = 0; i < steps; i++) {
+    const x1 = left[0]+dx*i+dx*0.3, y1 = left[1]+dy*i+dy*0.3+amp;
+    const x2 = left[0]+dx*i+dx*0.7, y2 = left[1]+dy*i+dy*0.7+amp;
+    const x3 = left[0]+dx*(i+1),    y3 = left[1]+dy*(i+1);
+    d += ` C ${x1},${y1} ${x2},${y2} ${x3},${y3}`;
+  }
+  d += ` L ${left[0]},${left[1]} Z`;
+  return d;
+}
+
+function buildGeometry(type) {
+  if (type === "whole") return wholeGeom();
+  if (type === "half-left") return halfLeftGeom();
+  if (type === "half-right") return halfRightGeom();
+  if (type === "quarter") return quarterGeom();
+  if (type === "eighth") return eighthGeom();
+}
+
+function wholeGeom() {
+  return {
+    topFace: [W.tl, W.tr, W.br, W.bl],
+    frontFace: [W.bl, W.br, W.fr, W.fl],
+    rightFace: [W.br, W.tr, W.rr, W.rb],
+    cutFace: null,
+    frostStrip: [W.bl, W.br, [W.br[0], W.br[1]+FROST_THICK], [W.bl[0], W.bl[1]+FROST_THICK]],
+    cutFrostStrip: null,
+    puffyEdge: buildPuffyEdge(W.bl, W.br, 3),
+    sprinkles: WHOLE_SPRINKLES,
+    crumbs: [[25,65],[45,62],[58,70],[35,72],[50,58]],
+    cutCrumbs: [],
+    shineSpot: [30, 30],
+  };
+}
+
+function halfLeftGeom() {
+  const mt = mid(W.tl, W.tr), mb = mid(W.bl, W.br), mfb = mid(W.fl, W.fr);
+  return {
+    topFace: [W.tl, mt, mb, W.bl],
+    frontFace: [W.bl, mb, mfb, W.fl],
+    rightFace: null,
+    cutFace: [mt, mb, mfb, [mt[0], mt[1]+(mfb[1]-mb[1])]],
+    frostStrip: [W.bl, mb, [mb[0], mb[1]+FROST_THICK], [W.bl[0], W.bl[1]+FROST_THICK]],
+    cutFrostStrip: [mt, mb, [mb[0], mb[1]+FROST_THICK], [mt[0], mt[1]+FROST_THICK]],
+    puffyEdge: buildPuffyEdge(W.bl, mb, 3),
+    sprinkles: WHOLE_SPRINKLES.filter(s => s.x < 50).map(s => ({...s, x: s.x-2})),
+    crumbs: [[20,65],[32,70],[25,73]],
+    cutCrumbs: [[mt[0]-2, mt[1]+18],[mt[0]-3, mt[1]+30],[mt[0]-1, mt[1]+42]],
+    shineSpot: [25, 32],
+  };
+}
+
+function halfRightGeom() {
+  const mt = mid(W.tl, W.tr), mb = mid(W.bl, W.br), mfb = mid(W.fl, W.fr);
+  return {
+    topFace: [mt, W.tr, W.br, mb],
+    frontFace: [mb, W.br, W.fr, mfb],
+    rightFace: [W.br, W.tr, W.rr, W.rb],
+    cutFace: [mt, mb, mfb, [mt[0]-8, mt[1]+(mfb[1]-mb[1])]],
+    frostStrip: [mb, W.br, [W.br[0], W.br[1]+FROST_THICK], [mb[0], mb[1]+FROST_THICK]],
+    cutFrostStrip: [mt, mb, [mb[0], mb[1]+FROST_THICK], [mt[0], mt[1]+FROST_THICK]],
+    puffyEdge: buildPuffyEdge(mb, W.br, 3),
+    sprinkles: WHOLE_SPRINKLES.filter(s => s.x >= 45).map(s => ({...s, x: s.x+2})),
+    crumbs: [[50,62],[60,68],[55,74]],
+    cutCrumbs: [[mt[0]+2, mt[1]+16],[mt[0]+3, mt[1]+28],[mt[0]+1, mt[1]+40]],
+    shineSpot: [55, 25],
+  };
+}
+
+function quarterGeom() {
+  const midTopH = mid(W.tl, W.tr), midBotH = mid(W.bl, W.br);
+  const midTopV = mid(W.tl, W.bl);
+  const center = mid(midTopV, mid(midTopH, midBotH));
+  const fH = 20;
+  return {
+    topFace: [W.tl, midTopH, center, midTopV],
+    frontFace: [midTopV, center, [center[0], center[1]+fH], [midTopV[0], midTopV[1]+fH]],
+    rightFace: null,
+    cutFace: [midTopH, center, [center[0], center[1]+fH], [midTopH[0], midTopH[1]+fH]],
+    frostStrip: [midTopV, center, [center[0], center[1]+FROST_THICK], [midTopV[0], midTopV[1]+FROST_THICK]],
+    cutFrostStrip: [midTopH, center, [center[0], center[1]+FROST_THICK], [midTopH[0], midTopH[1]+FROST_THICK]],
+    puffyEdge: buildPuffyEdge(midTopV, center, 2.5),
+    sprinkles: [
+      { x: 25, y: 32, rot: 30, ci: 0, len: 5 },
+      { x: 38, y: 28, rot: -40, ci: 2, len: 5 },
+      { x: 22, y: 42, rot: 70, ci: 4, len: 4 },
+    ],
+    crumbs: [[18, center[1]+8],[28, center[1]+14]],
+    cutCrumbs: [[midTopH[0]-2, midTopH[1]+10],[midTopH[0]-1, midTopH[1]+18]],
+    shineSpot: [25, 30],
+  };
+}
+
+function eighthGeom() {
+  const midTopH = mid(W.tl, W.tr), midTopV = mid(W.tl, W.bl);
+  const midBotH = mid(W.bl, W.br);
+  const center = mid(mid(W.tl, W.br), mid(W.tr, W.bl));
+  const midLeft = mid(W.tl, midTopV), midRight = mid(midTopH, center);
+  const fH = 18;
+  return {
+    topFace: [W.tl, midTopH, midRight, midLeft],
+    frontFace: [midLeft, midRight, [midRight[0], midRight[1]+fH], [midLeft[0], midLeft[1]+fH]],
+    rightFace: null,
+    cutFace: [midTopH, midRight, [midRight[0], midRight[1]+fH], [midTopH[0], midTopH[1]+fH]],
+    frostStrip: [midLeft, midRight, [midRight[0], midRight[1]+FROST_THICK], [midLeft[0], midLeft[1]+FROST_THICK]],
+    cutFrostStrip: [midTopH, midRight, [midRight[0], midRight[1]+FROST_THICK], [midTopH[0], midTopH[1]+FROST_THICK]],
+    puffyEdge: buildPuffyEdge(midLeft, midRight, 2),
+    sprinkles: [
+      { x: 30, y: 26, rot: 25, ci: 1, len: 4 },
+      { x: 42, y: 22, rot: -30, ci: 3, len: 4 },
+    ],
+    crumbs: [[22, midLeft[1]+10],[35, midLeft[1]+14]],
+    cutCrumbs: [[midTopH[0]-2, midTopH[1]+10]],
+    shineSpot: [30, 24],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// SVG renderer
+// ---------------------------------------------------------------------------
+let _uid = 0;
+function createBrownieSVG(type, size, selected) {
+  const uid = _uid++;
+  const id = `b${uid}`;
+  const geom = buildGeometry(type);
+
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 100 100");
+  svg.setAttribute("width", size);
+  svg.setAttribute("height", size);
+  svg.style.overflow = "visible";
+
+  // Defs
+  const defs = document.createElementNS(ns, "defs");
+
+  // Frosting gradient
+  defs.innerHTML = `
+    <linearGradient id="${id}-frost" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${FROSTING_LIGHT}" />
+      <stop offset="50%" stop-color="${FROSTING_MID}" />
+      <stop offset="100%" stop-color="${FROSTING_DARK}" />
+    </linearGradient>
+    <linearGradient id="${id}-shine" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25" />
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="${id}-cake" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="${CAKE_LIGHT}" />
+      <stop offset="60%" stop-color="${CAKE_MID}" />
+      <stop offset="100%" stop-color="${CAKE_DARK}" />
+    </linearGradient>
+    <linearGradient id="${id}-cut" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${CAKE_CRUMB}" />
+      <stop offset="40%" stop-color="${CAKE_LIGHT}" />
+      <stop offset="100%" stop-color="${CAKE_MID}" />
+    </linearGradient>
+    <filter id="${id}-shadow" x="-20%" y="-10%" width="140%" height="140%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+    <filter id="${id}-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#FFD700" flood-opacity="0.7" />
+      <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#FFAA00" flood-opacity="0.5" />
+    </filter>
+  `;
+  svg.appendChild(defs);
+
+  // Add wobble animation for selected
+  if (selected) {
+    const style = document.createElementNS(ns, "style");
+    style.textContent = `
+      @keyframes wobble-${id} {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(-2deg); }
+        75% { transform: rotate(2deg); }
+      }
+    `;
+    svg.appendChild(style);
+  }
+
+  const g = document.createElementNS(ns, "g");
+  g.setAttribute("filter", `url(#${id}-${selected ? "glow" : "shadow"})`);
+  if (selected) {
+    g.style.transformOrigin = "50px 50px";
+    g.style.animation = `wobble-${id} 1.2s ease-in-out infinite`;
+  }
+
+  function poly(points, fill, stroke, sw) {
+    const el = document.createElementNS(ns, "polygon");
+    el.setAttribute("points", pts(points));
+    el.setAttribute("fill", fill);
+    if (stroke) { el.setAttribute("stroke", stroke); el.setAttribute("stroke-width", sw || "0.5"); }
+    return el;
+  }
+
+  function circle(cx, cy, r, fill, op) {
+    const el = document.createElementNS(ns, "circle");
+    el.setAttribute("cx", cx); el.setAttribute("cy", cy); el.setAttribute("r", r);
+    el.setAttribute("fill", fill);
+    if (op) el.setAttribute("opacity", op);
+    return el;
+  }
+
+  // Right face
+  if (geom.rightFace) {
+    g.appendChild(poly(geom.rightFace, SIDE_SHADOW, FROSTING_DARK, "0.5"));
+  }
+
+  // Front face
+  if (geom.frontFace) {
+    g.appendChild(poly(geom.frontFace, `url(#${id}-cake)`, FROSTING_DARK, "0.5"));
+    if (geom.frostStrip) g.appendChild(poly(geom.frostStrip, FROSTING_DARK, FROSTING_DARK, "0.3"));
+    geom.crumbs.forEach(c => g.appendChild(circle(c[0], c[1], 1, CAKE_CRUMB, "0.5")));
+  }
+
+  // Cut face
+  if (geom.cutFace) {
+    g.appendChild(poly(geom.cutFace, `url(#${id}-cut)`, CAKE_DARK, "0.5"));
+    if (geom.cutFrostStrip) g.appendChild(poly(geom.cutFrostStrip, FROSTING_DARK, FROSTING_DARK, "0.3"));
+    geom.cutCrumbs.forEach(c => g.appendChild(circle(c[0], c[1], 0.9, CAKE_CRUMB, "0.45")));
+  }
+
+  // Top face (frosting)
+  const top = poly(geom.topFace, `url(#${id}-frost)`, FROSTING_DARK, "0.8");
+  top.setAttribute("stroke-linejoin", "round");
+  g.appendChild(top);
+
+  // Shine overlay
+  g.appendChild(poly(geom.topFace, `url(#${id}-shine)`, null));
+
+  // Puffy edge
+  if (geom.puffyEdge) {
+    const path = document.createElementNS(ns, "path");
+    path.setAttribute("d", geom.puffyEdge);
+    path.setAttribute("fill", FROSTING_MID);
+    path.setAttribute("stroke", FROSTING_DARK);
+    path.setAttribute("stroke-width", "0.4");
+    path.setAttribute("opacity", "0.8");
+    g.appendChild(path);
+  }
+
+  // Sprinkles
+  geom.sprinkles.forEach(s => {
+    const line = document.createElementNS(ns, "line");
+    const rad = s.rot * Math.PI / 180;
+    const hl = s.len / 2;
+    line.setAttribute("x1", s.x - Math.cos(rad)*hl);
+    line.setAttribute("y1", s.y - Math.sin(rad)*hl);
+    line.setAttribute("x2", s.x + Math.cos(rad)*hl);
+    line.setAttribute("y2", s.y + Math.sin(rad)*hl);
+    line.setAttribute("stroke", SPRINKLE_COLORS[s.ci % SPRINKLE_COLORS.length]);
+    line.setAttribute("stroke-width", "2.2");
+    line.setAttribute("stroke-linecap", "round");
+    g.appendChild(line);
+  });
+
+  // Shine spot
+  if (geom.shineSpot) {
+    const el = document.createElementNS(ns, "ellipse");
+    el.setAttribute("cx", geom.shineSpot[0]);
+    el.setAttribute("cy", geom.shineSpot[1]);
+    el.setAttribute("rx", "4"); el.setAttribute("ry", "2.5");
+    el.setAttribute("fill", "white"); el.setAttribute("opacity", "0.3");
+    el.setAttribute("transform", `rotate(-25, ${geom.shineSpot[0]}, ${geom.shineSpot[1]})`);
+    g.appendChild(el);
+  }
+
+  svg.appendChild(g);
+  return svg;
+}
+
+// ---------------------------------------------------------------------------
+// Render all variants
+// ---------------------------------------------------------------------------
+const types = ["whole", "half-left", "half-right", "quarter", "eighth"];
+
+function renderRow(containerId, size, selected) {
+  const container = document.getElementById(containerId);
+  types.forEach(type => {
+    const item = document.createElement("div");
+    item.className = "item";
+    item.appendChild(createBrownieSVG(type, size, selected));
+    const label = document.createElement("div");
+    label.className = "label";
+    label.textContent = type + (selected ? " (selected)" : "");
+    item.appendChild(label);
+    container.appendChild(item);
+  });
+}
+
+renderRow("row-120", 120, false);
+renderRow("row-120-sel", 120, true);
+renderRow("row-72", 72, false);
+renderRow("row-72-sel", 72, true);
+</script>
+</body>
+</html>

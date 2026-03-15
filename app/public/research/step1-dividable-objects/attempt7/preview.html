@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brownie Component — Preview (attempt7)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #0f1729; color: #e8dfc8; }
+  .page { padding: 32px 40px; }
+  h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; color: #f0e6d0; }
+  .subtitle { font-size: 0.8rem; opacity: 0.5; margin-bottom: 24px; }
+  h2 { font-size: 0.9rem; font-weight: 600; margin: 28px 0 14px; opacity: 0.6; letter-spacing: 0.06em; text-transform: uppercase; }
+  .row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 28px; margin-bottom: 8px; }
+  .item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .label { font-size: 0.7rem; opacity: 0.45; text-align: center; }
+  .size-label { font-size: 0.65rem; opacity: 0.35; font-style: italic; margin-top: 2px; }
+  .halves { display: flex; align-items: flex-start; gap: 3px; }
+  .section { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; }
+
+  @keyframes brownieBounce {
+    from { transform: translateY(0px); }
+    to   { transform: translateY(-4px); }
+  }
+  @keyframes glowPulse {
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(255,192,64,0.7)); }
+    50% { filter: drop-shadow(0 0 14px rgba(255,192,64,0.9)); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Brownie — Dividable Object (attempt7)</h1>
+  <p class="subtitle">Cartoon chocolate brownie for children's fraction tutor. Dark background (#0f1729).</p>
+
+  <h2>Medium size (120px) — Workspace / unassigned</h2>
+  <div class="row" id="medium-row"></div>
+
+  <h2 class="section">Small size (72px) — Assigned to character</h2>
+  <div class="row" id="small-row"></div>
+
+  <h2 class="section">Selected state (120px) — Golden glow</h2>
+  <div class="row" id="selected-row"></div>
+
+  <h2 class="section">Reassembly — Halves fit together (120px)</h2>
+  <div class="row" id="reassembly-row"></div>
+
+  <h2 class="section">All sizes — Whole brownie</h2>
+  <div class="row" id="all-sizes-row"></div>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Brownie SVG builder — vanilla JS version of Brownie.tsx
+// ---------------------------------------------------------------------------
+
+const PAD = 8;
+const LEFT = PAD, TOP = PAD;
+const W = 100 - PAD * 2;  // 84
+const H = 100 - PAD * 2;  // 84
+const R = 5;
+
+const CRUST_DARK = "#3b1e0a";
+const CRUST_MID  = "#5a2d0e";
+const CRUST_LIGHT = "#6b3a14";
+const INTERIOR = "#8b5e3c";
+const INTERIOR_LIGHT = "#a47250";
+const CHIP_DARK = "#2a1508";
+const CHIP_LIGHT = "#4a2a12";
+
+let _uid = 0;
+function uid() { return `b${++_uid}`; }
+
+// ---- Defs ----
+function makeDefs(id, type) {
+  let clipPath = '';
+  if (type === 'half-left')  clipPath = `<clipPath id="${id}-clip"><rect x="0" y="0" width="52" height="100"/></clipPath>`;
+  if (type === 'half-right') clipPath = `<clipPath id="${id}-clip"><rect x="48" y="0" width="52" height="100"/></clipPath>`;
+  if (type === 'quarter')    clipPath = `<clipPath id="${id}-clip"><rect x="48" y="0" width="52" height="52"/></clipPath>`;
+  if (type === 'eighth')     clipPath = `<clipPath id="${id}-clip"><rect x="69" y="0" width="31" height="52"/></clipPath>`;
+
+  return `<defs>
+    <linearGradient id="${id}-top" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4a2810"/>
+      <stop offset="30%" stop-color="#3b1e0a"/>
+      <stop offset="60%" stop-color="#4e2c12"/>
+      <stop offset="100%" stop-color="#3a1c08"/>
+    </linearGradient>
+    <linearGradient id="${id}-interior" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${CRUST_DARK}"/>
+      <stop offset="8%" stop-color="${INTERIOR}"/>
+      <stop offset="50%" stop-color="${INTERIOR_LIGHT}"/>
+      <stop offset="92%" stop-color="${INTERIOR}"/>
+      <stop offset="100%" stop-color="#6b4020"/>
+    </linearGradient>
+    <linearGradient id="${id}-interior-h" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="${CRUST_DARK}"/>
+      <stop offset="8%" stop-color="${INTERIOR}"/>
+      <stop offset="50%" stop-color="${INTERIOR_LIGHT}"/>
+      <stop offset="92%" stop-color="${INTERIOR}"/>
+      <stop offset="100%" stop-color="#6b4020"/>
+    </linearGradient>
+    <radialGradient id="${id}-sheen" cx="35%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="${id}-tex" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.08 0.08" numOctaves="5" seed="42" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="gray"/>
+      <feBlend in="SourceGraphic" in2="gray" mode="multiply" result="blended"/>
+      <feComponentTransfer in="blended">
+        <feFuncR type="linear" slope="1.1" intercept="0.02"/>
+        <feFuncG type="linear" slope="1.0" intercept="0.01"/>
+        <feFuncB type="linear" slope="0.9" intercept="0"/>
+      </feComponentTransfer>
+    </filter>
+    <filter id="${id}-shadow" x="-15%" y="-10%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#1a0a00" flood-opacity="0.45"/>
+    </filter>
+    <filter id="${id}-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feFlood flood-color="#ffc040" flood-opacity="0.85" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    ${clipPath}
+  </defs>`;
+}
+
+// ---- Crack lines ----
+function crackLines() {
+  return `<g opacity="0.4" stroke="${CRUST_DARK}" stroke-width="0.8" fill="none" stroke-linecap="round">
+    <path d="M 35 35 Q 42 40 50 38 Q 58 36 65 40"/>
+    <path d="M 30 55 Q 40 50 50 52 Q 58 54 68 48"/>
+    <path d="M 42 28 Q 45 38 48 50 Q 50 58 52 68"/>
+    <path d="M 55 25 Q 52 35 56 45"/>
+    <path d="M 25 42 Q 32 44 38 48"/>
+    <path d="M 60 55 Q 66 58 72 54"/>
+    <path d="M 38 65 Q 44 62 48 66" opacity="0.6" stroke-width="0.5"/>
+    <path d="M 58 30 Q 62 34 60 38" opacity="0.6" stroke-width="0.5"/>
+    <path d="M 28 32 Q 33 36 35 40" opacity="0.6" stroke-width="0.5"/>
+    <path d="M 65 62 Q 70 65 72 68" opacity="0.6" stroke-width="0.5"/>
+  </g>`;
+}
+
+// ---- Chocolate chips and crumbs ----
+function chocolateChips() {
+  const chips = [
+    [28,30,3.5,2.5,15], [62,26,3,2.2,-20], [45,55,3.2,2.4,35], [72,50,2.8,2,-10],
+    [35,72,3,2.3,45], [58,68,2.5,2,5], [22,58,2.8,2.1,-30], [75,35,2.6,2,20],
+  ];
+  const crumbs = [
+    [30,45],[55,42],[40,32],[68,58],[48,75],[25,68],[78,28],[65,75],[32,18],[70,18],[18,45],[82,60],
+  ];
+  let svg = '';
+  chips.forEach(([cx,cy,rx,ry,rot], i) => {
+    const fill = i % 2 === 0 ? CHIP_DARK : CHIP_LIGHT;
+    svg += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${fill}" transform="rotate(${rot} ${cx} ${cy})" opacity="0.7"/>`;
+  });
+  svg += `<g opacity="0.35">`;
+  crumbs.forEach(([cx,cy], i) => {
+    svg += `<circle cx="${cx}" cy="${cy}" r="${1 + (i%3)*0.4}" fill="${CRUST_MID}"/>`;
+  });
+  svg += `</g>`;
+  return svg;
+}
+
+// ---- Brownie top surface ----
+function brownieTop(id) {
+  return `
+    <rect x="${LEFT}" y="${TOP}" width="${W}" height="${H}" rx="${R}" fill="url(#${id}-top)"/>
+    <rect x="${LEFT}" y="${TOP}" width="${W}" height="${H}" rx="${R}" fill="url(#${id}-top)" filter="url(#${id}-tex)" opacity="0.5"/>
+    ${crackLines()}
+    ${chocolateChips()}
+    <rect x="${LEFT}" y="${TOP}" width="${W}" height="${H}" rx="${R}" fill="url(#${id}-sheen)"/>
+  `;
+}
+
+// ---- Cut edge (vertical) ----
+function cutEdgeV(x, id) {
+  const ew = 5;
+  let dots = '';
+  [0.15, 0.3, 0.5, 0.65, 0.8].forEach((f, i) => {
+    dots += `<circle cx="${x + (i%2===0?1:-1)}" cy="${TOP + H*f}" r="0.8" fill="${INTERIOR_LIGHT}" opacity="0.5"/>`;
+  });
+  return `
+    <rect x="${x - ew/2}" y="${TOP}" width="${ew}" height="${H}" fill="url(#${id}-interior)"/>
+    <line x1="${x}" y1="${TOP}" x2="${x}" y2="${TOP+H}" stroke="${INTERIOR}" stroke-width="0.8" opacity="0.5"/>
+    ${dots}
+  `;
+}
+
+// ---- Cut edge (horizontal) ----
+function cutEdgeH(y, id) {
+  const ew = 5;
+  let dots = '';
+  [0.15, 0.3, 0.5, 0.65, 0.8].forEach((f, i) => {
+    dots += `<circle cx="${LEFT + W*f}" cy="${y + (i%2===0?1:-1)}" r="0.8" fill="${INTERIOR_LIGHT}" opacity="0.5"/>`;
+  });
+  return `
+    <rect x="${LEFT}" y="${y - ew/2}" width="${W}" height="${ew}" fill="url(#${id}-interior-h)"/>
+    <line x1="${LEFT}" y1="${y}" x2="${LEFT+W}" y2="${y}" stroke="${INTERIOR}" stroke-width="0.8" opacity="0.5"/>
+    ${dots}
+  `;
+}
+
+// ---- ViewBox and size ----
+function getViewAndSize(type, size) {
+  switch (type) {
+    case 'whole':      return { vb: '2 2 96 96',   w: size,        h: size };
+    case 'half-left':  return { vb: '2 2 50 96',   w: size * 0.52, h: size };
+    case 'half-right': return { vb: '48 2 50 96',  w: size * 0.52, h: size };
+    case 'quarter':    return { vb: '48 2 50 50',  w: size * 0.52, h: size * 0.52 };
+    case 'eighth':     return { vb: '67 2 30 50',  w: size * 0.32, h: size * 0.52 };
+  }
+}
+
+// ---- Build full SVG ----
+function svgBrownie(type, size, selected) {
+  const id = uid();
+  const { vb, w, h } = getViewAndSize(type, size);
+  const filterAttr = selected ? `filter="url(#${id}-glow)"` : `filter="url(#${id}-shadow)"`;
+  const animStyle = selected ? `style="animation: brownieBounce 0.6s ease-in-out infinite alternate"` : '';
+
+  const needsClip = type !== 'whole';
+  const showVertCut = type === 'half-left' || type === 'half-right' || type === 'quarter' || type === 'eighth';
+  const showHorizCut = type === 'quarter' || type === 'eighth';
+  const showEighthCut = type === 'eighth';
+
+  let body = '';
+  if (needsClip) {
+    body += `<g clip-path="url(#${id}-clip)">${brownieTop(id)}</g>`;
+  } else {
+    body += brownieTop(id);
+  }
+  if (showVertCut)   body += cutEdgeV(50, id);
+  if (showHorizCut)  body += cutEdgeH(50, id);
+  if (showEighthCut) body += cutEdgeV(71, id);
+
+  return `<svg width="${Math.round(w)}" height="${Math.round(h)}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" ${animStyle}>
+  ${makeDefs(id, type)}
+  <g ${filterAttr}>
+    ${body}
+  </g>
+</svg>`;
+}
+
+// ---------------------------------------------------------------------------
+// Render into page
+// ---------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+  const types = ['whole', 'half-left', 'half-right', 'quarter', 'eighth'];
+  const typeLabels = {
+    'whole': 'Whole (1)',
+    'half-left': 'Half-left (1/2)',
+    'half-right': 'Half-right (1/2)',
+    'quarter': 'Quarter (1/4)',
+    'eighth': 'Eighth (1/8)',
+  };
+
+  // Medium 120px row
+  document.getElementById('medium-row').innerHTML = types.map(t =>
+    `<div class="item">
+      ${svgBrownie(t, 120, false)}
+      <span class="label">${typeLabels[t]}</span>
+      <span class="size-label">120px</span>
+    </div>`
+  ).join('');
+
+  // Small 72px row
+  document.getElementById('small-row').innerHTML = types.map(t =>
+    `<div class="item">
+      ${svgBrownie(t, 72, false)}
+      <span class="label">${typeLabels[t]}</span>
+      <span class="size-label">72px</span>
+    </div>`
+  ).join('');
+
+  // Selected states 120px
+  document.getElementById('selected-row').innerHTML = types.map(t =>
+    `<div class="item">
+      ${svgBrownie(t, 120, true)}
+      <span class="label">${typeLabels[t]}</span>
+    </div>`
+  ).join('');
+
+  // Reassembly: halves together, and quarter pieces together
+  document.getElementById('reassembly-row').innerHTML = `
+    <div class="item">
+      <div class="halves">${svgBrownie('half-left', 120, false)}${svgBrownie('half-right', 120, false)}</div>
+      <span class="label">Two halves = whole</span>
+    </div>
+    <div class="item">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 2px;">
+        ${svgBrownie('quarter', 120, false)}${svgBrownie('quarter', 120, false)}
+        ${svgBrownie('quarter', 120, false)}${svgBrownie('quarter', 120, false)}
+      </div>
+      <span class="label">Four quarters = whole</span>
+    </div>
+    <div class="item">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1px;">
+        ${svgBrownie('eighth', 120, false)}${svgBrownie('eighth', 120, false)}
+        ${svgBrownie('eighth', 120, false)}${svgBrownie('eighth', 120, false)}
+      </div>
+      <span class="label">Four eighths = half</span>
+    </div>
+  `;
+
+  // All sizes for whole brownie
+  document.getElementById('all-sizes-row').innerHTML =
+    [48, 64, 72, 96, 120, 160, 200].map(sz =>
+      `<div class="item">
+        ${svgBrownie('whole', sz, false)}
+        <span class="label">${sz}px</span>
+      </div>`
+    ).join('');
+});
+</script>
+</body>
+</html>

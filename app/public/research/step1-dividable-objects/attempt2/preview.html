@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cookie SVG Preview - Attempt 2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0f1729;
+      color: #e8ecff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    .subtitle {
+      text-align: center;
+      color: #8899bb;
+      margin-bottom: 40px;
+      font-size: 0.9rem;
+    }
+    .section {
+      margin-bottom: 50px;
+    }
+    .section h2 {
+      font-size: 1.1rem;
+      color: #aabbdd;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1a2540;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .cookie-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .cookie-cell .label {
+      font-size: 0.7rem;
+      color: #667799;
+      text-align: center;
+    }
+    .size-label {
+      font-size: 0.85rem;
+      color: #8899bb;
+      font-weight: 600;
+      min-width: 60px;
+    }
+    .dark-bg {
+      background: #0a0f1e;
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #1a2540;
+    }
+    .sliced-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .selected-demo {
+      position: relative;
+    }
+    .grid-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Cookie SVG Graphics - Attempt 2</h1>
+<p class="subtitle">
+  feTurbulence textures / jagged break edges / crumb particles / raised chocolate chips / baked-edge darkening
+</p>
+
+<!-- Whole cookies at multiple sizes -->
+<div class="section">
+  <h2>Whole Cookie - Multiple Sizes</h2>
+  <div class="row" id="whole-sizes"></div>
+</div>
+
+<!-- Half cookies -->
+<div class="section">
+  <h2>Half Cookies (Left &amp; Right) - Multiple Sizes</h2>
+  <div class="row" id="half-sizes"></div>
+</div>
+
+<!-- Quarter cookies -->
+<div class="section">
+  <h2>Quarter Cookie - Multiple Sizes</h2>
+  <div class="row" id="quarter-sizes"></div>
+</div>
+
+<!-- Sliced cookie demo -->
+<div class="section">
+  <h2>Sliced Cookie (Two Halves Together)</h2>
+  <div class="row" id="sliced-demo"></div>
+</div>
+
+<!-- Selected state demo -->
+<div class="section">
+  <h2>Selected State (Whole)</h2>
+  <div class="row" id="selected-demo"></div>
+</div>
+
+<!-- All variants at 120px -->
+<div class="section">
+  <h2>All Variants at 120px</h2>
+  <div class="row" id="all-variants"></div>
+</div>
+
+<!-- Dark background comparison -->
+<div class="section">
+  <h2>On Dark Background (as in app)</h2>
+  <div class="dark-bg">
+    <div class="row" id="dark-bg-demo"></div>
+  </div>
+</div>
+
+<script>
+// ==========================================================================
+// Pure JS port of the Cookie SVG rendering logic (mirrors Cookie.tsx)
+// ==========================================================================
+
+function mulberry32(seed) {
+  return function() {
+    seed |= 0;
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function generateJaggedEdge(axis, length, centerOffset, rng, segments = 18) {
+  const points = [];
+  const step = length / segments;
+  for (let i = 0; i <= segments; i++) {
+    const t = i * step;
+    const edgeFactor = Math.sin((i / segments) * Math.PI);
+    const jag = (rng() - 0.5) * 3.5 * edgeFactor;
+    if (axis === "vertical") {
+      points.push([centerOffset + jag, t]);
+    } else {
+      points.push([t, centerOffset + jag]);
+    }
+  }
+  return points.map((p, i) => (i === 0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(" ");
+}
+
+function generateCrumbs(axis, centerPos, length, rng, count = 6) {
+  const crumbs = [];
+  for (let i = 0; i < count; i++) {
+    const along = rng() * length;
+    const spread = (rng() - 0.5) * 12;
+    const r = 0.6 + rng() * 1.2;
+    const opacity = 0.4 + rng() * 0.4;
+    if (axis === "vertical") {
+      crumbs.push({ cx: centerPos + spread, cy: along, r, opacity });
+    } else {
+      crumbs.push({ cx: along, cy: centerPos + spread, r, opacity });
+    }
+  }
+  return crumbs;
+}
+
+function generateChips(rng, count, bounds, clipTest) {
+  const chips = [];
+  let attempts = 0;
+  while (chips.length < count && attempts < count * 5) {
+    attempts++;
+    const cx = bounds.x + rng() * bounds.w;
+    const cy = bounds.y + rng() * bounds.h;
+    const dx = cx - 50, dy = cy - 50;
+    if (dx * dx + dy * dy > 40 * 40) continue;
+    if (clipTest && !clipTest(cx, cy)) continue;
+    const tooClose = chips.some(c => (c.cx - cx) ** 2 + (c.cy - cy) ** 2 < 100);
+    if (tooClose) continue;
+    const rx = 3 + rng() * 2.5;
+    const ry = 2.5 + rng() * 2;
+    const rotation = rng() * 360;
+    chips.push({ cx, cy, rx, ry, rotation });
+  }
+  return chips;
+}
+
+let uid = 0;
+
+function renderChips(chips) {
+  return chips.map(chip => `
+    <ellipse cx="${chip.cx+1}" cy="${chip.cy+1.4}" rx="${chip.rx+0.5}" ry="${chip.ry+0.5}"
+      fill="#2a1508" opacity="0.35" transform="rotate(${chip.rotation}, ${chip.cx+1}, ${chip.cy+1.4})" />
+    <ellipse cx="${chip.cx}" cy="${chip.cy}" rx="${chip.rx}" ry="${chip.ry}"
+      fill="#3d2314" transform="rotate(${chip.rotation}, ${chip.cx}, ${chip.cy})" />
+    <ellipse cx="${chip.cx}" cy="${chip.cy}" rx="${chip.rx+0.8}" ry="${chip.ry+0.6}"
+      fill="none" stroke="#5a3a20" stroke-width="0.5" opacity="0.25"
+      transform="rotate(${chip.rotation}, ${chip.cx}, ${chip.cy})" />
+    <ellipse cx="${chip.cx-0.7}" cy="${chip.cy-0.7}" rx="${chip.rx*0.45}" ry="${chip.ry*0.35}"
+      fill="#6b4a38" opacity="0.5" transform="rotate(${chip.rotation}, ${chip.cx}, ${chip.cy})" />
+  `).join("");
+}
+
+function renderSparkles(seed, count, filterFn) {
+  let html = "";
+  for (let i = 0; i < count; i++) {
+    const sparkRng = mulberry32(seed + 600 + i);
+    const angle = sparkRng() * Math.PI * 2;
+    const dist = 8 + sparkRng() * 32;
+    const sx = 50 + Math.cos(angle) * dist;
+    const sy = 50 + Math.sin(angle) * dist;
+    if (filterFn && !filterFn(sx)) continue;
+    const r = 0.3 + sparkRng() * 0.5;
+    const op = 0.25 + sparkRng() * 0.3;
+    html += `<circle cx="${sx}" cy="${sy}" r="${r}" fill="#f5e0b0" opacity="${op}" />`;
+  }
+  return html;
+}
+
+function wholeCookieSVG(size, selected = false) {
+  const id = `p${++uid}`;
+  const rng = mulberry32(42);
+  const chips = generateChips(rng, 8, { x: 8, y: 8, w: 84, h: 84 });
+  return `
+  <svg width="${size}" height="${size}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="${id}-tex" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" seed="8" result="noise" />
+        <feColorMatrix type="matrix" in="noise"
+          values="0 0 0 0 0.82  0 0 0 0 0.55  0 0 0 0 0.32  0 0 0 0.1 0" result="colorNoise" />
+        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="3" seed="3" result="bumpNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="bumpNoise" scale="2" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+        <feBlend in="displaced" in2="colorNoise" mode="overlay" />
+      </filter>
+      <radialGradient id="${id}-bake" cx="0.48" cy="0.46" r="0.5">
+        <stop offset="0%" stop-color="#dda05c" />
+        <stop offset="40%" stop-color="#d4944e" />
+        <stop offset="65%" stop-color="#c47e38" />
+        <stop offset="82%" stop-color="#a86025" />
+        <stop offset="95%" stop-color="#8a4a1a" />
+        <stop offset="100%" stop-color="#7a4218" />
+      </radialGradient>
+      <radialGradient id="${id}-hl" cx="0.4" cy="0.35" r="0.45">
+        <stop offset="0%" stop-color="#f0d090" stop-opacity="0.25" />
+        <stop offset="100%" stop-color="#f0d090" stop-opacity="0" />
+      </radialGradient>
+      <filter id="${id}-drop" x="-15%" y="-15%" width="130%" height="140%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur" />
+        <feOffset dx="0" dy="3" result="shadow" />
+        <feFlood flood-color="#000000" flood-opacity="0.3" />
+        <feComposite in2="shadow" operator="in" result="dropShadow" />
+        <feMerge>
+          <feMergeNode in="dropShadow" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+    <g filter="url(#${id}-drop)">
+      <circle cx="50" cy="50" r="46" fill="#6e3a14" opacity="0.4" />
+      <circle cx="50" cy="50" r="45" fill="url(#${id}-bake)" filter="url(#${id}-tex)" />
+      <circle cx="50" cy="50" r="45" fill="url(#${id}-bake)" opacity="0.4" />
+      <circle cx="50" cy="50" r="44" fill="url(#${id}-hl)" />
+      <circle cx="50" cy="50" r="44" fill="none" stroke="#9e5d22" stroke-width="1.5" opacity="0.2" />
+      <circle cx="50" cy="50" r="42.5" fill="none" stroke="#b87a3a" stroke-width="0.5" opacity="0.15" />
+      ${renderSparkles(42, 10)}
+      ${renderChips(chips)}
+      <circle cx="50" cy="50" r="44" fill="none" stroke="#5a3010" stroke-width="6" opacity="0.08" />
+    </g>
+    ${selected ? '<line x1="50" y1="4" x2="50" y2="96" stroke="white" stroke-width="2" stroke-dasharray="4 4" opacity="0.7" />' : ""}
+  </svg>`;
+}
+
+function halfCookieSVG(size, side = "left") {
+  const id = `p${++uid}`;
+  const isLeft = side === "left";
+  const variantSeed = isLeft ? 100 : 200;
+  const rng = mulberry32(variantSeed);
+  const chipTest = isLeft ? (x) => x < 50 : (x) => x > 50;
+  const chips = generateChips(rng, 5, { x: isLeft ? 6 : 52, y: 8, w: 40, h: 84 }, chipTest);
+
+  const jagRng = mulberry32(isLeft ? 111 : 222);
+  const crumbRng = mulberry32(isLeft ? 113 : 223);
+  const jaggedEdgePath = generateJaggedEdge("vertical", 90, 50, jagRng, 22);
+  const crumbs = generateCrumbs("vertical", 50, 90, crumbRng, 5);
+
+  const hWidth = size * 0.45;
+  const hHeight = size * 0.8;
+  const vx = isLeft ? 0 : 48;
+  const vw = 52;
+
+  return `
+  <svg width="${hWidth}" height="${hHeight}" viewBox="${vx} 2 ${vw} 96" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="${id}-htex" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="5" seed="12" result="noise" />
+        <feColorMatrix type="matrix" in="noise"
+          values="0 0 0 0 0.82  0 0 0 0 0.55  0 0 0 0 0.32  0 0 0 0.12 0" result="colorNoise" />
+        <feTurbulence type="turbulence" baseFrequency="0.025" numOctaves="3" seed="5" result="bumpNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="bumpNoise" scale="1.5" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+        <feBlend in="displaced" in2="colorNoise" mode="overlay" />
+      </filter>
+      <radialGradient id="${id}-hbake" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0%" stop-color="#dda05c" />
+        <stop offset="45%" stop-color="#d4944e" />
+        <stop offset="70%" stop-color="#c07a35" />
+        <stop offset="88%" stop-color="#9e5d22" />
+        <stop offset="100%" stop-color="#7a4218" />
+      </radialGradient>
+      <clipPath id="${id}-hclip">
+        ${isLeft
+          ? '<path d="M 50 4 A 46 46 0 0 0 50 96 L 50 4 Z" />'
+          : '<path d="M 50 4 A 46 46 0 0 1 50 96 L 50 4 Z" />'
+        }
+      </clipPath>
+    </defs>
+    <g clip-path="url(#${id}-hclip)">
+      <circle cx="50" cy="50" r="45" fill="url(#${id}-hbake)" filter="url(#${id}-htex)" />
+      <circle cx="50" cy="50" r="45" fill="url(#${id}-hbake)" opacity="0.45" />
+      <circle cx="50" cy="50" r="43" fill="none" stroke="#b06828" stroke-width="1.5" opacity="0.2" />
+      ${renderSparkles(variantSeed, 6, isLeft ? (sx) => sx < 48 : (sx) => sx > 52)}
+      ${renderChips(chips)}
+      <line x1="50" y1="5" x2="50" y2="95" stroke="#7a4a20" stroke-width="3" opacity="0.2" />
+      <line x1="${isLeft ? 49 : 51}" y1="5" x2="${isLeft ? 49 : 51}" y2="95" stroke="#c49050" stroke-width="1" opacity="0.25" />
+    </g>
+    <path d="${jaggedEdgePath}" fill="none" stroke="#a06030" stroke-width="1.2" opacity="0.5" stroke-linecap="round" />
+    ${crumbs.map(c => `<circle cx="${c.cx}" cy="${c.cy+5}" r="${c.r}" fill="#c8864a" opacity="${c.opacity}" />`).join("")}
+  </svg>`;
+}
+
+function quarterCookieSVG(size) {
+  const id = `p${++uid}`;
+  const rng = mulberry32(300);
+  const chips = generateChips(rng, 3, { x: 50, y: 4, w: 44, h: 44 }, (x, y) => {
+    return x >= 50 && y <= 50 && (x - 50) ** 2 + (y - 50) ** 2 < 42 * 42;
+  });
+
+  const jagV = generateJaggedEdge("vertical", 48, 50, mulberry32(301), 14);
+  const jagH = generateJaggedEdge("horizontal", 48, 50, mulberry32(302), 14);
+  const crumbsV = generateCrumbs("vertical", 50, 48, mulberry32(303), 3);
+  const crumbsH = generateCrumbs("horizontal", 50, 48, mulberry32(304), 3);
+
+  const qSize = size * 0.6;
+
+  return `
+  <svg width="${qSize}" height="${qSize}" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="${id}-tex" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="4" seed="7" result="noise" />
+        <feColorMatrix type="matrix" in="noise"
+          values="0 0 0 0 0.83  0 0 0 0 0.54  0 0 0 0 0.30  0 0 0 0.15 0" result="colorNoise" />
+        <feTurbulence type="turbulence" baseFrequency="0.03" numOctaves="2" seed="3" result="bumpNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="bumpNoise" scale="2" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+        <feBlend in="displaced" in2="colorNoise" mode="overlay" />
+      </filter>
+      <radialGradient id="${id}-qbake" cx="0.85" cy="0.15" r="0.75">
+        <stop offset="0%" stop-color="#d9944e" />
+        <stop offset="60%" stop-color="#c57d3a" />
+        <stop offset="85%" stop-color="#a05a20" />
+        <stop offset="100%" stop-color="#7a4218" />
+      </radialGradient>
+      <clipPath id="${id}-qclip">
+        <path d="M 50 50 L 50 4 A 46 46 0 0 1 96 50 Z" />
+      </clipPath>
+    </defs>
+    <g transform="translate(-34, -2)" clip-path="url(#${id}-qclip)">
+      <circle cx="50" cy="50" r="45" fill="url(#${id}-qbake)" filter="url(#${id}-tex)" />
+      <circle cx="50" cy="50" r="45" fill="url(#${id}-qbake)" opacity="0.5" />
+      <circle cx="50" cy="50" r="44" fill="none" stroke="#e8b06a" stroke-width="0.5" opacity="0.3" />
+      ${chips.map(chip => `
+        <ellipse cx="${chip.cx+0.8}" cy="${chip.cy+1}" rx="${chip.rx+0.3}" ry="${chip.ry+0.3}"
+          fill="#3a2010" opacity="0.4" transform="rotate(${chip.rotation}, ${chip.cx+0.8}, ${chip.cy+1})" />
+        <ellipse cx="${chip.cx}" cy="${chip.cy}" rx="${chip.rx}" ry="${chip.ry}"
+          fill="#3d2314" transform="rotate(${chip.rotation}, ${chip.cx}, ${chip.cy})" />
+        <ellipse cx="${chip.cx-0.5}" cy="${chip.cy-0.5}" rx="${chip.rx*0.5}" ry="${chip.ry*0.4}"
+          fill="#5a3a28" opacity="0.6" transform="rotate(${chip.rotation}, ${chip.cx}, ${chip.cy})" />
+      `).join("")}
+    </g>
+    ${[...crumbsV, ...crumbsH].map(c =>
+      `<circle cx="${c.cx-34}" cy="${c.cy-2}" r="${c.r}" fill="#c8864a" opacity="${c.opacity}" />`
+    ).join("")}
+  </svg>`;
+}
+
+// --- Render all sections ---
+const sizes = [48, 80, 120, 140];
+
+// Whole cookies
+const wholeRow = document.getElementById("whole-sizes");
+sizes.forEach(s => {
+  const cell = document.createElement("div");
+  cell.className = "cookie-cell";
+  cell.innerHTML = wholeCookieSVG(s) + `<span class="label">${s}px</span>`;
+  wholeRow.appendChild(cell);
+});
+
+// Half cookies
+const halfRow = document.getElementById("half-sizes");
+sizes.forEach(s => {
+  const cellL = document.createElement("div");
+  cellL.className = "cookie-cell";
+  cellL.innerHTML = halfCookieSVG(s, "left") + `<span class="label">Left ${s}px</span>`;
+  halfRow.appendChild(cellL);
+
+  const cellR = document.createElement("div");
+  cellR.className = "cookie-cell";
+  cellR.innerHTML = halfCookieSVG(s, "right") + `<span class="label">Right ${s}px</span>`;
+  halfRow.appendChild(cellR);
+});
+
+// Quarter cookies
+const quarterRow = document.getElementById("quarter-sizes");
+sizes.forEach(s => {
+  const cell = document.createElement("div");
+  cell.className = "cookie-cell";
+  cell.innerHTML = quarterCookieSVG(s) + `<span class="label">${s}px</span>`;
+  quarterRow.appendChild(cell);
+});
+
+// Sliced cookie demo
+const slicedRow = document.getElementById("sliced-demo");
+[80, 120, 140].forEach(s => {
+  const cell = document.createElement("div");
+  cell.className = "cookie-cell";
+  cell.innerHTML = `<div class="sliced-row">${halfCookieSVG(s, "left")}${halfCookieSVG(s, "right")}</div><span class="label">Sliced ${s}px</span>`;
+  slicedRow.appendChild(cell);
+});
+
+// Selected state
+const selectedRow = document.getElementById("selected-demo");
+[80, 120].forEach(s => {
+  const cell = document.createElement("div");
+  cell.className = "cookie-cell";
+  cell.innerHTML = wholeCookieSVG(s, true) + `<span class="label">Selected ${s}px</span>`;
+  selectedRow.appendChild(cell);
+});
+const normalCell = document.createElement("div");
+normalCell.className = "cookie-cell";
+normalCell.innerHTML = wholeCookieSVG(120, false) + `<span class="label">Normal 120px</span>`;
+selectedRow.appendChild(normalCell);
+
+// All variants at 120px
+const allRow = document.getElementById("all-variants");
+[
+  { html: wholeCookieSVG(120), label: "Whole" },
+  { html: halfCookieSVG(120, "left"), label: "Half Left" },
+  { html: halfCookieSVG(120, "right"), label: "Half Right" },
+  { html: quarterCookieSVG(120), label: "Quarter" },
+].forEach(item => {
+  const cell = document.createElement("div");
+  cell.className = "cookie-cell";
+  cell.innerHTML = item.html + `<span class="label">${item.label}</span>`;
+  allRow.appendChild(cell);
+});
+
+// Dark background demo
+const darkRow = document.getElementById("dark-bg-demo");
+[
+  { html: wholeCookieSVG(120), label: "Whole" },
+  { html: `<div class="sliced-row">${halfCookieSVG(120, "left")}${halfCookieSVG(120, "right")}</div>`, label: "Sliced" },
+  { html: quarterCookieSVG(120), label: "Quarter" },
+  { html: wholeCookieSVG(48), label: "Whole 48px" },
+  { html: halfCookieSVG(48, "left"), label: "Half 48px" },
+  { html: quarterCookieSVG(48), label: "Quarter 48px" },
+].forEach(item => {
+  const cell = document.createElement("div");
+  cell.className = "cookie-cell";
+  cell.innerHTML = item.html + `<span class="label">${item.label}</span>`;
+  darkRow.appendChild(cell);
+});
+</script>
+</body>
+</html>

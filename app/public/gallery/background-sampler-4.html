@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Background Music Sampler — Take 4 (Kid-Optimized)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1729;
+      --surface:   #1a2540;
+      --surface2:  #1e2d4a;
+      --border:    #2a3d5e;
+      --text:      #e2e8f0;
+      --muted:     #8899b0;
+      --accent:    #4a9eff;
+
+      --green:     #22c55e;
+      --green-bg:  #052e16;
+      --green-bd:  #166534;
+
+      --blue:      #60a5fa;
+      --blue-bg:   #0c1a3a;
+      --blue-bd:   #1e3a6e;
+
+      --orange:    #fb923c;
+      --orange-bg: #2c1200;
+      --orange-bd: #7c2d12;
+
+      --purple:    #c084fc;
+      --purple-bg: #1a0a2e;
+      --purple-bd: #5b21b6;
+
+      --teal:      #2dd4bf;
+      --teal-bg:   #042f2e;
+      --teal-bd:   #0f766e;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 24px 16px 64px;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .site-header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    .site-header p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .take-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 3px 12px;
+      border-radius: 20px;
+      background: #1e3a6e;
+      border: 1px solid #4a9eff;
+      color: #60a5fa;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Stop All bar ── */
+    .stop-all-bar {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+    .stop-all-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 8px;
+      border: 1px solid var(--orange-bd);
+      background: var(--orange-bg);
+      color: var(--orange);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 80ms ease, box-shadow 80ms ease;
+    }
+    .stop-all-btn:hover {
+      filter: brightness(1.2);
+      box-shadow: 0 0 0 2px rgba(251,146,60,0.25);
+    }
+    .stop-all-btn:active { transform: scale(0.96); }
+
+    /* ── Selected section ── */
+    .selected-section {
+      background: linear-gradient(135deg, #1a2540 0%, #0f2030 100%);
+      border: 2px solid #4a9eff;
+      border-radius: 14px;
+      padding: 20px 22px 24px;
+      margin-bottom: 32px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+    }
+    .selected-section::before {
+      content: '\2605';
+      position: absolute;
+      top: -14px;
+      left: 20px;
+      background: var(--bg);
+      padding: 0 8px;
+      font-size: 1.2rem;
+      color: #4a9eff;
+    }
+    .selected-section .section-label {
+      color: #4a9eff;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+    .selected-section .section-style {
+      color: #8bb8e8;
+      font-size: 0.82rem;
+      font-style: italic;
+    }
+    .selected-section .empty-msg {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-style: italic;
+      padding: 12px 0;
+    }
+
+    /* ── Tracks grid ── */
+    .tracks-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 16px;
+    }
+
+    /* ── Track card ── */
+    .track-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+
+    /* Playing state — animated border glow */
+    @keyframes pulse-glow {
+      0%   { box-shadow: 0 0 0 0 var(--glow-color, rgba(74,158,255,0.5)); }
+      50%  { box-shadow: 0 0 14px 3px var(--glow-color, rgba(74,158,255,0.25)); }
+      100% { box-shadow: 0 0 0 0 var(--glow-color, rgba(74,158,255,0.5)); }
+    }
+    .track-card.playing {
+      border-color: var(--card-color, var(--accent));
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    /* ── Track header ── */
+    .track-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .track-icon {
+      font-size: 1.5rem;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .track-info { flex: 1 1 0; }
+    .track-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .track-desc {
+      margin-top: 4px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ── Playing indicator dot ── */
+    .playing-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--card-color, var(--accent));
+      flex-shrink: 0;
+      margin-top: 6px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .track-card.playing .playing-dot { opacity: 1; }
+    @keyframes blink-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+    .track-card.playing .playing-dot {
+      animation: blink-dot 1.2s ease-in-out infinite;
+    }
+
+    /* ── Controls row ── */
+    .track-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Play/Stop toggle button */
+    .play-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 80ms ease, transform 80ms ease, box-shadow 80ms ease;
+      user-select: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .play-btn:hover  { filter: brightness(1.18); box-shadow: 0 0 0 2px rgba(255,255,255,0.1); }
+    .play-btn:active { transform: scale(0.93); }
+
+    /* color variants for play buttons */
+    .play-btn.blue   { background: var(--blue-bg);   border-color: var(--blue-bd);   color: var(--blue); }
+    .play-btn.green  { background: var(--green-bg);  border-color: var(--green-bd);  color: var(--green); }
+    .play-btn.purple { background: var(--purple-bg); border-color: var(--purple-bd); color: var(--purple); }
+    .play-btn.orange { background: var(--orange-bg); border-color: var(--orange-bd); color: var(--orange); }
+    .play-btn.teal   { background: var(--teal-bg);   border-color: var(--teal-bd);   color: var(--teal); }
+
+    /* Volume slider area */
+    .vol-wrap {
+      flex: 1 1 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .vol-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .vol-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1 1 0;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+      min-width: 0;
+    }
+    .vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+    .vol-slider::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+    .vol-value {
+      font-size: 0.72rem;
+      color: var(--muted);
+      width: 28px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .tracks-container { grid-template-columns: 1fr; }
+      .play-btn { font-size: 0.78rem; padding: 6px 11px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>Background Music Sampler</h1>
+  <p>Ambient loops for a kids&rsquo; fraction-teaching app &mdash; all procedurally generated</p>
+  <div class="take-badge">Take 4 &mdash; Kid-Optimized</div>
+</header>
+
+<!-- Stop All -->
+<div class="stop-all-bar">
+  <button class="stop-all-btn" onclick="stopAll()">
+    <span>&#9632;</span> Stop All
+  </button>
+</div>
+
+<!-- Selected card -->
+<section class="selected-section">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+    <span class="section-label">Selected Backgrounds</span>
+    <span class="section-style">&#8212; Your picks for the final app</span>
+  </div>
+  <p class="empty-msg">Tell me which backgrounds to add here.</p>
+</section>
+
+<!-- Track cards rendered by JS -->
+<div class="tracks-container" id="tracks-container"></div>
+
+<script>
+// =============================================================================
+// AudioContext singleton
+// =============================================================================
+
+let _ctx = null;
+
+function getCtx() {
+  if (!_ctx) {
+    _ctx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (_ctx.state === 'suspended') _ctx.resume();
+  return _ctx;
+}
+
+// =============================================================================
+// Track state registry  { [id]: { playing, masterGain, stopFn, intervalIds[], timeoutIds[], nodes[] } }
+// =============================================================================
+
+const trackState = {};
+
+function stopAll() {
+  Object.keys(trackState).forEach(id => {
+    if (trackState[id].playing) stopTrack(id);
+  });
+}
+
+function stopTrack(id) {
+  const s = trackState[id];
+  if (!s) return;
+  s.playing = false;
+
+  (s.intervalIds || []).forEach(h => clearInterval(h));
+  (s.timeoutIds  || []).forEach(h => clearTimeout(h));
+  s.intervalIds = [];
+  s.timeoutIds  = [];
+
+  const g = s.masterGain;
+  if (g) {
+    const ctx = getCtx();
+    g.gain.cancelScheduledValues(ctx.currentTime);
+    g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+    setTimeout(() => {
+      try { g.disconnect(); } catch(e) {}
+      // Stop all persistent nodes
+      (s.nodes || []).forEach(n => { try { n.stop(); } catch(e) {} });
+      s.nodes = [];
+    }, 600);
+  }
+
+  if (s.stopFn) {
+    try { s.stopFn(); } catch(e) {}
+    s.stopFn = null;
+  }
+
+  updateCardUI(id, false);
+}
+
+function registerTrack(id, masterGain, stopFn) {
+  if (!trackState[id]) trackState[id] = { playing: false, intervalIds: [], timeoutIds: [], nodes: [] };
+  const s = trackState[id];
+  s.playing    = true;
+  s.masterGain = masterGain;
+  s.stopFn     = stopFn || null;
+  s.intervalIds = [];
+  s.timeoutIds  = [];
+  s.nodes      = [];
+  updateCardUI(id, true);
+}
+
+function addInterval(id, handle) {
+  if (trackState[id]) trackState[id].intervalIds.push(handle);
+}
+function addTimeout(id, handle) {
+  if (trackState[id]) trackState[id].timeoutIds.push(handle);
+}
+function addNode(id, node) {
+  if (trackState[id]) trackState[id].nodes.push(node);
+}
+function isPlaying(id) {
+  return trackState[id] && trackState[id].playing;
+}
+
+function updateCardUI(id, playing) {
+  const card = document.getElementById('card-' + id);
+  const btn  = document.getElementById('btn-' + id);
+  if (!card || !btn) return;
+  if (playing) {
+    card.classList.add('playing');
+    btn.textContent = '\u25A0 Stop';
+  } else {
+    card.classList.remove('playing');
+    btn.textContent = '\u25B6 Play';
+  }
+}
+
+// =============================================================================
+// Shared utilities
+// =============================================================================
+
+function midiToFreq(note) {
+  return 440 * Math.pow(2, (note - 69) / 12);
+}
+
+/** White noise buffer (loopable) */
+function makeNoiseBuffer(ctx, duration) {
+  const len = Math.floor(ctx.sampleRate * duration);
+  const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  }
+  return buf;
+}
+
+function makeLoopingNoise(ctx, duration) {
+  const src = ctx.createBufferSource();
+  src.buffer = makeNoiseBuffer(ctx, duration);
+  src.loop = true;
+  return src;
+}
+
+/** Simple reverb convolver — longer/smoother for kids */
+function makeReverb(ctx, seconds, decay) {
+  const rate = ctx.sampleRate;
+  const len = Math.floor(rate * seconds);
+  const imp = ctx.createBuffer(2, len, rate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = imp.getChannelData(ch);
+    for (let i = 0; i < len; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    }
+  }
+  const conv = ctx.createConvolver();
+  conv.buffer = imp;
+  return conv;
+}
+
+/** Play a single sine note with attack/decay envelope */
+function playSineNote(ctx, dest, freq, gain, attackT, decayT, startT) {
+  const osc = ctx.createOscillator();
+  const env = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  env.gain.setValueAtTime(0.0001, startT);
+  env.gain.linearRampToValueAtTime(gain, startT + attackT);
+  env.gain.exponentialRampToValueAtTime(0.0001, startT + attackT + decayT);
+  osc.connect(env);
+  env.connect(dest);
+  osc.start(startT);
+  osc.stop(startT + attackT + decayT + 0.05);
+}
+
+/** Play a triangle note (softer timbre than square — good for xylophone/kalimba) */
+function playTriNote(ctx, dest, freq, gain, attackT, decayT, startT) {
+  const osc = ctx.createOscillator();
+  const env = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  env.gain.setValueAtTime(0.0001, startT);
+  env.gain.linearRampToValueAtTime(gain, startT + attackT);
+  env.gain.exponentialRampToValueAtTime(0.0001, startT + attackT + decayT);
+  osc.connect(env);
+  env.connect(dest);
+  osc.start(startT);
+  osc.stop(startT + attackT + decayT + 0.05);
+}
+
+/** Soft squarish tone with high-harmonic roll-off — celesta feel */
+function playCelestaNote(ctx, dest, freq, gain, attackT, decayT, startT) {
+  // Mix sine (fundamental) + sine at 3rd harmonic (very soft) for bell-like quality
+  [1, 3, 5].forEach((harm, i) => {
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq * harm;
+    const harmGain = gain / Math.pow(harm, 2.2);
+    env.gain.setValueAtTime(0.0001, startT);
+    env.gain.linearRampToValueAtTime(harmGain, startT + attackT);
+    env.gain.exponentialRampToValueAtTime(0.0001, startT + attackT + decayT * (1 / harm));
+    osc.connect(env);
+    env.connect(dest);
+    osc.start(startT);
+    osc.stop(startT + attackT + decayT + 0.1);
+  });
+}
+
+/** Kalimba note: sine + 2nd harmonic, fast attack, longish sustain with soft tail */
+function playKalimbaNote(ctx, dest, freq, gain, startT) {
+  const attackT = 0.003;
+  const decayT  = 1.6;
+  // fundamental
+  const osc1 = ctx.createOscillator();
+  const env1 = ctx.createGain();
+  osc1.type = 'sine';
+  osc1.frequency.value = freq;
+  env1.gain.setValueAtTime(0.0001, startT);
+  env1.gain.linearRampToValueAtTime(gain, startT + attackT);
+  env1.gain.exponentialRampToValueAtTime(0.0001, startT + attackT + decayT);
+  osc1.connect(env1); env1.connect(dest);
+  osc1.start(startT); osc1.stop(startT + attackT + decayT + 0.1);
+  // slight 2nd harmonic for warmth
+  const osc2 = ctx.createOscillator();
+  const env2 = ctx.createGain();
+  osc2.type = 'sine';
+  osc2.frequency.value = freq * 2.005; // very slight inharmonicity
+  env2.gain.setValueAtTime(0.0001, startT);
+  env2.gain.linearRampToValueAtTime(gain * 0.18, startT + attackT);
+  env2.gain.exponentialRampToValueAtTime(0.0001, startT + attackT + decayT * 0.4);
+  osc2.connect(env2); env2.connect(dest);
+  osc2.start(startT); osc2.stop(startT + attackT + decayT + 0.1);
+}
+
+/** Xylophone note: triangle + high harmonics + fast decay */
+function playXyloNote(ctx, dest, freq, gain, startT) {
+  const attackT = 0.002;
+  const decayT  = 0.5;
+  [1, 2.76, 5.4].forEach((harm, i) => {
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq * harm;
+    const hg = gain / Math.pow(i + 1, 1.8);
+    env.gain.setValueAtTime(0.0001, startT);
+    env.gain.linearRampToValueAtTime(hg, startT + attackT);
+    env.gain.exponentialRampToValueAtTime(0.0001, startT + attackT + decayT / (i + 1));
+    osc.connect(env); env.connect(dest);
+    osc.start(startT); osc.stop(startT + attackT + decayT + 0.1);
+  });
+}
+
+// =============================================================================
+// TRACK DEFINITIONS
+// =============================================================================
+
+const TRACKS = [
+
+  // ── 1. Gentle Lullaby Loop ─────────────────────────────────────────────────
+  // Twinkle-inspired: warm sines, very simple, comforting, predictable. Key of C.
+  {
+    id:         'lullaby',
+    name:       'Gentle Lullaby Loop',
+    icon:       '\uD83C\uDF19', // crescent moon
+    desc:       'Twinkle-inspired warm sine melody in C. Simple, slow, comforting. Like a music box at bedtime.',
+    color:      'blue',
+    glowColor:  'rgba(96,165,250,0.4)',
+    defaultVol: 25,
+    start(masterGain, id) {
+      const ctx = getCtx();
+
+      // Warm reverb
+      const reverb = makeReverb(ctx, 2.2, 3.5);
+      reverb.connect(masterGain);
+
+      // Soft low-pass pad underneath — Cmaj7 (C3, E3, G3, B3)
+      const padNotes = [48, 52, 55, 59];
+      padNotes.forEach(note => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = midiToFreq(note);
+        const g = ctx.createGain();
+        g.gain.value = 0.018;
+        osc.connect(g); g.connect(masterGain);
+        osc.start();
+        addNode(id, osc);
+      });
+
+      // Melody: Twinkle-ish contour without being the actual song
+      // C C G G A A G (then F F E E D D C) — classic interval shape, fresh rhythm
+      // Notes in MIDI, -1 = rest
+      // Tempo: 66 BPM, quarter note melody — slow and sleepy
+      const bpm = 66;
+      const beat = 60 / bpm;
+
+      // 16-note melodic phrase — Twinkle shape but starting/ending differently
+      const melody = [
+        60, 60, 67, 67,   69, 69, 67, -1,
+        65, 65, 64, 64,   62, 62, 60, -1
+      ];
+      const noteDur = beat;           // each step = 1 quarter note
+      const phraseLen = melody.length * noteDur;
+
+      let startTime = ctx.currentTime + 0.1;
+
+      function schedulePhrase() {
+        if (!isPlaying(id)) return;
+        melody.forEach((note, i) => {
+          if (note < 0) return;
+          const t = startTime + i * noteDur;
+          playSineNote(ctx, reverb, midiToFreq(note), 0.28, 0.015, noteDur * 0.72, t);
+        });
+        startTime += phraseLen;
+        const msUntilNext = (startTime - ctx.currentTime - 0.08) * 1000;
+        const h = setTimeout(schedulePhrase, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      schedulePhrase();
+    }
+  },
+
+  // ── 2. Lo-fi Study Beats ───────────────────────────────────────────────────
+  // Heartbeat pulse at ~60 BPM + warm Cmaj7 pad. No hip-hop, maximum cozy calm.
+  {
+    id:         'lofi',
+    name:       'Lo-fi Study Beats',
+    icon:       '\uD83D\uDC93', // heartbeat
+    desc:       'Soft heartbeat pulse at 60 BPM with a warm Cmaj7 pad. Like reading in a cozy corner.',
+    color:      'purple',
+    glowColor:  'rgba(192,132,252,0.4)',
+    defaultVol: 22,
+    start(masterGain, id) {
+      const ctx = getCtx();
+
+      // Warm Cmaj7 pad — filtered sawtooth, heavily low-passed
+      const padNotes = [48, 52, 55, 59]; // C3 E3 G3 B3
+      const lpf = ctx.createBiquadFilter();
+      lpf.type = 'lowpass';
+      lpf.frequency.value = 650;
+      lpf.Q.value = 0.5;
+      lpf.connect(masterGain);
+
+      padNotes.forEach(note => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.value = midiToFreq(note);
+        // tiny detuning for warmth
+        osc.detune.value = (Math.random() - 0.5) * 6;
+        const g = ctx.createGain();
+        g.gain.value = 0.06;
+        osc.connect(g); g.connect(lpf);
+        osc.start();
+        addNode(id, osc);
+      });
+
+      // Very slow swell LFO on pad
+      const swellLFO = ctx.createOscillator();
+      const swellG = ctx.createGain();
+      swellLFO.frequency.value = 0.08;
+      swellG.gain.value = 80;
+      swellLFO.connect(swellG);
+      swellG.connect(lpf.frequency);
+      swellLFO.start();
+      addNode(id, swellLFO);
+
+      // Heartbeat: two soft bass thumps (lub-dub) per beat at ~60 BPM
+      const bpm = 60;
+      const beat = 60 / bpm;
+
+      function scheduleHeartbeat() {
+        if (!isPlaying(id)) return;
+        const t = ctx.currentTime;
+        // "lub" — first thump (slightly stronger)
+        [0, 0.22].forEach((offset, i) => {
+          const freq = i === 0 ? 80 : 68;
+          const gainAmt = i === 0 ? 0.18 : 0.12;
+          const osc = ctx.createOscillator();
+          const env = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t + offset);
+          osc.frequency.exponentialRampToValueAtTime(freq * 0.35, t + offset + 0.18);
+          env.gain.setValueAtTime(gainAmt, t + offset);
+          env.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.22);
+          // soft highcut
+          const hpf = ctx.createBiquadFilter();
+          hpf.type = 'lowpass';
+          hpf.frequency.value = 300;
+          osc.connect(hpf); hpf.connect(env); env.connect(masterGain);
+          osc.start(t + offset);
+          osc.stop(t + offset + 0.28);
+        });
+
+        const delay = (beat - 0.05) * 1000;
+        const h = setTimeout(scheduleHeartbeat, delay);
+        addTimeout(id, h);
+      }
+
+      scheduleHeartbeat();
+    }
+  },
+
+  // ── 3. Whimsical Adventure ─────────────────────────────────────────────────
+  // Mario/Zelda inspired: square wave melody + bouncy bassline, C major, simple
+  {
+    id:         'whimsical',
+    name:       'Whimsical Adventure',
+    icon:       '\u2B50', // star
+    desc:       'Bright square-wave melody in C major with bouncy bass. Fun and motivating like a game world.',
+    color:      'green',
+    glowColor:  'rgba(34,197,94,0.4)',
+    defaultVol: 28,
+    start(masterGain, id) {
+      const ctx = getCtx();
+
+      // Route through lpf to soften the square waves (make them kid-safe, not harsh)
+      const lpf = ctx.createBiquadFilter();
+      lpf.type = 'lowpass';
+      lpf.frequency.value = 2400;
+      lpf.Q.value = 0.7;
+      lpf.connect(masterGain);
+
+      const reverb = makeReverb(ctx, 0.8, 5);
+      reverb.connect(masterGain);
+
+      const bpm = 108;
+      const beat = 60 / bpm;
+      const eighth = beat / 2;
+
+      // 8-bar melody in C major — simple, singable, game-like
+      // C D E G E D C | E F G A G F E | G A G E C - - - | C E G C5 - G E C
+      const melody = [
+        60,62,64,67, 64,62,60,-1,
+        64,65,67,69, 67,65,64,-1,
+        67,69,67,64, 60,-1,-1,-1,
+        60,64,67,72, -1,67,64,60
+      ];
+      // Bassline (root notes on beat 1 and 3 of each 2-beat group)
+      const bass = [
+        48,-1,48,-1, 47,-1,48,-1,
+        52,-1,52,-1, 50,-1,52,-1,
+        55,-1,55,-1, 48,-1,-1,-1,
+        48,-1,48,-1, -1,55,52,48
+      ];
+      const phraseLen = melody.length * eighth;
+
+      let startTime = ctx.currentTime + 0.05;
+
+      function schedulePhrase() {
+        if (!isPlaying(id)) return;
+
+        melody.forEach((note, i) => {
+          if (note < 0) return;
+          const t = startTime + i * eighth;
+          // square wave through LPF
+          const osc = ctx.createOscillator();
+          const env = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.value = midiToFreq(note);
+          env.gain.setValueAtTime(0.0001, t);
+          env.gain.linearRampToValueAtTime(0.08, t + 0.01);
+          env.gain.setValueAtTime(0.08, t + eighth * 0.7);
+          env.gain.linearRampToValueAtTime(0.0001, t + eighth * 0.85);
+          osc.connect(env); env.connect(lpf);
+          // also send a little to reverb for sparkle
+          env.connect(reverb);
+          osc.start(t); osc.stop(t + eighth);
+        });
+
+        bass.forEach((note, i) => {
+          if (note < 0) return;
+          const t = startTime + i * eighth;
+          // Bass: sine for warmth
+          const osc = ctx.createOscillator();
+          const env = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = midiToFreq(note);
+          env.gain.setValueAtTime(0.0001, t);
+          env.gain.linearRampToValueAtTime(0.14, t + 0.015);
+          env.gain.exponentialRampToValueAtTime(0.0001, t + eighth * 1.6);
+          osc.connect(env); env.connect(masterGain);
+          osc.start(t); osc.stop(t + eighth * 1.8);
+        });
+
+        startTime += phraseLen;
+        const msUntilNext = (startTime - ctx.currentTime - 0.06) * 1000;
+        const h = setTimeout(schedulePhrase, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      schedulePhrase();
+    }
+  },
+
+  // ── 4. Space Ambient ───────────────────────────────────────────────────────
+  // Planetarium feel: deep reverberant pad + shooting star glissandos
+  {
+    id:         'space',
+    name:       'Space Ambient',
+    icon:       '\uD83C\uDF0C', // milky way
+    desc:       'Deep reverberant pad like a planetarium, with gentle shooting-star glissandos. Awe-inspiring.',
+    color:      'purple',
+    glowColor:  'rgba(192,132,252,0.4)',
+    defaultVol: 22,
+    start(masterGain, id) {
+      const ctx = getCtx();
+
+      const reverb = makeReverb(ctx, 6, 1.8);
+      reverb.connect(masterGain);
+
+      // Deep sine pad layers — C2, G2, C3, E3 (Cmaj, wide voicing, very spacious)
+      const padFreqs = [65.41, 98.00, 130.81, 164.81]; // C2 G2 C3 E3
+      padFreqs.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq + (i % 2 === 0 ? 0.15 : -0.15);
+        const env = ctx.createGain();
+        env.gain.setValueAtTime(0.0001, ctx.currentTime);
+        env.gain.linearRampToValueAtTime(0.07 - i * 0.01, ctx.currentTime + 4 + i * 2);
+        osc.connect(env); env.connect(reverb);
+        osc.start();
+        addNode(id, osc);
+      });
+
+      // Very slow swell LFO across all pads via master
+      const swellOsc = ctx.createOscillator();
+      const swellGain = ctx.createGain();
+      swellOsc.frequency.value = 0.04; // one swell every ~25s
+      swellGain.gain.value = 0.3;
+      // Use a GainNode to add offset so it stays positive (0.7 to 1.3)
+      const swellBase = ctx.createGain();
+      swellBase.gain.value = 1.0;
+      swellOsc.connect(swellGain);
+      swellGain.connect(swellBase.gain);
+      swellOsc.start();
+      addNode(id, swellOsc);
+
+      // Shooting star: sine sweep from low to high, then fade — occasional, gentle
+      function shootingStar() {
+        if (!isPlaying(id)) return;
+        const t = ctx.currentTime;
+        const startFreq = 200 + Math.random() * 400;
+        const endFreq   = startFreq * (3 + Math.random() * 4);
+        const dur = 1.2 + Math.random() * 1.0;
+
+        const osc = ctx.createOscillator();
+        const env = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(startFreq, t);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+        env.gain.setValueAtTime(0.0001, t);
+        env.gain.linearRampToValueAtTime(0.04, t + 0.1);
+        env.gain.linearRampToValueAtTime(0.04, t + dur * 0.6);
+        env.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.2);
+        osc.connect(env); env.connect(reverb);
+        osc.start(t); osc.stop(t + dur + 0.3);
+
+        const delay = 4000 + Math.random() * 9000;
+        const h = setTimeout(shootingStar, delay);
+        addTimeout(id, h);
+      }
+      // First star appears after 2s
+      const h0 = setTimeout(shootingStar, 2000);
+      addTimeout(id, h0);
+    }
+  },
+
+  // ── 5. Ocean Waves ─────────────────────────────────────────────────────────
+  // Waves + Cmaj7 pad that swells with the waves. Safe, not lonely.
+  {
+    id:         'ocean',
+    name:       'Ocean Waves',
+    icon:       '\uD83C\uDF0A', // wave
+    desc:       'Warm waves with a gentle Cmaj7 pad that swells and recedes. Safe and sun-drenched.',
+    color:      'teal',
+    glowColor:  'rgba(45,212,191,0.4)',
+    defaultVol: 30,
+    start(masterGain, id) {
+      const ctx = getCtx();
+
+      // Three wave layers: different rates and filter frequencies
+      function makeWaveLayer(swellRate, filterFreq, q, gainAmt) {
+        const noise = makeLoopingNoise(ctx, 4);
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.value = filterFreq;
+        bp.Q.value = q;
+        const gain = ctx.createGain();
+        gain.gain.value = gainAmt * 0.5;
+        noise.connect(bp); bp.connect(gain); gain.connect(masterGain);
+        noise.start();
+        addNode(id, noise);
+
+        // LFO swell
+        const lfo = ctx.createOscillator();
+        const lfoG = ctx.createGain();
+        lfo.type = 'sine';
+        lfo.frequency.value = swellRate;
+        lfoG.gain.value = gainAmt * 0.5;
+        lfo.connect(lfoG); lfoG.connect(gain.gain);
+        lfo.start();
+        addNode(id, lfo);
+      }
+
+      makeWaveLayer(0.11, 350,  1.0, 0.32); // slow swell, warm low-mid
+      makeWaveLayer(0.17, 700,  0.8, 0.16); // medium swell, brighter
+      makeWaveLayer(0.08, 150,  0.7, 0.18); // very slow, deep rumble
+
+      // Cmaj7 pad swelling gently — C3 E3 G3 B3 (same rate as main wave)
+      const harmNotes = [48, 52, 55, 59];
+      const padGain = ctx.createGain();
+      padGain.gain.value = 0;
+      padGain.connect(masterGain);
+
+      const padLpf = ctx.createBiquadFilter();
+      padLpf.type = 'lowpass';
+      padLpf.frequency.value = 800;
+      padLpf.connect(padGain);
+
+      harmNotes.forEach(note => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = midiToFreq(note);
+        osc.connect(padLpf);
+        osc.start();
+        addNode(id, osc);
+      });
+
+      // Swell the harmonic pad in sync with main wave
+      const padSwell = ctx.createOscillator();
+      const padSwellG = ctx.createGain();
+      padSwell.frequency.value = 0.11; // match main wave
+      padSwellG.gain.value = 0.025;
+      padGain.gain.setValueAtTime(0.025, ctx.currentTime);
+      padSwell.connect(padSwellG); padSwellG.connect(padGain.gain);
+      padSwell.start();
+      addNode(id, padSwell);
+    }
+  },
+
+  // ── 6. Forest Morning ──────────────────────────────────────────────────────
+  // Babbling brook (musically pitched resonant noise) + birds
+  {
+    id:         'forest',
+    name:       'Forest Morning',
+    icon:       '\uD83C\uDF3F', // herb/leaf
+    desc:       'Babbling brook with musical harmony in it, plus cheerful birdsong. Peaceful and alive.',
+    color:      'green',
+    glowColor:  'rgba(34,197,94,0.4)',
+    defaultVol: 28,
+    start(masterGain, id) {
+      const ctx = getCtx();
+      const reverb = makeReverb(ctx, 2.5, 3);
+      reverb.connect(masterGain);
+
+      // Babbling brook: noise through multiple resonant bandpass filters
+      // tuned to intervals of a C major chord (C4=261, E4=329, G4=392, C5=523)
+      // This gives the brook a "musical" quality
+      const brookFreqs = [261.63, 329.63, 392.00, 523.25, 659.25];
+      brookFreqs.forEach((freq, i) => {
+        const noise = makeLoopingNoise(ctx, 2 + i * 0.3);
+        const bp = ctx.createBiquadFilter();
+        bp.type = 'bandpass';
+        bp.frequency.value = freq;
+        bp.Q.value = 8; // highly resonant = musical "plinking" quality
+        const g = ctx.createGain();
+        g.gain.value = 0.07 - i * 0.008;
+        noise.connect(bp); bp.connect(g); g.connect(masterGain);
+        noise.start();
+        addNode(id, noise);
+
+        // Gentle amplitude modulation — gives it the "tumbling over rocks" motion
+        const lfo = ctx.createOscillator();
+        const lfoG = ctx.createGain();
+        lfo.frequency.value = 0.5 + i * 0.3 + Math.random() * 0.2;
+        lfoG.gain.value = 0.025;
+        lfo.connect(lfoG); lfoG.connect(g.gain);
+        lfo.start();
+        addNode(id, lfo);
+      });
+
+      // Soft background wind breath (low noise underpinning)
+      const windNoise = makeLoopingNoise(ctx, 5);
+      const windBp = ctx.createBiquadFilter();
+      windBp.type = 'bandpass';
+      windBp.frequency.value = 500;
+      windBp.Q.value = 0.4;
+      const windG = ctx.createGain();
+      windG.gain.value = 0.04;
+      windNoise.connect(windBp); windBp.connect(windG); windG.connect(masterGain);
+      windNoise.start();
+      addNode(id, windNoise);
+
+      // Birds: cheerful two-note chirps at C major intervals
+      const birdPatterns = [
+        [72, 79], [67, 72], [76, 72], [79, 76], [74, 79]
+      ];
+      let birdIdx = 0;
+      function scheduleBird() {
+        if (!isPlaying(id)) return;
+        const t = ctx.currentTime;
+        const pair = birdPatterns[birdIdx % birdPatterns.length];
+        birdIdx++;
+        pair.forEach((note, i) => {
+          const bT = t + i * 0.18;
+          const osc = ctx.createOscillator();
+          const env = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(midiToFreq(note), bT);
+          osc.frequency.linearRampToValueAtTime(midiToFreq(note) * 1.04, bT + 0.06);
+          env.gain.setValueAtTime(0.0001, bT);
+          env.gain.linearRampToValueAtTime(0.06, bT + 0.02);
+          env.gain.exponentialRampToValueAtTime(0.0001, bT + 0.14);
+          osc.connect(env); env.connect(reverb);
+          osc.start(bT); osc.stop(bT + 0.18);
+        });
+        const delay = 1800 + Math.random() * 3500;
+        const h = setTimeout(scheduleBird, delay);
+        addTimeout(id, h);
+      }
+      const h0 = setTimeout(scheduleBird, 800);
+      addTimeout(id, h0);
+    }
+  },
+
+  // ── 7. Cozy Fireplace ──────────────────────────────────────────────────────
+  // Parent humming (sine with vibrato, lullaby contour) + soft crackle
+  {
+    id:         'fireplace',
+    name:       'Cozy Fireplace',
+    icon:       '\uD83D\uDD25', // fire
+    desc:       'A warm humming melody (like a parent humming) layered over gentle fire crackle. Deeply safe.',
+    color:      'orange',
+    glowColor:  'rgba(251,146,60,0.4)',
+    defaultVol: 25,
+    start(masterGain, id) {
+      const ctx = getCtx();
+
+      // Crackle: band-limited noise with random impulse pops
+      const crackleNoise = makeLoopingNoise(ctx, 3);
+      const crackleFilter = ctx.createBiquadFilter();
+      crackleFilter.type = 'bandpass';
+      crackleFilter.frequency.value = 1200;
+      crackleFilter.Q.value = 0.4;
+      const crackleGain = ctx.createGain();
+      crackleGain.gain.value = 0.04;
+      crackleNoise.connect(crackleFilter);
+      crackleFilter.connect(crackleGain);
+      crackleGain.connect(masterGain);
+      crackleNoise.start();
+      addNode(id, crackleNoise);
+
+      // Deep fire warmth: low noise
+      const deepNoise = makeLoopingNoise(ctx, 4);
+      const deepFilter = ctx.createBiquadFilter();
+      deepFilter.type = 'lowpass';
+      deepFilter.frequency.value = 180;
+      const deepGain = ctx.createGain();
+      deepGain.gain.value = 0.12;
+      deepNoise.connect(deepFilter); deepFilter.connect(deepGain); deepGain.connect(masterGain);
+      deepNoise.start();
+      addNode(id, deepNoise);
+
+      // Occasional crackle pop
+      function schedulePop() {
+        if (!isPlaying(id)) return;
+        const t = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const env = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(900 + Math.random() * 600, t);
+        osc.frequency.exponentialRampToValueAtTime(200, t + 0.04);
+        env.gain.setValueAtTime(0.08 + Math.random() * 0.06, t);
+        env.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+        osc.connect(env); env.connect(masterGain);
+        osc.start(t); osc.stop(t + 0.08);
+        const delay = 600 + Math.random() * 1800;
+        const h = setTimeout(schedulePop, delay);
+        addTimeout(id, h);
+      }
+      schedulePop();
+
+      // Humming melody — sine with gentle vibrato, slow lullaby contour
+      // Simple descending/ascending contour in C: E4 D4 C4 D4 E4 E4 E4 ...
+      // (Rock-a-bye / cradle song shape)
+      const bpm = 58;
+      const beat = 60 / bpm;
+
+      const humMelody = [
+        64, 62, 60, 62,   64, 64, 64, -1,
+        62, 62, 62, -1,   64, 67, 67, -1,
+        64, 62, 60, 62,   64, 64, 64, 64,
+        62, 62, 64, 62,   60, -1, -1, -1
+      ];
+      const phraseLen = humMelody.length * beat;
+      let startTime = ctx.currentTime + 0.3;
+
+      function scheduleHum() {
+        if (!isPlaying(id)) return;
+        humMelody.forEach((note, i) => {
+          if (note < 0) return;
+          const t = startTime + i * beat;
+          // Humming = sine with light vibrato
+          const osc = ctx.createOscillator();
+          const env = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = midiToFreq(note);
+
+          // Vibrato LFO
+          const vib = ctx.createOscillator();
+          const vibG = ctx.createGain();
+          vib.frequency.value = 5.5;
+          vibG.gain.value = midiToFreq(note) * 0.008; // ~0.8% freq deviation
+          vib.connect(vibG); vibG.connect(osc.frequency);
+
+          env.gain.setValueAtTime(0.0001, t);
+          env.gain.linearRampToValueAtTime(0.12, t + 0.06);
+          env.gain.setValueAtTime(0.12, t + beat * 0.8);
+          env.gain.linearRampToValueAtTime(0.0001, t + beat * 0.95);
+
+          osc.connect(env); env.connect(masterGain);
+          osc.start(t); vib.start(t);
+          osc.stop(t + beat + 0.1);
+          vib.stop(t + beat + 0.1);
+        });
+        startTime += phraseLen;
+        const msUntilNext = (startTime - ctx.currentTime - 0.08) * 1000;
+        const h = setTimeout(scheduleHum, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      scheduleHum();
+    }
+  },
+
+  // ── 8. Cheerful Classroom ──────────────────────────────────────────────────
+  // Xylophone in C major pentatonic — Sesame Street feel
+  {
+    id:         'classroom',
+    name:       'Cheerful Classroom',
+    icon:       '\uD83C\uDFB5', // music notes
+    desc:       'Xylophone ascending & descending C pentatonic scale. Bright, happy, very Sesame Street.',
+    color:      'green',
+    glowColor:  'rgba(34,197,94,0.4)',
+    defaultVol: 25,
+    start(masterGain, id) {
+      const ctx = getCtx();
+      const reverb = makeReverb(ctx, 1.0, 5);
+      reverb.connect(masterGain);
+
+      const bpm = 92;
+      const beat = 60 / bpm;
+      const eighth = beat / 2;
+
+      // C major pentatonic: C4 D4 E4 G4 A4 C5 D5 E5 (MIDI 60 62 64 67 69 72 74 76)
+      const pent = [60, 62, 64, 67, 69, 72, 74, 76];
+
+      // 4 bars of ascending then descending
+      const patternUp   = [...pent];        // 8 notes up
+      const patternDown = [...pent].reverse(); // 8 notes down
+      // Add a little "ta-da" ending — G4 E4 C4 C5
+      const patternEnd  = [67, 64, 60, 72];
+
+      // Full phrase: up + down + ending + 2 beat rest
+      const fullPhrase = [...patternUp, ...patternDown, ...patternEnd, -1, -1, -1, -1];
+
+      let startTime = ctx.currentTime + 0.05;
+
+      function schedulePhrase() {
+        if (!isPlaying(id)) return;
+        fullPhrase.forEach((note, i) => {
+          if (note < 0) return;
+          const t = startTime + i * eighth;
+          playXyloNote(ctx, reverb, midiToFreq(note), 0.22, t);
+        });
+
+        startTime += fullPhrase.length * eighth;
+        const msUntilNext = (startTime - ctx.currentTime - 0.06) * 1000;
+        const h = setTimeout(schedulePhrase, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      schedulePhrase();
+    }
+  },
+
+  // ── 9. Magic Workshop ─────────────────────────────────────────────────────
+  // Harry Potter-ish: celesta arpeggios in Am + warm string pad
+  {
+    id:         'magic',
+    name:       'Magic Workshop',
+    icon:       '\u2728', // sparkles
+    desc:       'Celesta arpeggios in A minor with a warm string-like pad. Mysterious and wonder-filled.',
+    color:      'purple',
+    glowColor:  'rgba(192,132,252,0.4)',
+    defaultVol: 25,
+    start(masterGain, id) {
+      const ctx = getCtx();
+      const reverb = makeReverb(ctx, 3, 2.8);
+      reverb.connect(masterGain);
+
+      // Warm string pad: Am chord — A2 C3 E3 A3, filtered sawtooth
+      const stringNotes = [45, 48, 52, 57]; // A2 C3 E3 A3
+      const strLpf = ctx.createBiquadFilter();
+      strLpf.type = 'lowpass';
+      strLpf.frequency.value = 1100;
+      strLpf.Q.value = 0.6;
+      strLpf.connect(masterGain);
+
+      stringNotes.forEach(note => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.value = midiToFreq(note);
+        osc.detune.value = (Math.random() - 0.5) * 8; // ensemble detuning
+        const g = ctx.createGain();
+        g.gain.value = 0.05;
+        osc.connect(g); g.connect(strLpf);
+        osc.start();
+        addNode(id, osc);
+      });
+
+      // Very slow swell on strings
+      const strSwell = ctx.createOscillator();
+      const strSwellG = ctx.createGain();
+      strSwell.frequency.value = 0.07;
+      strSwellG.gain.value = 60;
+      strSwell.connect(strSwellG); strSwellG.connect(strLpf.frequency);
+      strSwell.start();
+      addNode(id, strSwell);
+
+      // Celesta arpeggios: Am / C / Em / Am patterns
+      const bpm = 80;
+      const beat = 60 / bpm;
+      const sixteenth = beat / 4;
+
+      const arpeggios = [
+        [69, 72, 76, 81, 76, 72],   // Am: A4 C5 E5 A5 ...
+        [72, 76, 79, 84, 79, 76],   // C: C5 E5 G5 C6 ...
+        [64, 67, 71, 76, 71, 67],   // Em: E4 G4 B4 E5 ...
+        [69, 72, 76, 81, 84, 81]    // Am high: grand
+      ];
+
+      let arpIdx = 0;
+      let startTime = ctx.currentTime + 0.1;
+
+      function scheduleArp() {
+        if (!isPlaying(id)) return;
+        const arp = arpeggios[arpIdx % arpeggios.length];
+        arpIdx++;
+        arp.forEach((note, i) => {
+          const t = startTime + i * sixteenth * 1.5;
+          playCelestaNote(ctx, reverb, midiToFreq(note), 0.18, 0.005, 0.9, t);
+        });
+        startTime += arp.length * sixteenth * 1.5 + beat; // gap of 1 beat between arps
+        const msUntilNext = (startTime - ctx.currentTime - 0.08) * 1000;
+        const h = setTimeout(scheduleArp, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      scheduleArp();
+    }
+  },
+
+  // ── 10. Starry Night ──────────────────────────────────────────────────────
+  // Kalimba/thumb piano in G major pentatonic — warm, earthy, African lullaby feel
+  {
+    id:         'starry',
+    name:       'Starry Night',
+    icon:       '\uD83C\uDF1F', // glowing star
+    desc:       'Kalimba thumb-piano in G pentatonic. Warm, earthy pattern like an African lullaby.',
+    color:      'teal',
+    glowColor:  'rgba(45,212,191,0.4)',
+    defaultVol: 25,
+    start(masterGain, id) {
+      const ctx = getCtx();
+      const reverb = makeReverb(ctx, 2.8, 2.5);
+      reverb.connect(masterGain);
+
+      // Warm low pad: G2 D3 G3 B3 (Gmaj), very soft filtered sine
+      const padNotes = [43, 50, 55, 59];
+      const padLpf = ctx.createBiquadFilter();
+      padLpf.type = 'lowpass';
+      padLpf.frequency.value = 700;
+      padLpf.connect(masterGain);
+      padNotes.forEach(note => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = midiToFreq(note);
+        const g = ctx.createGain();
+        g.gain.value = 0.02;
+        osc.connect(g); g.connect(padLpf);
+        osc.start();
+        addNode(id, osc);
+      });
+
+      const bpm = 70;
+      const beat = 60 / bpm;
+
+      // G major pentatonic: G3 A3 B3 D4 E4 G4 A4 B4
+      // MIDI: 55 57 59 62 64 67 69 71
+      const gpent = [55, 57, 59, 62, 64, 67, 69, 71];
+
+      // Kalimba patterns — thumb piano typically plays two thumbs alternating
+      // Left thumb: low notes, right thumb: higher notes, meeting in the middle
+      // Pattern: classic "interlocking" kalimba style
+      const patterns = [
+        // Each entry: [note, delaySecs]
+        // Phrase 1: gentle rising arpeggio with thumb alternation
+        [67, 0],   [64, 0.18], [62, 0.36], [67, 0.54],
+        [69, 0.72],[64, 0.90], [67, 1.08], [62, 1.26],
+        // Phrase 2: slightly different
+        [71, 1.44],[67, 1.62], [64, 1.80], [69, 1.98],
+        [67, 2.16],[64, 2.34], [62, 2.52], [59, 2.70],
+        // Phrase 3: lower, resolving
+        [62, 2.88],[59, 3.06], [57, 3.24], [55, 3.42],
+        [57, 3.60],[59, 3.78], [62, 3.96], [64, 4.14],
+        // Phrase 4: return to top, slight pause before loop
+        [67, 4.32],[69, 4.50], [71, 4.68], [67, 4.86],
+        [64, 5.04],[62, 5.22], [59, 5.40], [55, 5.58]
+      ];
+      const phraseLen = 5.58 + beat; // total + rest
+
+      let startTime = ctx.currentTime + 0.1;
+
+      function schedulePhrase() {
+        if (!isPlaying(id)) return;
+        patterns.forEach(([note, offset]) => {
+          const t = startTime + offset;
+          playKalimbaNote(ctx, reverb, midiToFreq(note), 0.22, t);
+        });
+        startTime += phraseLen;
+        const msUntilNext = (startTime - ctx.currentTime - 0.08) * 1000;
+        const h = setTimeout(schedulePhrase, Math.max(0, msUntilNext));
+        addTimeout(id, h);
+      }
+
+      schedulePhrase();
+    }
+  }
+
+];
+
+// =============================================================================
+// CARD RENDERING
+// =============================================================================
+
+function toggleTrack(id) {
+  const ctx = getCtx(); // ensures AudioContext starts on user gesture
+  const track = TRACKS.find(t => t.id === id);
+  if (!track) return;
+
+  if (isPlaying(id)) {
+    stopTrack(id);
+    return;
+  }
+
+  // Create master gain node for this track, initialize at near-zero then ramp up
+  const masterGain = ctx.createGain();
+  const slider = document.getElementById('vol-' + id);
+  const targetVol = slider ? (parseFloat(slider.value) / 100) : (track.defaultVol / 100);
+  masterGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(targetVol, ctx.currentTime + 0.5);
+  masterGain.connect(ctx.destination);
+
+  // Apply card CSS glow color
+  const card = document.getElementById('card-' + id);
+  if (card) card.style.setProperty('--glow-color', track.glowColor);
+  if (card) card.style.setProperty('--card-color', `var(--${track.color})`);
+
+  registerTrack(id, masterGain);
+  track.start(masterGain, id);
+}
+
+function onVolumeChange(id, val) {
+  document.getElementById('vol-val-' + id).textContent = val + '%';
+  const s = trackState[id];
+  if (s && s.playing && s.masterGain) {
+    const ctx = getCtx();
+    s.masterGain.gain.cancelScheduledValues(ctx.currentTime);
+    s.masterGain.gain.setValueAtTime(s.masterGain.gain.value, ctx.currentTime);
+    s.masterGain.gain.linearRampToValueAtTime(parseFloat(val) / 100, ctx.currentTime + 0.05);
+  }
+}
+
+function renderTracks() {
+  const container = document.getElementById('tracks-container');
+  container.innerHTML = TRACKS.map(t => `
+    <div class="track-card" id="card-${t.id}">
+      <div class="track-header">
+        <div class="track-icon">${t.icon}</div>
+        <div class="track-info">
+          <div class="track-name">${t.name}</div>
+          <div class="track-desc">${t.desc}</div>
+        </div>
+        <div class="playing-dot"></div>
+      </div>
+      <div class="track-controls">
+        <button
+          class="play-btn ${t.color}"
+          id="btn-${t.id}"
+          onclick="toggleTrack('${t.id}')"
+        >&#9654; Play</button>
+        <div class="vol-wrap">
+          <span class="vol-label">Vol</span>
+          <input
+            class="vol-slider"
+            id="vol-${t.id}"
+            type="range"
+            min="0" max="100"
+            value="${t.defaultVol}"
+            oninput="onVolumeChange('${t.id}', this.value)"
+          >
+          <span class="vol-value" id="vol-val-${t.id}">${t.defaultVol}%</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+renderTracks();
+</script>
+</body>
+</html>

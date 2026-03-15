@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Friendly Monsters — Character Preview (attempt5)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f1729;
+      min-height: 100vh;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #e8eaf6;
+      padding: 32px 24px 48px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      margin-bottom: 4px;
+      background: linear-gradient(90deg, #bb86fc, #03dac6, #ffb347, #ff6b9d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #7986cb;
+      margin-bottom: 36px;
+      letter-spacing: 0.05em;
+    }
+
+    /* mood labels at the top */
+    .mood-header {
+      display: grid;
+      grid-template-columns: 160px repeat(3, 160px);
+      gap: 16px;
+      margin-bottom: 6px;
+      padding: 0 8px;
+    }
+    .mood-header span {
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #90caf9;
+    }
+
+    /* 4 rows × 3 cols (neutral/happy/sad) plus a name column */
+    .grid {
+      display: grid;
+      grid-template-columns: 160px repeat(3, 160px);
+      gap: 16px;
+      padding: 8px;
+    }
+
+    /* Character name label cell */
+    .char-label {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 12px;
+    }
+    .char-label .pill {
+      background: #1e2a4a;
+      border: 1.5px solid #334;
+      border-radius: 12px;
+      padding: 8px 14px;
+      text-align: right;
+    }
+    .char-label .pill strong {
+      display: block;
+      font-size: 0.85rem;
+      color: #e8eaf6;
+      font-weight: 700;
+    }
+    .char-label .pill em {
+      display: block;
+      font-size: 0.7rem;
+      font-style: normal;
+      color: #7986cb;
+      margin-top: 2px;
+    }
+
+    /* Monster card */
+    .card {
+      background: #1a2340;
+      border-radius: 18px;
+      border: 1.5px solid #2a3560;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      cursor: default;
+      position: relative;
+      overflow: visible;
+    }
+    .card:hover {
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      border-color: #5c6bc0;
+      z-index: 2;
+    }
+
+    /* Mood-tinted card borders */
+    .card.mood-happy  { border-color: #2e7d32; }
+    .card.mood-sad    { border-color: #37474f; }
+    .card.mood-neutral{ border-color: #2a3560; }
+
+    .card svg { display: block; }
+
+    /* Bottom legend row */
+    .legend {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: #7986cb;
+    }
+    .legend-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Tooltip on hover showing monster name */
+    .card::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #263254;
+      color: #e8eaf6;
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      border: 1px solid #3a4a7a;
+    }
+    .card:hover::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Friendly Monsters</h1>
+<p class="subtitle">attempt5 &nbsp;·&nbsp; Monsters Inc. theme &nbsp;·&nbsp; 4 characters × 3 moods</p>
+
+<div class="mood-header">
+  <span></span>
+  <span>neutral</span>
+  <span>happy</span>
+  <span>sad</span>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#8b30d0"></div>
+    <span>Monster 0 — Purple blob, one giant eye</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#18a834"></div>
+    <span>Monster 1 — Tall green, eye stalks</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#e07000"></div>
+    <span>Monster 2 — Orange triangle, three eyes</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#2288ee"></div>
+    <span>Monster 3 — Blue cloud, wings + tail</span>
+  </div>
+</div>
+
+<script>
+// ──────────────────────────────────────────────────────────────────
+//  Inline SVG monster renderer — mirrors Character.tsx logic
+// ──────────────────────────────────────────────────────────────────
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+function el(tag, attrs = {}, ...children) {
+  const e = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v === null || v === undefined || v === false) continue;
+    e.setAttribute(k, v);
+  }
+  for (const c of children) {
+    if (!c) continue;
+    if (typeof c === "string") {
+      e.appendChild(document.createTextNode(c));
+    } else if (Array.isArray(c)) {
+      c.forEach(cc => cc && e.appendChild(cc));
+    } else {
+      e.appendChild(c);
+    }
+  }
+  return e;
+}
+
+// Shared helper: white highlight dot
+function highlight(cx, cy, r = 1.6) {
+  return el("circle", { cx, cy, r, fill: "white", opacity: 0.9 });
+}
+function miniHighlight(cx, cy) {
+  return el("circle", { cx: cx + 3, cy: cy + 2.5, r: 0.7, fill: "white", opacity: 0.55 });
+}
+
+/* ── MONSTER 0 ─────────────────────────────────────────────────── */
+function monster0(mood) {
+  const pupilY = mood === "happy" ? 50 : mood === "sad" ? 54 : 52;
+  const pupilR = mood === "happy" ? 13  : mood === "sad" ? 11  : 12;
+
+  const hornLD = mood === "happy"
+    ? "M 36 28 Q 28 6  32 4  Q 38 2  40 18 Z"
+    : mood === "sad"
+    ? "M 38 30 Q 33 14 36 12 Q 40 12 42 24 Z"
+    : "M 37 29 Q 30 10 34 8  Q 39 6  41 21 Z";
+  const hornRD = mood === "happy"
+    ? "M 84 28 Q 92 6  88 4  Q 82 2  80 18 Z"
+    : mood === "sad"
+    ? "M 82 30 Q 87 14 84 12 Q 80 12 78 24 Z"
+    : "M 83 29 Q 90 10 86 8  Q 81 6  79 21 Z";
+
+  const bodyColor = mood === "happy" ? "#a020f0" : mood === "sad" ? "#7a5a9a" : "#8b30d0";
+  const bodyDark  = mood === "happy" ? "#6a00c0" : mood === "sad" ? "#5a3a7a" : "#5a00a0";
+
+  const defs = el("defs",{},
+    el("filter",{id:"m0f",x:"-10%",y:"-10%",width:"120%",height:"120%"},
+      el("feTurbulence",{type:"fractalNoise",baseFrequency:"0.9",numOctaves:"4",result:"noise"}),
+      el("feDisplacementMap",{in:"SourceGraphic",in2:"noise",scale:"4",xChannelSelector:"R",yChannelSelector:"G"})
+    ),
+    el("radialGradient",{id:"m0bg",cx:"42%",cy:"38%",r:"58%"},
+      el("stop",{offset:"0%",   "stop-color":bodyColor}),
+      el("stop",{offset:"100%", "stop-color":bodyDark})
+    ),
+    el("radialGradient",{id:"m0iris",cx:"38%",cy:"35%",r:"60%"},
+      el("stop",{offset:"0%",   "stop-color":"#22cc88"}),
+      el("stop",{offset:"100%", "stop-color":"#008855"})
+    ),
+    el("radialGradient",{id:"m0sh",cx:"38%",cy:"28%",r:"40%"},
+      el("stop",{offset:"0%",   "stop-color":"white","stop-opacity":"0.22"}),
+      el("stop",{offset:"100%", "stop-color":"white","stop-opacity":"0"})
+    )
+  );
+
+  // Legs
+  const legs = [
+    el("ellipse",{cx:42,cy:107,rx:10,ry:8,fill:bodyDark,filter:"url(#m0f)"}),
+    el("ellipse",{cx:78,cy:107,rx:10,ry:8,fill:bodyDark,filter:"url(#m0f)"}),
+    el("path",{d:"M 36 110 Q 38 112 40 110",fill:"none",stroke:"#3a005a",strokeWidth:1.2,"stroke-linecap":"round"}),
+    el("path",{d:"M 42 111 Q 44 113 46 111",fill:"none",stroke:"#3a005a",strokeWidth:1.2,"stroke-linecap":"round"}),
+    el("path",{d:"M 72 110 Q 74 112 76 110",fill:"none",stroke:"#3a005a",strokeWidth:1.2,"stroke-linecap":"round"}),
+    el("path",{d:"M 78 111 Q 80 113 82 111",fill:"none",stroke:"#3a005a",strokeWidth:1.2,"stroke-linecap":"round"}),
+  ];
+
+  // Horns
+  const horns = [
+    el("path",{d:hornLD,fill:"#d060ff",filter:"url(#m0f)"}),
+    el("path",{d:hornRD,fill:"#d060ff",filter:"url(#m0f)"}),
+  ];
+
+  // Body
+  const body = [
+    el("ellipse",{cx:60,cy:72,rx:46,ry:44,fill:"url(#m0bg)",filter:"url(#m0f)"}),
+    el("ellipse",{cx:60,cy:72,rx:46,ry:44,fill:"url(#m0sh)"}),
+  ];
+
+  // Arms
+  const arms = [
+    el("ellipse",{cx:18,cy:74,rx:8,ry:5,fill:bodyColor,transform:"rotate(-20 18 74)",filter:"url(#m0f)"}),
+    el("ellipse",{cx:102,cy:74,rx:8,ry:5,fill:bodyColor,transform:"rotate(20 102 74)",filter:"url(#m0f)"}),
+    el("circle",{cx:11,cy:72,r:2.5,fill:bodyDark}),
+    el("circle",{cx:11,cy:78,r:2,fill:bodyDark}),
+    el("circle",{cx:109,cy:72,r:2.5,fill:bodyDark}),
+    el("circle",{cx:109,cy:78,r:2,fill:bodyDark}),
+  ];
+
+  // Big eye
+  const eye = [
+    el("ellipse",{cx:60,cy:54,rx:22,ry:20,fill:"white"}),
+    el("circle",{cx:60,cy:pupilY,r:pupilR,fill:"url(#m0iris)"}),
+    el("circle",{cx:60,cy:pupilY,r:Math.round(pupilR*0.55),fill:"#001a00"}),
+    highlight(55, pupilY - 4, 3.5),
+    miniHighlight(55, pupilY - 4),
+    el("circle",{cx:67,cy:pupilY+2,r:1.2,fill:"white",opacity:0.5}),
+  ];
+
+  // Eyelid mood
+  if (mood === "sad") {
+    eye.push(el("path",{d:"M 40 46 Q 60 41 80 46",fill:"none",stroke:"#5a005a",strokeWidth:2.5,"stroke-linecap":"round"}));
+  }
+
+  // Eyelashes
+  const lashes = [
+    el("path",{d:"M 42 38 Q 46 32 52 36",fill:"none",stroke:"#2a004f",strokeWidth:2,"stroke-linecap":"round"}),
+    el("path",{d:"M 52 34 Q 60 28 68 34",fill:"none",stroke:"#2a004f",strokeWidth:2,"stroke-linecap":"round"}),
+    el("path",{d:"M 68 36 Q 74 32 78 38",fill:"none",stroke:"#2a004f",strokeWidth:2,"stroke-linecap":"round"}),
+  ];
+
+  // Brow
+  let brow;
+  if (mood === "neutral") {
+    brow = el("path",{d:"M 44 34 Q 60 30 76 34",fill:"none",stroke:"#3a005a",strokeWidth:2.5,"stroke-linecap":"round"});
+  } else if (mood === "happy") {
+    brow = el("path",{d:"M 44 30 Q 60 24 76 30",fill:"none",stroke:"#3a005a",strokeWidth:2.5,"stroke-linecap":"round"});
+  } else {
+    brow = el("g",{},
+      el("path",{d:"M 44 36 Q 52 34 60 37",fill:"none",stroke:"#3a005a",strokeWidth:2.5,"stroke-linecap":"round"}),
+      el("path",{d:"M 60 37 Q 68 34 76 36",fill:"none",stroke:"#3a005a",strokeWidth:2.5,"stroke-linecap":"round"})
+    );
+  }
+
+  // Spots
+  const spots = [
+    el("circle",{cx:32,cy:82,r:4,fill:bodyDark,opacity:0.4}),
+    el("circle",{cx:88,cy:78,r:3,fill:bodyDark,opacity:0.4}),
+    el("circle",{cx:80,cy:95,r:5,fill:bodyDark,opacity:0.3}),
+  ];
+
+  // Mouth
+  let mouth;
+  if (mood === "happy") {
+    mouth = el("g",{},
+      el("path",{d:"M 40 70 Q 60 88 80 70",fill:"#4a0070",stroke:"#2a004f",strokeWidth:2.5,"stroke-linecap":"round"}),
+      el("path",{d:"M 44 71 Q 60 78 76 71",fill:"white",stroke:"none"}),
+      el("rect",{x:50,y:72,width:6,height:5,rx:1,fill:"white"}),
+      el("rect",{x:57,y:72,width:6,height:5,rx:1,fill:"white"}),
+      el("rect",{x:64,y:72,width:6,height:5,rx:1,fill:"white"})
+    );
+  } else if (mood === "sad") {
+    mouth = el("path",{d:"M 44 78 Q 60 70 76 78",fill:"none",stroke:"#2a004f",strokeWidth:3,"stroke-linecap":"round"});
+  } else {
+    mouth = el("path",{d:"M 44 72 Q 60 80 76 72",fill:"none",stroke:"#2a004f",strokeWidth:3,"stroke-linecap":"round"});
+  }
+
+  // Sparkles / tears
+  let extras = [];
+  if (mood === "happy") {
+    extras = [
+      el("path",{d:"M 26 42 l2 -5 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 Z",fill:"#ffe066",opacity:0.9}),
+      el("path",{d:"M 97 36 l1.5 -4 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 Z",fill:"#ffe066",opacity:0.9}),
+      el("ellipse",{cx:38,cy:68,rx:7,ry:4,fill:"#ff88cc",opacity:0.35}),
+      el("ellipse",{cx:82,cy:68,rx:7,ry:4,fill:"#ff88cc",opacity:0.35}),
+    ];
+  } else if (mood === "sad") {
+    extras = [
+      el("ellipse",{cx:56,cy:68,rx:2.5,ry:3.5,fill:"#88ccff",opacity:0.8}),
+      el("ellipse",{cx:64,cy:70,rx:2,ry:3,fill:"#88ccff",opacity:0.7}),
+    ];
+  }
+
+  return [defs, ...legs, ...horns, ...body, ...spots, ...arms, ...eye, ...lashes, brow, mouth, ...extras];
+}
+
+/* ── MONSTER 1 ─────────────────────────────────────────────────── */
+function monster1(mood) {
+  const stalkLD = mood === "happy"
+    ? "M 42 32 Q 30 14 36 6"
+    : mood === "sad"
+    ? "M 42 32 Q 32 22 34 16"
+    : "M 42 32 Q 30 18 34 10";
+  const stalkRD = mood === "happy"
+    ? "M 72 30 Q 86 14 80 6"
+    : mood === "sad"
+    ? "M 72 30 Q 82 22 80 16"
+    : "M 72 30 Q 86 18 80 10";
+
+  const eLCx = mood === "happy" ? 35 : mood === "sad" ? 33 : 34;
+  const eLCy = mood === "happy" ? 5  : mood === "sad" ? 15 : 9;
+  const eRCx = 81;
+  const eRCy = mood === "happy" ? 5  : mood === "sad" ? 15 : 9;
+
+  const bodyColor = mood === "happy" ? "#22cc44" : mood === "sad" ? "#4a8a5a" : "#18a834";
+  const bodyDark  = mood === "happy" ? "#008820" : mood === "sad" ? "#2a5a3a" : "#006618";
+
+  const defs = el("defs",{},
+    el("filter",{id:"m1f",x:"-10%",y:"-10%",width:"120%",height:"120%"},
+      el("feTurbulence",{type:"fractalNoise",baseFrequency:"0.75",numOctaves:"3",result:"noise"}),
+      el("feDisplacementMap",{in:"SourceGraphic",in2:"noise",scale:"3.5",xChannelSelector:"R",yChannelSelector:"G"})
+    ),
+    el("radialGradient",{id:"m1bg",cx:"40%",cy:"36%",r:"60%"},
+      el("stop",{offset:"0%",   "stop-color":bodyColor}),
+      el("stop",{offset:"100%", "stop-color":bodyDark})
+    ),
+    el("radialGradient",{id:"m1iris",cx:"38%",cy:"35%",r:"60%"},
+      el("stop",{offset:"0%",   "stop-color":"#ffcc00"}),
+      el("stop",{offset:"100%", "stop-color":"#cc8800"})
+    ),
+    el("radialGradient",{id:"m1sh",cx:"35%",cy:"25%",r:"45%"},
+      el("stop",{offset:"0%",   "stop-color":"white","stop-opacity":"0.2"}),
+      el("stop",{offset:"100%", "stop-color":"white","stop-opacity":"0"})
+    )
+  );
+
+  const feet = [
+    el("ellipse",{cx:43,cy:113,rx:14,ry:9,fill:bodyDark,filter:"url(#m1f)"}),
+    el("ellipse",{cx:77,cy:113,rx:14,ry:9,fill:bodyDark,filter:"url(#m1f)"}),
+    el("circle",{cx:32,cy:112,r:3,fill:"#001a00",opacity:0.4}),
+    el("circle",{cx:40,cy:116,r:2.5,fill:"#001a00",opacity:0.4}),
+    el("circle",{cx:49,cy:117,r:2.5,fill:"#001a00",opacity:0.4}),
+    el("circle",{cx:66,cy:112,r:3,fill:"#001a00",opacity:0.4}),
+    el("circle",{cx:74,cy:116,r:2.5,fill:"#001a00",opacity:0.4}),
+    el("circle",{cx:83,cy:117,r:2.5,fill:"#001a00",opacity:0.4}),
+  ];
+
+  const body = [
+    el("ellipse",{cx:57,cy:74,rx:36,ry:46,fill:"url(#m1bg)",filter:"url(#m1f)"}),
+    el("ellipse",{cx:57,cy:74,rx:36,ry:46,fill:"url(#m1sh)"}),
+    el("circle",{cx:42,cy:62,r:5,fill:bodyDark,opacity:0.35}),
+    el("circle",{cx:68,cy:55,r:4,fill:bodyDark,opacity:0.35}),
+    el("circle",{cx:72,cy:80,r:6,fill:bodyDark,opacity:0.3}),
+    el("circle",{cx:44,cy:92,r:5,fill:bodyDark,opacity:0.3}),
+    el("circle",{cx:57,cy:110,r:4,fill:bodyDark,opacity:0.25}),
+  ];
+
+  const arms = [
+    el("ellipse",{cx:24,cy:76,rx:10,ry:6,fill:bodyColor,transform:"rotate(-30 24 76)",filter:"url(#m1f)"}),
+    el("ellipse",{cx:90,cy:76,rx:10,ry:6,fill:bodyColor,transform:"rotate(30 90 76)",filter:"url(#m1f)"}),
+    el("circle",{cx:16,cy:71,r:3,fill:bodyDark}),
+    el("circle",{cx:15,cy:78,r:2.5,fill:bodyDark}),
+    el("circle",{cx:98,cy:71,r:3,fill:bodyDark}),
+    el("circle",{cx:99,cy:78,r:2.5,fill:bodyDark}),
+  ];
+
+  const stalks = [
+    el("path",{d:stalkLD,fill:"none",stroke:bodyDark,strokeWidth:5,"stroke-linecap":"round"}),
+    el("path",{d:stalkRD,fill:"none",stroke:bodyDark,strokeWidth:5,"stroke-linecap":"round"}),
+  ];
+
+  function eyeBall(cx, cy, irisId) {
+    const kids = [
+      el("circle",{cx,cy,r:10,fill:"white"}),
+      el("circle",{cx,cy,r:6.5,fill:`url(#${irisId})`}),
+      el("circle",{cx,cy,r:3.5,fill:"#1a0a00"}),
+      highlight(cx - 2.5, cy - 3, 2.2),
+      miniHighlight(cx - 2.5, cy - 3),
+    ];
+    if (mood === "sad") {
+      kids.push(el("path",{d:`M ${cx-9} ${cy} Q ${cx} ${cy-4} ${cx+9} ${cy}`,fill:"none",stroke:"#336633",strokeWidth:2}));
+    } else if (mood === "happy") {
+      kids.push(el("path",{d:`M ${cx} ${cy-3} l1 -3 l1 3 l3 1 l-3 1 l-1 3 l-1 -3 l-3 -1 Z`,fill:"white",opacity:0.9}));
+    }
+    return kids;
+  }
+
+  let mouth;
+  if (mood === "happy") {
+    mouth = el("g",{},
+      el("path",{d:"M 34 80 Q 57 102 84 80",fill:"#003300",stroke:"#001a00",strokeWidth:2.5,"stroke-linecap":"round"}),
+      el("path",{d:"M 34 80 Q 57 102 84 80 Q 57 88 34 80 Z",fill:"#ff5555"}),
+      el("rect",{x:40,y:80,width:7,height:8,rx:1.5,fill:"white"}),
+      el("rect",{x:49,y:80,width:7,height:8,rx:1.5,fill:"white"}),
+      el("rect",{x:58,y:80,width:7,height:8,rx:1.5,fill:"white"}),
+      el("rect",{x:67,y:80,width:7,height:8,rx:1.5,fill:"white"}),
+      el("rect",{x:44,y:88,width:5,height:6,rx:1,fill:"white"}),
+      el("rect",{x:53,y:89,width:5,height:6,rx:1,fill:"white"}),
+      el("rect",{x:62,y:89,width:5,height:6,rx:1,fill:"white"})
+    );
+  } else if (mood === "sad") {
+    mouth = el("path",{d:"M 38 90 Q 57 82 80 90",fill:"none",stroke:"#003300",strokeWidth:3,"stroke-linecap":"round"});
+  } else {
+    mouth = el("path",{d:"M 38 84 Q 57 94 80 84",fill:"none",stroke:"#003300",strokeWidth:3,"stroke-linecap":"round"});
+  }
+
+  let extras = [];
+  if (mood === "happy") {
+    extras = [
+      el("path",{d:"M 12 50 l1.5 -4 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 Z",fill:"#ffe066"}),
+      el("path",{d:"M 104 44 l2 -5 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 Z",fill:"#ffe066"}),
+      el("ellipse",{cx:34,cy:80,rx:7,ry:4,fill:"#88ff88",opacity:0.35}),
+      el("ellipse",{cx:80,cy:78,rx:7,ry:4,fill:"#88ff88",opacity:0.35}),
+    ];
+  } else if (mood === "sad") {
+    extras = [
+      el("ellipse",{cx:eLCx,cy:eLCy+10,rx:2,ry:3,fill:"#88ccff",opacity:0.8}),
+      el("ellipse",{cx:eRCx,cy:eRCy+10,rx:2,ry:3,fill:"#88ccff",opacity:0.8}),
+    ];
+  }
+
+  return [defs, ...feet, ...stalks, ...body, ...arms, ...eyeBall(eLCx,eLCy,"m1iris"), ...eyeBall(eRCx,eRCy,"m1iris"), mouth, ...extras];
+}
+
+/* ── MONSTER 2 ─────────────────────────────────────────────────── */
+function monster2(mood) {
+  const eyeY  = mood === "sad" ? 64 : 60;
+  const cEyeR = mood === "happy" ? 9 : 8;
+  const spikeH = mood === "happy" ? -4 : mood === "sad" ? 4 : 0;
+
+  const bodyColor = mood === "happy" ? "#ff8800" : mood === "sad" ? "#c08040" : "#e07000";
+  const bodyDark  = mood === "happy" ? "#cc5500" : mood === "sad" ? "#8a5020" : "#aa4400";
+
+  const defs = el("defs",{},
+    el("filter",{id:"m2f",x:"-10%",y:"-10%",width:"120%",height:"120%"},
+      el("feTurbulence",{type:"fractalNoise",baseFrequency:"1.1",numOctaves:"4",result:"noise"}),
+      el("feDisplacementMap",{in:"SourceGraphic",in2:"noise",scale:"3",xChannelSelector:"R",yChannelSelector:"G"})
+    ),
+    el("radialGradient",{id:"m2bg",cx:"42%",cy:"40%",r:"58%"},
+      el("stop",{offset:"0%",   "stop-color":bodyColor}),
+      el("stop",{offset:"100%", "stop-color":bodyDark})
+    ),
+    el("radialGradient",{id:"m2irl",cx:"38%",cy:"35%",r:"60%"},
+      el("stop",{offset:"0%",   "stop-color":"#ff3366"}),
+      el("stop",{offset:"100%", "stop-color":"#cc0044"})
+    ),
+    el("radialGradient",{id:"m2irc",cx:"38%",cy:"35%",r:"60%"},
+      el("stop",{offset:"0%",   "stop-color":"#aa44ff"}),
+      el("stop",{offset:"100%", "stop-color":"#6600cc"})
+    ),
+    el("radialGradient",{id:"m2irr",cx:"38%",cy:"35%",r:"60%"},
+      el("stop",{offset:"0%",   "stop-color":"#00ccff"}),
+      el("stop",{offset:"100%", "stop-color":"#0066cc"})
+    ),
+    el("radialGradient",{id:"m2sh",cx:"36%",cy:"28%",r:"45%"},
+      el("stop",{offset:"0%",   "stop-color":"white","stop-opacity":"0.2"}),
+      el("stop",{offset:"100%", "stop-color":"white","stop-opacity":"0"})
+    )
+  );
+
+  const feet = [
+    el("ellipse",{cx:45,cy:112,rx:16,ry:9,fill:bodyDark,filter:"url(#m2f)"}),
+    el("ellipse",{cx:75,cy:112,rx:16,ry:9,fill:bodyDark,filter:"url(#m2f)"}),
+  ];
+
+  const bodyShape = [
+    el("path",{d:"M 57 18 L 100 108 L 14 108 Z",fill:"url(#m2bg)",filter:"url(#m2f)"}),
+    el("path",{d:"M 57 18 L 100 108 L 14 108 Z",fill:"url(#m2sh)"}),
+  ];
+
+  const arms = [
+    el("ellipse",{cx:14,cy:80,rx:11,ry:6,fill:bodyColor,transform:"rotate(-40 14 80)",filter:"url(#m2f)"}),
+    el("circle",{cx:6,cy:72,r:3.5,fill:bodyDark}),
+    el("circle",{cx:5,cy:79,r:3,fill:bodyDark}),
+    el("circle",{cx:8,cy:86,r:3,fill:bodyDark}),
+    el("ellipse",{cx:100,cy:80,rx:11,ry:6,fill:bodyColor,transform:"rotate(40 100 80)",filter:"url(#m2f)"}),
+    el("circle",{cx:112,cy:72,r:3.5,fill:bodyDark}),
+    el("circle",{cx:113,cy:79,r:3,fill:bodyDark}),
+    el("circle",{cx:110,cy:86,r:3,fill:bodyDark}),
+  ];
+
+  const hair = [
+    el("ellipse",{cx:57,cy:24,rx:22,ry:12,fill:bodyColor,filter:"url(#m2f)"}),
+    el("path",{d:`M 32 22 L 26 ${4+spikeH} L 38 18 Z`,fill:bodyDark,filter:"url(#m2f)"}),
+    el("path",{d:`M 42 14 L 38 ${-2+spikeH} L 50 12 Z`,fill:bodyColor,filter:"url(#m2f)"}),
+    el("path",{d:`M 57 12 L 55 ${-4+spikeH} L 63 10 Z`,fill:bodyDark,filter:"url(#m2f)"}),
+    el("path",{d:`M 70 14 L 74 ${-2+spikeH} L 78 16 Z`,fill:bodyColor,filter:"url(#m2f)"}),
+    el("path",{d:`M 80 22 L 86 ${4+spikeH} L 76 20 Z`,fill:bodyDark,filter:"url(#m2f)"}),
+  ];
+
+  // left eye (red)
+  const eyeL = [
+    el("circle",{cx:40,cy:eyeY,r:8,fill:"white"}),
+    el("circle",{cx:40,cy:eyeY,r:5,fill:"url(#m2irl)"}),
+    el("circle",{cx:40,cy:eyeY,r:2.5,fill:"#1a0000"}),
+    highlight(37.5, eyeY-2.5, 1.8),
+    miniHighlight(37.5, eyeY-2.5),
+  ];
+  // center eye (purple, bigger)
+  const eyeC = [
+    el("circle",{cx:57,cy:eyeY-2,r:cEyeR,fill:"white"}),
+    el("circle",{cx:57,cy:eyeY-2,r:cEyeR*0.65,fill:"url(#m2irc)"}),
+    el("circle",{cx:57,cy:eyeY-2,r:cEyeR*0.35,fill:"#100020"}),
+    highlight(54.5, eyeY-4, 2),
+  ];
+  // right eye (blue)
+  const eyeR = [
+    el("circle",{cx:74,cy:eyeY,r:8,fill:"white"}),
+    el("circle",{cx:74,cy:eyeY,r:5,fill:"url(#m2irr)"}),
+    el("circle",{cx:74,cy:eyeY,r:2.5,fill:"#000a1a"}),
+    highlight(71.5, eyeY-2.5, 1.8),
+    miniHighlight(71.5, eyeY-2.5),
+  ];
+
+  let brow;
+  if (mood === "neutral") {
+    brow = [el("path",{d:"M 33 54 Q 57 50 81 54",fill:"none",stroke:bodyDark,strokeWidth:2.5,"stroke-linecap":"round"})];
+  } else if (mood === "happy") {
+    brow = [el("path",{d:"M 33 50 Q 57 44 81 50",fill:"none",stroke:bodyDark,strokeWidth:2.5,"stroke-linecap":"round"})];
+  } else {
+    brow = [
+      el("path",{d:"M 33 56 Q 45 53 57 56",fill:"none",stroke:bodyDark,strokeWidth:2.5,"stroke-linecap":"round"}),
+      el("path",{d:"M 57 56 Q 69 53 81 56",fill:"none",stroke:bodyDark,strokeWidth:2.5,"stroke-linecap":"round"}),
+    ];
+  }
+
+  let lidExtras = [];
+  if (mood === "sad") {
+    lidExtras = [
+      el("path",{d:`M 33 ${eyeY-5} Q 40 ${eyeY-8} 47 ${eyeY-5}`,fill:"none",stroke:"#8a5020",strokeWidth:2}),
+      el("path",{d:`M 50 ${eyeY-7} Q 57 ${eyeY-11} 64 ${eyeY-7}`,fill:"none",stroke:"#8a5020",strokeWidth:2}),
+      el("path",{d:`M 67 ${eyeY-5} Q 74 ${eyeY-8} 81 ${eyeY-5}`,fill:"none",stroke:"#8a5020",strokeWidth:2}),
+    ];
+  } else if (mood === "happy") {
+    lidExtras = [
+      el("path",{d:`M 40 ${eyeY-2} l1 -2.5 l1 2.5 l2.5 1 l-2.5 1 l-1 2.5 l-1 -2.5 l-2.5 -1 Z`,fill:"white",opacity:0.85}),
+      el("path",{d:`M 57 ${eyeY-4} l1 -2.5 l1 2.5 l2.5 1 l-2.5 1 l-1 2.5 l-1 -2.5 l-2.5 -1 Z`,fill:"white",opacity:0.85}),
+      el("path",{d:`M 74 ${eyeY-2} l1 -2.5 l1 2.5 l2.5 1 l-2.5 1 l-1 2.5 l-1 -2.5 l-2.5 -1 Z`,fill:"white",opacity:0.85}),
+    ];
+  }
+
+  let mouth;
+  if (mood === "happy") {
+    mouth = el("g",{},
+      el("path",{d:"M 36 82 Q 57 100 82 82",fill:"#cc4400",stroke:"#4a1500",strokeWidth:2.5,"stroke-linecap":"round"}),
+      el("path",{d:"M 40 83 Q 57 91 78 83",fill:"white",stroke:"none"}),
+      el("rect",{x:46,y:83,width:6,height:6,rx:1.5,fill:"white"}),
+      el("rect",{x:54,y:83,width:6,height:6,rx:1.5,fill:"white"}),
+      el("rect",{x:62,y:83,width:6,height:6,rx:1.5,fill:"white"})
+    );
+  } else if (mood === "sad") {
+    mouth = el("path",{d:"M 40 90 Q 57 82 78 90",fill:"none",stroke:"#4a1500",strokeWidth:3,"stroke-linecap":"round"});
+  } else {
+    mouth = el("path",{d:"M 40 84 Q 57 92 78 84",fill:"none",stroke:"#4a1500",strokeWidth:3,"stroke-linecap":"round"});
+  }
+
+  let extras = [];
+  if (mood === "happy") {
+    extras = [
+      el("path",{d:"M 8 60 l2 -5 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 Z",fill:"#ffe066"}),
+      el("path",{d:"M 106 54 l1.5 -4 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 Z",fill:"#ffe066"}),
+      el("ellipse",{cx:30,cy:80,rx:7,ry:4,fill:"#ffcc88",opacity:0.45}),
+      el("ellipse",{cx:84,cy:80,rx:7,ry:4,fill:"#ffcc88",opacity:0.45}),
+    ];
+  } else if (mood === "sad") {
+    extras = [
+      el("ellipse",{cx:40,cy:eyeY+9,rx:2,ry:3.5,fill:"#88ccff",opacity:0.8}),
+      el("ellipse",{cx:57,cy:eyeY+10,rx:2,ry:3,fill:"#88ccff",opacity:0.75}),
+      el("ellipse",{cx:74,cy:eyeY+9,rx:2,ry:3.5,fill:"#88ccff",opacity:0.8}),
+    ];
+  }
+
+  return [defs, ...feet, ...hair, ...bodyShape, ...arms, ...eyeL, ...eyeC, ...eyeR, ...brow, ...lidExtras, mouth, ...extras];
+}
+
+/* ── MONSTER 3 ─────────────────────────────────────────────────── */
+function monster3(mood) {
+  const wingLD = mood === "happy"
+    ? "M 22 58 Q 4 42 8 28 Q 12 16 22 24 Q 16 40 22 58 Z"
+    : mood === "sad"
+    ? "M 22 62 Q 6 58 8 46 Q 10 36 20 40 Q 14 52 22 62 Z"
+    : "M 22 60 Q 4 50 6 36 Q 10 24 20 32 Q 14 46 22 60 Z";
+  const wingRD = mood === "happy"
+    ? "M 96 58 Q 114 42 110 28 Q 106 16 96 24 Q 102 40 96 58 Z"
+    : mood === "sad"
+    ? "M 96 62 Q 112 58 110 46 Q 108 36 98 40 Q 104 52 96 62 Z"
+    : "M 96 60 Q 114 50 112 36 Q 108 24 98 32 Q 104 46 96 60 Z";
+  const tailD = mood === "happy"
+    ? "M 90 100 Q 106 96 110 84 Q 114 72 104 70 Q 96 68 96 78 Q 96 86 106 84"
+    : mood === "sad"
+    ? "M 90 104 Q 100 106 104 100 Q 108 94 100 92"
+    : "M 90 102 Q 108 100 112 88 Q 114 78 106 76 Q 98 74 100 82";
+
+  const bodyColor = mood === "happy" ? "#44aaff" : mood === "sad" ? "#5588aa" : "#2288ee";
+  const bodyLight = mood === "happy" ? "#88ccff" : mood === "sad" ? "#7799bb" : "#66aaff";
+  const bodyDark  = mood === "happy" ? "#0066cc" : mood === "sad" ? "#336688" : "#0055bb";
+
+  const defs = el("defs",{},
+    el("filter",{id:"m3f",x:"-14%",y:"-14%",width:"128%",height:"128%"},
+      el("feTurbulence",{type:"fractalNoise",baseFrequency:"0.6",numOctaves:"5",result:"noise"}),
+      el("feDisplacementMap",{in:"SourceGraphic",in2:"noise",scale:"5",xChannelSelector:"R",yChannelSelector:"G"})
+    ),
+    el("radialGradient",{id:"m3bg",cx:"40%",cy:"34%",r:"60%"},
+      el("stop",{offset:"0%",   "stop-color":bodyLight}),
+      el("stop",{offset:"100%", "stop-color":bodyColor})
+    ),
+    el("radialGradient",{id:"m3irl",cx:"38%",cy:"35%",r:"60%"},
+      el("stop",{offset:"0%",   "stop-color":"#66ffaa"}),
+      el("stop",{offset:"100%", "stop-color":"#008844"})
+    ),
+    el("radialGradient",{id:"m3irr",cx:"38%",cy:"35%",r:"60%"},
+      el("stop",{offset:"0%",   "stop-color":"#ffcc44"}),
+      el("stop",{offset:"100%", "stop-color":"#cc8800"})
+    ),
+    el("radialGradient",{id:"m3sh",cx:"36%",cy:"24%",r:"48%"},
+      el("stop",{offset:"0%",   "stop-color":"white","stop-opacity":"0.28"}),
+      el("stop",{offset:"100%", "stop-color":"white","stop-opacity":"0"})
+    )
+  );
+
+  const tail = [
+    el("path",{d:tailD,fill:"none",stroke:bodyColor,strokeWidth:5,"stroke-linecap":"round",filter:"url(#m3f)"}),
+    el("path",{d:tailD,fill:"none",stroke:bodyLight,strokeWidth:2.5,"stroke-linecap":"round",opacity:0.6}),
+  ];
+
+  const wings = [
+    el("path",{d:wingLD,fill:bodyLight,stroke:bodyDark,strokeWidth:1.2,filter:"url(#m3f)",opacity:0.9}),
+    el("path",{d:wingRD,fill:bodyLight,stroke:bodyDark,strokeWidth:1.2,filter:"url(#m3f)",opacity:0.9}),
+  ];
+
+  const cloudBody = [
+    el("circle",{cx:32,cy:64,r:22,fill:"url(#m3bg)",filter:"url(#m3f)"}),
+    el("circle",{cx:80,cy:64,r:22,fill:"url(#m3bg)",filter:"url(#m3f)"}),
+    el("circle",{cx:57,cy:48,r:24,fill:"url(#m3bg)",filter:"url(#m3f)"}),
+    el("circle",{cx:38,cy:56,r:18,fill:"url(#m3bg)",filter:"url(#m3f)"}),
+    el("circle",{cx:76,cy:56,r:18,fill:"url(#m3bg)",filter:"url(#m3f)"}),
+    el("rect",{x:24,y:68,width:70,height:30,rx:8,fill:"url(#m3bg)"}),
+    el("circle",{cx:57,cy:48,r:24,fill:"url(#m3sh)"}),
+  ];
+
+  const eyeL = [
+    el("circle",{cx:44,cy:58,r:12,fill:"white"}),
+    el("circle",{cx:44,cy:58,r:8,fill:"url(#m3irl)"}),
+    el("circle",{cx:44,cy:58,r:4.5,fill:"#001a0d"}),
+    highlight(41, 55, 2.8),
+    miniHighlight(41, 55),
+    el("circle",{cx:48,cy:62,r:1.2,fill:"white",opacity:0.5}),
+  ];
+  const eyeR = [
+    el("circle",{cx:70,cy:58,r:12,fill:"white"}),
+    el("circle",{cx:70,cy:58,r:8,fill:"url(#m3irr)"}),
+    el("circle",{cx:70,cy:58,r:4.5,fill:"#1a1000"}),
+    highlight(67, 55, 2.8),
+    miniHighlight(67, 55),
+    el("circle",{cx:74,cy:62,r:1.2,fill:"white",opacity:0.5}),
+  ];
+
+  let lidExtras = [];
+  if (mood === "sad") {
+    lidExtras = [
+      el("path",{d:"M 33 52 Q 44 46 55 52",fill:"none",stroke:bodyDark,strokeWidth:3,"stroke-linecap":"round"}),
+      el("path",{d:"M 59 52 Q 70 46 81 52",fill:"none",stroke:bodyDark,strokeWidth:3,"stroke-linecap":"round"}),
+    ];
+  } else if (mood === "happy") {
+    lidExtras = [
+      el("path",{d:"M 44 55 l1.2 -3.5 l1.2 3.5 l3.5 1.2 l-3.5 1.2 l-1.2 3.5 l-1.2 -3.5 l-3.5 -1.2 Z",fill:"white",opacity:0.9}),
+      el("path",{d:"M 70 55 l1.2 -3.5 l1.2 3.5 l3.5 1.2 l-3.5 1.2 l-1.2 3.5 l-1.2 -3.5 l-3.5 -1.2 Z",fill:"white",opacity:0.9}),
+    ];
+  }
+
+  let brow;
+  if (mood === "neutral") {
+    brow = [
+      el("path",{d:"M 35 46 Q 44 42 53 46",fill:"none",stroke:bodyDark,strokeWidth:2.5,"stroke-linecap":"round"}),
+      el("path",{d:"M 61 46 Q 70 42 79 46",fill:"none",stroke:bodyDark,strokeWidth:2.5,"stroke-linecap":"round"}),
+    ];
+  } else if (mood === "happy") {
+    brow = [
+      el("path",{d:"M 35 42 Q 44 36 53 42",fill:"none",stroke:bodyDark,strokeWidth:2.5,"stroke-linecap":"round"}),
+      el("path",{d:"M 61 42 Q 70 36 79 42",fill:"none",stroke:bodyDark,strokeWidth:2.5,"stroke-linecap":"round"}),
+    ];
+  } else {
+    brow = [
+      el("path",{d:"M 35 48 Q 44 45 53 48",fill:"none",stroke:bodyDark,strokeWidth:2.5,"stroke-linecap":"round"}),
+      el("path",{d:"M 61 48 Q 70 45 79 48",fill:"none",stroke:bodyDark,strokeWidth:2.5,"stroke-linecap":"round"}),
+    ];
+  }
+
+  // Cheek spots (always)
+  const cheeks = [
+    el("ellipse",{cx:32,cy:68,rx:8,ry:5,fill:bodyLight,opacity:0.5}),
+    el("ellipse",{cx:82,cy:68,rx:8,ry:5,fill:bodyLight,opacity:0.5}),
+  ];
+
+  let mouth;
+  if (mood === "happy") {
+    mouth = el("g",{},
+      el("path",{d:"M 38 76 Q 57 96 80 76",fill:"#3399cc",stroke:"#003355",strokeWidth:2.5,"stroke-linecap":"round"}),
+      el("path",{d:"M 42 77 Q 57 85 74 77",fill:"white",stroke:"none"}),
+      el("rect",{x:48,y:77,width:6,height:7,rx:1.5,fill:"white"}),
+      el("rect",{x:56,y:77,width:6,height:7,rx:1.5,fill:"white"}),
+      el("rect",{x:64,y:77,width:6,height:7,rx:1.5,fill:"white"}),
+      el("path",{d:"M 44 78 L 42 85 L 48 80",fill:"white",stroke:"#88bbdd",strokeWidth:0.8}),
+      el("path",{d:"M 72 78 L 74 85 L 68 80",fill:"white",stroke:"#88bbdd",strokeWidth:0.8})
+    );
+  } else if (mood === "sad") {
+    mouth = el("g",{},
+      el("path",{d:"M 42 84 Q 57 76 74 84",fill:"none",stroke:"#003355",strokeWidth:3,"stroke-linecap":"round"}),
+      el("path",{d:"M 46 84 L 44 90 L 50 85",fill:"white",stroke:"#aaccee",strokeWidth:0.8}),
+      el("path",{d:"M 70 84 L 72 90 L 66 85",fill:"white",stroke:"#aaccee",strokeWidth:0.8})
+    );
+  } else {
+    mouth = el("g",{},
+      el("path",{d:"M 42 78 Q 57 86 74 78",fill:"none",stroke:"#003355",strokeWidth:3,"stroke-linecap":"round"}),
+      el("path",{d:"M 46 78 L 44 84 L 50 79",fill:"white",stroke:"#aaccee",strokeWidth:0.8}),
+      el("path",{d:"M 70 78 L 72 84 L 66 79",fill:"white",stroke:"#aaccee",strokeWidth:0.8})
+    );
+  }
+
+  let extras = [];
+  if (mood === "happy") {
+    extras = [
+      el("path",{d:"M 10 52 l2 -5 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 Z",fill:"#ffe066"}),
+      el("path",{d:"M 104 46 l1.5 -4 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 Z",fill:"#ffe066"}),
+      el("circle",{cx:12,cy:68,r:2,fill:"#ccffff"}),
+      el("ellipse",{cx:32,cy:70,rx:8,ry:5,fill:"#88ddff",opacity:0.4}),
+      el("ellipse",{cx:82,cy:70,rx:8,ry:5,fill:"#88ddff",opacity:0.4}),
+    ];
+  } else if (mood === "sad") {
+    extras = [
+      el("ellipse",{cx:44,cy:69,rx:2.5,ry:4,fill:"#88ccff",opacity:0.85}),
+      el("ellipse",{cx:70,cy:70,rx:2,ry:3.5,fill:"#88ccff",opacity:0.8}),
+    ];
+  }
+
+  return [defs, ...tail, ...wings, ...cloudBody, ...eyeL, ...eyeR, ...lidExtras, ...brow, ...cheeks, mouth, ...extras];
+}
+
+/* ── Build the grid ────────────────────────────────────────────── */
+
+const RENDERERS  = [monster0, monster1, monster2, monster3];
+const MOODS      = ["neutral","happy","sad"];
+const MOOD_TIPS  = { neutral:"😐 Neutral", happy:"😄 Happy", sad:"😢 Sad" };
+const CHAR_NAMES = [
+  { name:"Blorp",   desc:"Purple blob · one eye"    },
+  { name:"Stalky",  desc:"Green tall · eye-stalks"  },
+  { name:"Trixi",   desc:"Orange tri · three eyes"  },
+  { name:"Cloudo",  desc:"Blue cloud · wings + tail"},
+];
+
+const SIZE = 140;
+const grid = document.getElementById("grid");
+
+for (let idx = 0; idx < 4; idx++) {
+  // Name column
+  const labelCell = document.createElement("div");
+  labelCell.className = "char-label";
+  labelCell.innerHTML = `<div class="pill">
+    <strong>${CHAR_NAMES[idx].name}</strong>
+    <em>${CHAR_NAMES[idx].desc}</em>
+  </div>`;
+  grid.appendChild(labelCell);
+
+  // 3 mood cards
+  for (const mood of MOODS) {
+    const card = document.createElement("div");
+    card.className = `card mood-${mood}`;
+    card.setAttribute("data-tip", `${CHAR_NAMES[idx].name} · ${MOOD_TIPS[mood]}`);
+
+    const svg = el("svg", {
+      width: SIZE, height: SIZE,
+      viewBox: "0 0 120 120",
+      xmlns: SVG_NS,
+      style: "overflow:visible",
+    });
+
+    const parts = RENDERERS[idx](mood);
+    parts.forEach(p => p && svg.appendChild(p));
+
+    card.appendChild(svg);
+    grid.appendChild(card);
+  }
+}
+</script>
+</body>
+</html>
