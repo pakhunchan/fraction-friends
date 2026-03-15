@@ -70,7 +70,6 @@ export const lessonSteps: Record<string, LessonStep> = {
       + "But upstairs, in a blanket fort lit by fairy lights, "
       + "two friendly monsters are having a sleepover.",
     next: "start-2",
-    sfx: "warm-pad",
   },
 
   "start-2": {
