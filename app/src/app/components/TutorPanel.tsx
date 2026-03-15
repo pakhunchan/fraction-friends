@@ -87,22 +87,22 @@ export function TutorPanel({
       )}
 
       {/* Audio controls row */}
-      <div className="flex items-center gap-2 mt-auto pt-2 pb-2">
+      <div className="flex items-center gap-3 mt-auto pt-2 pb-2">
         {/* TTS mute button */}
         {onToggleTtsMute && (
           <button
             onClick={onToggleTtsMute}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-colors cursor-pointer ${
+            className={`w-12 h-12 rounded-lg flex items-center justify-center text-lg transition-colors cursor-pointer ${
               isTtsMuted ? "bg-white/5 text-white/30" : "bg-white/10 text-white/70 hover:bg-white/20"
             }`}
             title={isTtsMuted ? "Unmute voice" : "Mute voice"}
           >
             {isTtsMuted ? (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M11 5L6 9H2v6h4l5 4V5z" /><line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" />
               </svg>
             ) : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M11 5L6 9H2v6h4l5 4V5z" /><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" />
               </svg>
             )}
@@ -113,7 +113,7 @@ export function TutorPanel({
         {onToggleSfxMute && (
           <button
             onClick={onToggleSfxMute}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs transition-colors cursor-pointer ${
+            className={`w-12 h-12 rounded-lg flex items-center justify-center text-base transition-colors cursor-pointer ${
               isSfxMuted ? "bg-white/5 text-white/30" : "bg-white/10 text-white/70 hover:bg-white/20"
             }`}
             title={isSfxMuted ? "Unmute sounds" : "Mute sounds"}
@@ -126,17 +126,17 @@ export function TutorPanel({
         {onToggleMusicMute && (
           <button
             onClick={onToggleMusicMute}
-            className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-colors cursor-pointer ${
+            className={`w-12 h-12 rounded-lg flex items-center justify-center text-lg transition-colors cursor-pointer ${
               isMusicMuted ? "bg-white/5 text-white/30" : "bg-white/10 text-white/70 hover:bg-white/20"
             }`}
             title={isMusicMuted ? "Unmute music" : "Mute music"}
           >
             {isMusicMuted ? (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /><line x1="1" y1="1" x2="23" y2="23" />
               </svg>
             ) : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
               </svg>
             )}
