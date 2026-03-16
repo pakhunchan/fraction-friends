@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cheer Screen Preview - 10 Options</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0f1729;
+    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+    color: #fff;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: #f0d060;
+  }
+
+  .page-subtitle {
+    text-align: center;
+    color: #8899bb;
+    margin-bottom: 40px;
+    font-size: 14px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .card-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card-label {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #c0d0f0;
+  }
+
+  .card {
+    width: 500px;
+    height: 400px;
+    background: #1e2d4a;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ---- Monster placeholder circles ---- */
+  .monster {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,.5);
+    flex-shrink: 0;
+  }
+  .monster.purple { background: #9b59b6; }
+  .monster.green  { background: #2ecc71; }
+  .monster.orange { background: #e67e22; }
+  .monster.blue   { background: #3498db; }
+
+  .monster-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    justify-content: center;
+    margin-top: 14px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: #b0c4de;
+    text-align: center;
+    margin-top: 12px;
+    padding: 0 30px;
+    line-height: 1.4;
+  }
+
+  /* ========= ANIMATIONS ========= */
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  @keyframes bounceSlow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { text-shadow: 0 0 10px rgba(255,215,0,.4); }
+    50% { text-shadow: 0 0 30px rgba(255,215,0,.9), 0 0 60px rgba(255,165,0,.4); }
+  }
+
+  @keyframes sparkle {
+    0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1) rotate(180deg); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes tiltLeft {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+  }
+
+  @keyframes tiltRight {
+    0%, 100% { transform: rotate(8deg); }
+    50% { transform: rotate(-8deg); }
+  }
+
+  @keyframes starSpin {
+    0% { transform: rotate(0deg) scale(0.8); opacity: 0.6; }
+    50% { transform: rotate(180deg) scale(1.2); opacity: 1; }
+    100% { transform: rotate(360deg) scale(0.8); opacity: 0.6; }
+  }
+
+  @keyframes countFade {
+    0% { opacity: 1; transform: scale(1.3); }
+    80% { opacity: 1; }
+    100% { opacity: 0.3; transform: scale(1); }
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(420px) rotate(720deg); opacity: 0.3; }
+  }
+
+  @keyframes heartPulse {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+  }
+
+  @keyframes trophyGlow {
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(255,215,0,.3)); }
+    50% { filter: drop-shadow(0 0 24px rgba(255,215,0,.8)) drop-shadow(0 0 40px rgba(255,165,0,.3)); }
+  }
+
+  @keyframes reachUp {
+    0%, 100% { transform: translateY(0) scaleY(1); }
+    50% { transform: translateY(-10px) scaleY(1.05); }
+  }
+
+  @keyframes danceLeft {
+    0%, 100% { transform: rotate(-10deg) translateY(0); }
+    25% { transform: rotate(10deg) translateY(-8px); }
+    50% { transform: rotate(-10deg) translateY(0); }
+    75% { transform: rotate(10deg) translateY(-8px); }
+  }
+
+  @keyframes danceRight {
+    0%, 100% { transform: rotate(10deg) translateY(0); }
+    25% { transform: rotate(-10deg) translateY(-8px); }
+    50% { transform: rotate(10deg) translateY(0); }
+    75% { transform: rotate(-10deg) translateY(-8px); }
+  }
+
+  @keyframes pompom {
+    0%, 100% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.3); opacity: 1; }
+  }
+
+  @keyframes escalate {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+
+  @keyframes slideUp {
+    0%, 100% { transform: translateY(4px); }
+    50% { transform: translateY(-4px); }
+  }
+
+  @keyframes rainbowShift {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+  }
+
+  @keyframes huddle {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(var(--huddle-x, 3px)); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Cheer Screen Preview</h1>
+<p class="page-subtitle">10 motivational screen options for the fraction quiz transition</p>
+
+<div class="grid">
+
+  <!-- ============ 1. SPARKLE RALLY ============ -->
+  <div class="card-wrapper">
+    <div class="card-label">1. Sparkle Rally</div>
+    <div class="card" id="card1">
+      <!-- sparkle stars -->
+      <div style="position:absolute;top:30px;left:60px;font-size:18px;animation:sparkle 2s ease-in-out infinite .0s;color:#ffd700;">&#10022;</div>
+      <div style="position:absolute;top:50px;right:70px;font-size:14px;animation:sparkle 2s ease-in-out infinite .5s;color:#ffd700;">&#10022;</div>
+      <div style="position:absolute;top:90px;left:180px;font-size:22px;animation:sparkle 2s ease-in-out infinite 1s;color:#ffe066;">&#10022;</div>
+      <div style="position:absolute;top:60px;right:160px;font-size:16px;animation:sparkle 2s ease-in-out infinite 1.5s;color:#ffd700;">&#10022;</div>
+      <div style="position:absolute;top:110px;left:100px;font-size:12px;animation:sparkle 2s ease-in-out infinite .8s;color:#ffe066;">&#10022;</div>
+      <div style="position:absolute;top:40px;left:300px;font-size:20px;animation:sparkle 2s ease-in-out infinite 1.2s;color:#ffd700;">&#10022;</div>
+
+      <div style="font-size:36px;font-weight:900;color:#ffd700;animation:pulseGlow 2s ease-in-out infinite;margin-bottom:4px;">You've Got This!</div>
+      <div class="monster-row">
+        <div class="monster purple" style="animation:bounce .8s ease-in-out infinite 0s;">Purple</div>
+        <div class="monster green" style="animation:bounce .8s ease-in-out infinite .2s;">Green</div>
+        <div class="monster orange" style="animation:bounce .8s ease-in-out infinite .4s;">Orange</div>
+        <div class="monster blue" style="animation:bounce .8s ease-in-out infinite .6s;">Blue</div>
+      </div>
+      <div class="subtitle">Time for the quiz -- show us what you learned!</div>
+    </div>
+  </div>
+
+  <!-- ============ 2. HIGH FIVE CIRCLE ============ -->
+  <div class="card-wrapper">
+    <div class="card-label">2. High Five Circle</div>
+    <div class="card" id="card2">
+      <div style="font-size:38px;font-weight:900;color:#ffd700;animation:pulse 1.5s ease-in-out infinite;">Quiz Time!</div>
+      <div class="monster-row" style="gap:18px;margin-top:18px;">
+        <div class="monster purple" style="animation:tiltLeft 1.5s ease-in-out infinite;transform-origin:bottom center;">Purple</div>
+        <div class="monster green" style="animation:bounceSlow 2s ease-in-out infinite .3s;">Green</div>
+        <div class="monster orange" style="animation:bounceSlow 2s ease-in-out infinite .6s;">Orange</div>
+        <div class="monster blue" style="animation:tiltRight 1.5s ease-in-out infinite;transform-origin:bottom center;">Blue</div>
+      </div>
+      <div class="subtitle">You learned so much today -- let's celebrate with a quiz!</div>
+    </div>
+  </div>
+
+  <!-- ============ 3. CHAMPION BANNER ============ -->
+  <div class="card-wrapper">
+    <div class="card-label">3. Champion Banner</div>
+    <div class="card" id="card3">
+      <!-- scattered stars -->
+      <div style="position:absolute;top:20px;left:40px;font-size:20px;animation:starSpin 3s linear infinite;">&#11088;</div>
+      <div style="position:absolute;top:60px;right:50px;font-size:16px;animation:starSpin 3s linear infinite .7s;">&#11088;</div>
+      <div style="position:absolute;top:30px;right:120px;font-size:14px;animation:starSpin 3s linear infinite 1.4s;">&#11088;</div>
+      <div style="position:absolute;bottom:80px;left:50px;font-size:18px;animation:starSpin 3s linear infinite 2.1s;">&#11088;</div>
+      <div style="position:absolute;bottom:60px;right:60px;font-size:15px;animation:starSpin 3s linear infinite .4s;">&#11088;</div>
+
+      <!-- hexagonal banner -->
+      <div style="position:relative;background:linear-gradient(135deg,#ffd700,#f0a000);padding:14px 40px;clip-path:polygon(10% 0%,90% 0%,100% 50%,90% 100%,10% 100%,0% 50%);margin-bottom:6px;">
+        <div style="font-size:28px;font-weight:900;color:#1e2d4a;text-align:center;">Quiz Challenge!</div>
+      </div>
+      <div class="monster-row">
+        <div class="monster purple" style="animation:bounce .9s ease-in-out infinite 0s;">Purple</div>
+        <div class="monster green" style="animation:bounce .9s ease-in-out infinite .15s;">Green</div>
+        <div class="monster orange" style="animation:bounce .9s ease-in-out infinite .3s;">Orange</div>
+        <div class="monster blue" style="animation:bounce .9s ease-in-out infinite .45s;">Blue</div>
+      </div>
+      <div class="subtitle">You're a fraction superstar! Ready to prove it?</div>
+    </div>
+  </div>
+
+  <!-- ============ 4. GENTLE ENCOURAGEMENT ============ -->
+  <div class="card-wrapper">
+    <div class="card-label">4. Gentle Encouragement</div>
+    <div class="card" id="card4">
+      <div style="font-size:30px;font-weight:800;color:#f5e6b8;margin-bottom:8px;">Ready for a Fun Quiz?</div>
+      <div class="monster-row" style="gap:16px;margin-top:12px;">
+        <div class="monster purple">Purple</div>
+        <div class="monster green">Green</div>
+        <div class="monster orange">Orange</div>
+        <div class="monster blue">Blue</div>
+      </div>
+      <div class="subtitle" style="color:#c8b88a;">Don't worry -- your friends are cheering for you!</div>
+    </div>
+  </div>
+
+  <!-- ============ 5. COUNTDOWN HYPE ============ -->
+  <div class="card-wrapper">
+    <div class="card-label">5. Countdown Hype</div>
+    <div class="card" id="card5">
+      <div style="display:flex;gap:8px;margin-bottom:4px;">
+        <span style="font-size:36px;font-weight:900;color:#5b8dee;animation:countFade 2s ease-in-out infinite 0s;">3...</span>
+        <span style="font-size:36px;font-weight:900;color:#7b6fea;animation:countFade 2s ease-in-out infinite .6s;">2...</span>
+        <span style="font-size:36px;font-weight:900;color:#a855f7;animation:countFade 2s ease-in-out infinite 1.2s;">1...</span>
+      </div>
+      <div style="font-size:32px;font-weight:900;background:linear-gradient(90deg,#5b8dee,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:pulse 1s ease-in-out infinite;">Let's Do This!</div>
+      <div class="monster-row" style="gap:10px;margin-top:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="monster purple" style="animation:tiltLeft 1.2s ease-in-out infinite;width:50px;height:50px;">Purple</div>
+          <div class="monster green" style="animation:tiltRight 1.2s ease-in-out infinite;width:50px;height:50px;">Green</div>
+          <div class="monster orange" style="animation:tiltRight 1.2s ease-in-out infinite .3s;width:50px;height:50px;">Orange</div>
+          <div class="monster blue" style="animation:tiltLeft 1.2s ease-in-out infinite .3s;width:50px;height:50px;">Blue</div>
+        </div>
+      </div>
+      <div class="subtitle">You've been amazing -- now show what you know!</div>
+    </div>
+  </div>
+
+  <!-- ============ 6. CHEERLEADER SQUAD ============ -->
+  <div class="card-wrapper">
+    <div class="card-label">6. Cheerleader Squad</div>
+    <div class="card" id="card6">
+      <!-- pompom dots -->
+      <div style="position:absolute;top:25px;left:30px;width:12px;height:12px;border-radius:50%;background:#ff6b8a;animation:pompom 1s ease-in-out infinite 0s;"></div>
+      <div style="position:absolute;top:40px;right:45px;width:10px;height:10px;border-radius:50%;background:#5be0a5;animation:pompom 1s ease-in-out infinite .3s;"></div>
+      <div style="position:absolute;top:70px;left:80px;width:14px;height:14px;border-radius:50%;background:#ffd700;animation:pompom 1s ease-in-out infinite .6s;"></div>
+      <div style="position:absolute;top:55px;right:90px;width:11px;height:11px;border-radius:50%;background:#5b8dee;animation:pompom 1s ease-in-out infinite .9s;"></div>
+      <div style="position:absolute;bottom:90px;left:45px;width:9px;height:9px;border-radius:50%;background:#e066ff;animation:pompom 1s ease-in-out infinite .2s;"></div>
+      <div style="position:absolute;bottom:100px;right:55px;width:13px;height:13px;border-radius:50%;background:#ff9f43;animation:pompom 1s ease-in-out infinite .7s;"></div>
+
+      <div style="display:flex;gap:6px;align-items:baseline;margin-bottom:10px;">
+        <span style="font-size:24px;font-weight:900;color:#ffd700;animation:escalate 1s ease-in-out infinite 0s;">Go,</span>
+        <span style="font-size:32px;font-weight:900;color:#ffd700;animation:escalate 1s ease-in-out infinite .2s;">Go,</span>
+        <span style="font-size:42px;font-weight:900;color:#ffd700;animation:escalate 1s ease-in-out infinite .4s;">GO!</span>
+      </div>
+      <!-- V-formation: 2 big back, 2 small front -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div style="display:flex;gap:60px;">
+          <div class="monster purple" style="width:64px;height:64px;animation:bounce .8s ease-in-out infinite;">Purple</div>
+          <div class="monster blue" style="width:64px;height:64px;animation:bounce .8s ease-in-out infinite .2s;">Blue</div>
+        </div>
+        <div style="display:flex;gap:20px;">
+          <div class="monster green" style="width:46px;height:46px;font-size:9px;animation:bounce .8s ease-in-out infinite .4s;">Green</div>
+          <div class="monster orange" style="width:46px;height:46px;font-size:9px;animation:bounce .8s ease-in-out infinite .6s;">Orange</div>
+        </div>
+      </div>
+      <div class="subtitle">Your monster friends believe in you!</div>
+    </div>
+  </div>
+
+  <!-- ============ 7. STORYBOOK PAGE ============ -->
+  <div class="card-wrapper">
+    <div class="card-label">7. Storybook Page</div>
+    <div class="card" id="card7" style="background:#f5e6c8;border:6px solid #c9a84c;">
+      <!-- parchment background -->
+      <div style="position:absolute;inset:8px;border:2px solid #d4b76a;border-radius:8px;pointer-events:none;"></div>
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:#4a3520;margin-bottom:10px;animation:float 3s ease-in-out infinite;">Chapter 2: The Quiz!</div>
+      <div style="font-family:Georgia,serif;font-size:13px;color:#6b4f30;text-align:center;padding:0 40px;line-height:1.5;max-width:400px;">Our heroes have learned about fractions. Now it's time for the ultimate test!</div>
+      <!-- monsters peeking from bottom -->
+      <div style="position:absolute;bottom:10px;display:flex;gap:6px;align-items:flex-end;">
+        <div class="monster purple" style="width:42px;height:28px;border-radius:42px 42px 0 0;animation:slideUp 2s ease-in-out infinite 0s;font-size:8px;">Purple</div>
+        <div class="monster green" style="width:42px;height:34px;border-radius:42px 42px 0 0;animation:slideUp 2s ease-in-out infinite .4s;font-size:8px;">Green</div>
+        <div class="monster orange" style="width:42px;height:24px;border-radius:42px 42px 0 0;animation:slideUp 2s ease-in-out infinite .8s;font-size:8px;">Orange</div>
+        <div class="monster blue" style="width:42px;height:30px;border-radius:42px 42px 0 0;animation:slideUp 2s ease-in-out infinite 1.2s;font-size:8px;">Blue</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 8. TROPHY ROOM ============ -->
+  <div class="card-wrapper">
+    <div class="card-label">8. Trophy Room</div>
+    <div class="card" id="card8">
+      <div style="font-size:72px;animation:trophyGlow 2s ease-in-out infinite;margin-bottom:4px;">&#127942;</div>
+      <div style="font-size:32px;font-weight:900;color:#fff;margin-bottom:8px;">Almost There!</div>
+      <div class="monster-row" style="gap:10px;">
+        <div class="monster purple" style="animation:reachUp 1.2s ease-in-out infinite 0s;">Purple</div>
+        <div class="monster green" style="animation:reachUp 1.2s ease-in-out infinite .2s;">Green</div>
+        <div class="monster orange" style="animation:reachUp 1.2s ease-in-out infinite .4s;">Orange</div>
+        <div class="monster blue" style="animation:reachUp 1.2s ease-in-out infinite .6s;">Blue</div>
+      </div>
+      <div class="subtitle">Answer the quiz to earn your Fraction Trophy!</div>
+    </div>
+  </div>
+
+  <!-- ============ 9. DANCE PARTY ============ -->
+  <div class="card-wrapper">
+    <div class="card-label">9. Dance Party</div>
+    <div class="card" id="card9">
+      <!-- confetti dots -->
+      <div id="confetti9" style="position:absolute;inset:0;overflow:hidden;pointer-events:none;"></div>
+      <div style="font-size:34px;font-weight:900;background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#9b59b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowShift 4s linear infinite;position:relative;">Time to Shine!</div>
+      <div class="monster-row" style="gap:16px;margin-top:14px;position:relative;">
+        <div class="monster purple" style="animation:danceLeft 1s ease-in-out infinite;">Purple</div>
+        <div class="monster green" style="animation:danceRight 1s ease-in-out infinite;">Green</div>
+        <div class="monster orange" style="animation:danceLeft 1s ease-in-out infinite .5s;">Orange</div>
+        <div class="monster blue" style="animation:danceRight 1s ease-in-out infinite .5s;">Blue</div>
+      </div>
+      <div class="subtitle" style="position:relative;">Dance your way through this quiz!</div>
+    </div>
+  </div>
+
+  <!-- ============ 10. WARM HUG ============ -->
+  <div class="card-wrapper">
+    <div class="card-label">10. Warm Hug</div>
+    <div class="card" id="card10">
+      <div style="font-size:56px;animation:heartPulse 1.5s ease-in-out infinite;">&#10084;&#65039;</div>
+      <div style="font-size:26px;font-weight:800;color:#ffcce0;margin-top:6px;margin-bottom:10px;">We're So Proud of You!</div>
+      <!-- overlapping group hug -->
+      <div style="display:flex;margin-left:-8px;position:relative;">
+        <div class="monster purple" style="z-index:1;animation:huddle 2s ease-in-out infinite;--huddle-x:4px;">Purple</div>
+        <div class="monster green" style="margin-left:-14px;z-index:2;animation:huddle 2s ease-in-out infinite .3s;--huddle-x:-3px;">Green</div>
+        <div class="monster orange" style="margin-left:-14px;z-index:3;animation:huddle 2s ease-in-out infinite .6s;--huddle-x:3px;">Orange</div>
+        <div class="monster blue" style="margin-left:-14px;z-index:4;animation:huddle 2s ease-in-out infinite .9s;--huddle-x:-4px;">Blue</div>
+      </div>
+      <div class="subtitle">Let's finish strong with a little quiz!</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Generate confetti dots for card 9
+  (function() {
+    var container = document.getElementById('confetti9');
+    var colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#9b59b6','#ff9ff3','#feca57','#54a0ff','#ee5a24','#01a3a4'];
+    for (var i = 0; i < 30; i++) {
+      var dot = document.createElement('div');
+      var size = 6 + Math.random() * 6;
+      dot.style.cssText = 'position:absolute;border-radius:50%;' +
+        'width:' + size + 'px;height:' + size + 'px;' +
+        'background:' + colors[i % colors.length] + ';' +
+        'left:' + (Math.random() * 100) + '%;' +
+        'top:-10px;' +
+        'animation:confettiFall ' + (2 + Math.random() * 3) + 's linear infinite ' + (Math.random() * 3) + 's;' +
+        'opacity:0.85;';
+      container.appendChild(dot);
+    }
+  })();
+</script>
+
+</body>
+</html>
