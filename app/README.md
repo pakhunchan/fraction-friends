@@ -51,6 +51,8 @@ In production (Vercel), AWS credentials are provided via OIDC federation — no 
 
 **Stack:** Next.js 16, React 19, TypeScript, Tailwind CSS 4
 
+**Process.** I started by decomposing what a tutor like Synthesis actually requires — a conversational guide, interactive manipulatives, a lesson script with branching, audio feedback, and voice narration. Then I had Claude generate each component independently: original SVG characters and divisible objects, playful stories that would appeal to kids, sound effects and background music using the Web Audio API, and instructor text-to-speech using the ElevenLabs API. Once each piece worked in isolation, I combined them into a cohesive lesson flow. I used Xcode's Simulator to run an iPad emulator throughout development to adjust layout and touch interactions for iPad Safari.
+
 **Scripted lesson engine.** Each lesson is defined as a directed graph of steps in TypeScript (`lessonData-storyB.ts`, `lessonData-equiv.ts`). Steps have a type that determines what the UI renders and how the student interacts:
 
 | Step type | Behavior |
