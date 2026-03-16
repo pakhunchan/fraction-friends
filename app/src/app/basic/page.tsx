@@ -379,25 +379,27 @@ export default function Home() {
   const handleSlicePiece = useCallback(
     (id: string) => {
       setPieces((prev) => {
-        const piece = prev.find((c) => c.id === id);
-        if (!piece || piece.type !== "whole") return prev;
+        const idx = prev.findIndex((c) => c.id === id);
+        if (idx === -1) return prev;
+        const piece = prev[idx];
+        if (piece.type !== "whole") return prev;
 
-        // For the 5/4 scenario, slice into quarters
+        // For the 5/4 scenario, slice into quarters — insert in place
         if (step?.characterCount === 4) {
           const quarters: ObjectPiece[] = Array.from({ length: 4 }, (_, i) => ({
             id: `${id}-q${i}`,
             type: "quarter" as const,
             assignedTo: piece.assignedTo,
           }));
-          return [...prev.filter((c) => c.id !== id), ...quarters];
+          return [...prev.slice(0, idx), ...quarters, ...prev.slice(idx + 1)];
         }
 
-        // Default: slice in half
+        // Default: slice in half — insert in place
         const halves: ObjectPiece[] = [
           { id: `${id}-left`, type: "half-left", assignedTo: piece.assignedTo },
           { id: `${id}-right`, type: "half-right", assignedTo: piece.assignedTo },
         ];
-        return [...prev.filter((c) => c.id !== id), ...halves];
+        return [...prev.slice(0, idx), ...halves, ...prev.slice(idx + 1)];
       });
 
       // Play slice SFX

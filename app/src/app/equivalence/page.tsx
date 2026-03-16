@@ -399,25 +399,26 @@ export default function Home() {
   const handleSlicePiece = useCallback(
     (id: string) => {
       setPieces((prev) => {
-        const piece = prev.find((c) => c.id === id);
-        if (!piece) return prev;
+        const idx = prev.findIndex((c) => c.id === id);
+        if (idx === -1) return prev;
+        const piece = prev[idx];
 
-        // Slice a whole into halves
+        // Slice a whole into halves — insert in place
         if (piece.type === "whole") {
           const halves: ObjectPiece[] = [
             { id: `${id}-left`, type: "half-left", assignedTo: piece.assignedTo },
             { id: `${id}-right`, type: "half-right", assignedTo: piece.assignedTo },
           ];
-          return [...prev.filter((c) => c.id !== id), ...halves];
+          return [...prev.slice(0, idx), ...halves, ...prev.slice(idx + 1)];
         }
 
-        // Slice a half into quarters
+        // Slice a half into quarters — insert in place
         if (piece.type === "half-left" || piece.type === "half-right") {
           const quarters: ObjectPiece[] = [
             { id: `${id}-q0`, type: "quarter" as const, assignedTo: piece.assignedTo },
             { id: `${id}-q1`, type: "quarter" as const, assignedTo: piece.assignedTo },
           ];
-          return [...prev.filter((c) => c.id !== id), ...quarters];
+          return [...prev.slice(0, idx), ...quarters, ...prev.slice(idx + 1)];
         }
 
         // Quarters are the smallest piece — no further slicing
