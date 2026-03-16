@@ -140,13 +140,13 @@ The app is designed for iPad Safari with touch interactions:
 
 ```mermaid
 graph TD
-    subgraph "Client (Browser / iPad)"
-        LP[Landing Page<br/><i>page.tsx</i>]
-        BP[Basic Fractions Page<br/><i>basic/page.tsx</i>]
-        EP[Equivalence Page<br/><i>equivalence/page.tsx</i>]
+    subgraph Client
+        LP["Landing Page (page.tsx)"]
+        BP["Basic Fractions (basic/page.tsx)"]
+        EP["Equivalence (equivalence/page.tsx)"]
 
-        LP -->|"/basic"| BP
-        LP -->|"/equivalence"| EP
+        LP -->|basic| BP
+        LP -->|equivalence| EP
 
         BP --> TP1[TutorPanel]
         BP --> WS1[Workspace]
@@ -159,16 +159,16 @@ graph TD
         WS2 --> BR[Brownie]
     end
 
-    subgraph "Lesson Data (TypeScript)"
+    subgraph Lesson Data
         LD1[lessonData-storyB.ts] -->|step graph| BP
         LD2[lessonData-equiv.ts] -->|step graph| EP
     end
 
-    subgraph "Server (Next.js API Routes)"
-        TTS[/api/tts/elevenlabs]
+    subgraph Server
+        TTS["API: tts/elevenlabs"]
     end
 
-    subgraph "External Services"
+    subgraph External Services
         EL[ElevenLabs API]
         S3[(S3 TTS Cache)]
     end
