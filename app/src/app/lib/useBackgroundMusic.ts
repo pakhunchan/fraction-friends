@@ -61,7 +61,7 @@ export function useBackgroundMusic(): BackgroundMusicControls {
   const isPlayingRef = useRef(false);
   const [isMuted, setIsMuted] = useState(false);
   const isMutedRef = useRef(isMuted);
-  const volumeRef = useRef(0.8); // background music volume
+  const volumeRef = useRef(0.3); // background music volume
   const timeoutIdsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const duckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
