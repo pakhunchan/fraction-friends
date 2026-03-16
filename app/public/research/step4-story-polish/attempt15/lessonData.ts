@@ -700,7 +700,313 @@ export const lessonSteps: Record<string, LessonStep> = {
       "Olive waves a flour-dusted paw. \"Come back to the Cozy Kitchen anytime! "
       + "There are always more treats to bake and more fraction secrets to discover.\" "
       + "Benny, Maple, and Fern all wave goodbye. Great baking today, chef!",
-    next: "end",
+    next: "quiz-intro",
     sfx: "music-box",
+  },
+
+  // ===========================================================================
+  // QUIZ — Check for Understanding
+  // ===========================================================================
+
+  "quiz-intro": {
+    id: "quiz-intro",
+    type: "narrate",
+    tutorText:
+      "Great job learning about equivalent fractions! Now let's see how much "
+      + "you remember. Sofia has a few puzzles for you...",
+    next: "quiz-1-show-a",
+    sfx: "music-box",
+  },
+
+  // --- Q1: Is 1/2 the same as 2/4? (visual comparison) ---
+
+  "quiz-1-show-a": {
+    id: "quiz-1-show-a",
+    type: "show-fraction",
+    tutorText:
+      "Take a look at this fraction: one-half!",
+    showFractionNum: 1,
+    showFractionDen: 2,
+    next: "quiz-1-show-b",
+    sfx: "sparkle",
+  },
+
+  "quiz-1-show-b": {
+    id: "quiz-1-show-b",
+    type: "show-fraction",
+    tutorText:
+      "And now look at this one: two-fourths!",
+    showFractionNum: 2,
+    showFractionDen: 4,
+    next: "quiz-1-ask",
+    sfx: "sparkle",
+  },
+
+  "quiz-1-ask": {
+    id: "quiz-1-ask",
+    type: "choice",
+    tutorText: "Is 1/2 the same as 2/4?",
+    choices: [
+      { label: "Yes, same amount!", next: "quiz-1-correct", correct: true },
+      { label: "No, they're different", next: "quiz-1-wrong" },
+    ],
+    sfx: "xylophone",
+  },
+
+  "quiz-1-wrong": {
+    id: "quiz-1-wrong",
+    type: "narrate",
+    tutorText:
+      "Remember what we discovered — when we cut each half into two pieces, "
+      + "we got 2 out of 4. That's the same amount of brownie!",
+    next: "quiz-1-ask",
+    sfx: "gentle-whoosh",
+  },
+
+  "quiz-1-correct": {
+    id: "quiz-1-correct",
+    type: "narrate",
+    tutorText:
+      "That's right! One-half and two-fourths are the exact same amount. "
+      + "Sofia gives you a big thumbs up!",
+    next: "quiz-2-show",
+    sfx: "chime",
+  },
+
+  // --- Q2: 1/2 = ?/4 (fill missing) ---
+
+  "quiz-2-show": {
+    id: "quiz-2-show",
+    type: "show-fraction",
+    tutorText:
+      "Here's a puzzle from Marcus! One-half equals how many fourths? "
+      + "What number goes where the question mark is?",
+    showFractionNum: 1,
+    showFractionDen: 2,
+    next: "quiz-2-ask",
+    sfx: "sparkle",
+  },
+
+  "quiz-2-ask": {
+    id: "quiz-2-ask",
+    type: "choice",
+    tutorText: "1/2 = ?/4 — What number goes where the question mark is?",
+    choices: [
+      { label: "1", next: "quiz-2-wrong-1" },
+      { label: "2", next: "quiz-2-correct", correct: true },
+      { label: "3", next: "quiz-2-wrong-3" },
+    ],
+    sfx: "xylophone",
+  },
+
+  "quiz-2-wrong-1": {
+    id: "quiz-2-wrong-1",
+    type: "narrate",
+    tutorText:
+      "If we only have 1 out of 4 pieces, that's less than half. "
+      + "We need more pieces!",
+    next: "quiz-2-ask",
+    sfx: "gentle-whoosh",
+  },
+
+  "quiz-2-wrong-3": {
+    id: "quiz-2-wrong-3",
+    type: "narrate",
+    tutorText:
+      "3 out of 4 is more than half. Think about how many quarters "
+      + "fit in one half.",
+    next: "quiz-2-ask",
+    sfx: "gentle-whoosh",
+  },
+
+  "quiz-2-correct": {
+    id: "quiz-2-correct",
+    type: "narrate",
+    tutorText:
+      "Yes! One-half equals two-fourths! Marcus does a happy little dance. "
+      + "You're on a roll!",
+    next: "quiz-3-show",
+    sfx: "chime",
+  },
+
+  // --- Q3: ?/4 = 1/2 (fill missing, flipped) ---
+
+  "quiz-3-show": {
+    id: "quiz-3-show",
+    type: "show-fraction",
+    tutorText:
+      "Lily flips the equation around! Something-fourths equals one-half. "
+      + "How many fourths make a half?",
+    showFractionNum: 1,
+    showFractionDen: 2,
+    next: "quiz-3-ask",
+    sfx: "sparkle",
+  },
+
+  "quiz-3-ask": {
+    id: "quiz-3-ask",
+    type: "choice",
+    tutorText: "?/4 = 1/2 — How many fourths equal one-half?",
+    choices: [
+      { label: "1", next: "quiz-3-wrong-1" },
+      { label: "2", next: "quiz-3-correct", correct: true },
+      { label: "3", next: "quiz-3-wrong-3" },
+    ],
+    sfx: "xylophone",
+  },
+
+  "quiz-3-wrong-1": {
+    id: "quiz-3-wrong-1",
+    type: "narrate",
+    tutorText:
+      "If we only have 1 out of 4 pieces, that's less than half. "
+      + "We need more pieces!",
+    next: "quiz-3-ask",
+    sfx: "gentle-whoosh",
+  },
+
+  "quiz-3-wrong-3": {
+    id: "quiz-3-wrong-3",
+    type: "narrate",
+    tutorText:
+      "3 out of 4 is more than half. Think about how many quarters "
+      + "fit in one half.",
+    next: "quiz-3-ask",
+    sfx: "gentle-whoosh",
+  },
+
+  "quiz-3-correct": {
+    id: "quiz-3-correct",
+    type: "narrate",
+    tutorText:
+      "That's right! Two-fourths equals one-half! "
+      + "Lily and James give you a round of applause.",
+    next: "quiz-4-show-a",
+    sfx: "chime",
+  },
+
+  // --- Q4: Is 1/3 the same as 2/4? (visual comparison — tricky) ---
+
+  "quiz-4-show-a": {
+    id: "quiz-4-show-a",
+    type: "show-fraction",
+    tutorText:
+      "Now Sofia has a tricky one! Take a look at this fraction: one-third.",
+    showFractionNum: 1,
+    showFractionDen: 3,
+    next: "quiz-4-show-b",
+    sfx: "sparkle",
+  },
+
+  "quiz-4-show-b": {
+    id: "quiz-4-show-b",
+    type: "show-fraction",
+    tutorText:
+      "And compare it with this one: two-fourths!",
+    showFractionNum: 2,
+    showFractionDen: 4,
+    next: "quiz-4-ask",
+    sfx: "sparkle",
+  },
+
+  "quiz-4-ask": {
+    id: "quiz-4-ask",
+    type: "choice",
+    tutorText: "Is 1/3 the same as 2/4?",
+    choices: [
+      { label: "Yes, same amount!", next: "quiz-4-wrong" },
+      { label: "No, they're different", next: "quiz-4-correct", correct: true },
+    ],
+    sfx: "xylophone",
+  },
+
+  "quiz-4-wrong": {
+    id: "quiz-4-wrong",
+    type: "narrate",
+    tutorText:
+      "These look similar but they're actually different amounts! "
+      + "1/3 means the brownie was cut into 3 pieces and you took 1. "
+      + "2/4 means it was cut into 4 pieces and you took 2. "
+      + "Those aren't the same size pieces.",
+    next: "quiz-4-ask",
+    sfx: "gentle-whoosh",
+  },
+
+  "quiz-4-correct": {
+    id: "quiz-4-correct",
+    type: "narrate",
+    tutorText:
+      "Great thinking! One-third and two-fourths are NOT the same. "
+      + "Not all fractions that look similar are equivalent! "
+      + "James is impressed.",
+    next: "quiz-5-show-a",
+    sfx: "chime",
+  },
+
+  // --- Q5: Is 2/4 the same as 4/8? (visual comparison) ---
+
+  "quiz-5-show-a": {
+    id: "quiz-5-show-a",
+    type: "show-fraction",
+    tutorText:
+      "One more puzzle! Take a look at this fraction: two-fourths.",
+    showFractionNum: 2,
+    showFractionDen: 4,
+    next: "quiz-5-show-b",
+    sfx: "sparkle",
+  },
+
+  "quiz-5-show-b": {
+    id: "quiz-5-show-b",
+    type: "show-fraction",
+    tutorText:
+      "And now this one: four-eighths! What do you think?",
+    showFractionNum: 4,
+    showFractionDen: 8,
+    next: "quiz-5-ask",
+    sfx: "sparkle",
+  },
+
+  "quiz-5-ask": {
+    id: "quiz-5-ask",
+    type: "choice",
+    tutorText: "Is 2/4 the same as 4/8?",
+    choices: [
+      { label: "Yes, same amount!", next: "quiz-5-correct", correct: true },
+      { label: "No, they're different", next: "quiz-5-wrong" },
+    ],
+    sfx: "xylophone",
+  },
+
+  "quiz-5-wrong": {
+    id: "quiz-5-wrong",
+    type: "narrate",
+    tutorText:
+      "Think about it this way — if you cut each of the 4 pieces in half, "
+      + "you'd have 8 pieces. And 2 quarters cut in half gives you 4 eighths. "
+      + "Same brownie, same amount!",
+    next: "quiz-5-ask",
+    sfx: "gentle-whoosh",
+  },
+
+  "quiz-5-correct": {
+    id: "quiz-5-correct",
+    type: "narrate",
+    tutorText:
+      "You got it! Two-fourths and four-eighths are the same amount — "
+      + "just more pieces! Sofia, Marcus, Lily, and James all cheer for you!",
+    next: "quiz-celebrate",
+    sfx: "chime",
+  },
+
+  "quiz-celebrate": {
+    id: "quiz-celebrate",
+    type: "narrate",
+    tutorText:
+      "All four friends jump up and cheer! "
+      + "You've learned that fractions can look different but mean the same thing. "
+      + "That's the magic of equivalent fractions!",
+    next: "end",
+    sfx: "victory-fanfare",
   },
 };

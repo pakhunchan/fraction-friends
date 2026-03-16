@@ -32,7 +32,8 @@ export function TutorPanel({
   const showContinue =
     step.type === "narrate" ||
     step.type === "show-number" ||
-    step.type === "show-fraction";
+    step.type === "show-fraction" ||
+    step.type === "cheer";
   const showChoices = step.type === "choice" && step.choices;
 
   return (

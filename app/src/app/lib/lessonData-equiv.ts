@@ -11,6 +11,7 @@ export type StepType =
   | "distribute-halves" // Kid distributes halves
   | "show-number"       // Big number display
   | "show-fraction"     // Big fraction display
+  | "cheer"             // Motivational screen with monsters cheering
 
 export interface Choice {
   label: string;
@@ -35,6 +36,7 @@ export interface LessonStep {
   allowKnife?: boolean;
   sliceTo?: "half" | "quarter"; // target tier for slice steps — prevents over-slicing
   sfx?: string;
+  cheerStyle?: "sparkle-rally" | "high-five" | "champion-banner" | "gentle-encouragement" | "countdown-hype" | "cheerleader-squad" | "storybook" | "trophy-room" | "dance-party" | "warm-hug";
 }
 
 // ---------------------------------------------------------------------------
@@ -631,8 +633,17 @@ export const lessonSteps: Record<string, LessonStep> = {
     tutorText:
       "Great job learning about equivalent fractions! Now let's see how much "
       + "you remember. Sofia has a few puzzles for you...",
-    next: "quiz-1-show-a",
+    next: "cheer-1",
     sfx: "music-box",
+  },
+
+  // Cheer before Q1: Gentle Encouragement (#4)
+  "cheer-1": {
+    id: "cheer-1",
+    type: "cheer",
+    cheerStyle: "gentle-encouragement",
+    tutorText: "Ready for a fun quiz? Don't worry — your friends are cheering for you!",
+    next: "quiz-1-show-a",
   },
 
   // --- Q1: Is 1/2 the same as 2/4? (visual comparison) ---
@@ -686,8 +697,17 @@ export const lessonSteps: Record<string, LessonStep> = {
     tutorText:
       "That's right! One-half and two-fourths are the exact same amount. "
       + "Sofia gives you a big thumbs up!",
-    next: "quiz-2-show",
+    next: "cheer-2",
     sfx: "chime",
+  },
+
+  // Cheer before Q2: Sparkle Rally (#1)
+  "cheer-2": {
+    id: "cheer-2",
+    type: "cheer",
+    cheerStyle: "sparkle-rally",
+    tutorText: "You've got this! Keep going!",
+    next: "quiz-2-show",
   },
 
   // --- Q2: 1/2 = ?/4 (fill missing) ---
@@ -742,8 +762,17 @@ export const lessonSteps: Record<string, LessonStep> = {
     tutorText:
       "Yes! One-half equals two-fourths! Marcus does a happy little dance. "
       + "You're on a roll!",
-    next: "quiz-3-show",
+    next: "cheer-3",
     sfx: "chime",
+  },
+
+  // Cheer before Q3: Cheerleader Squad (#6)
+  "cheer-3": {
+    id: "cheer-3",
+    type: "cheer",
+    cheerStyle: "cheerleader-squad",
+    tutorText: "Go, go, GO! Your monster friends believe in you!",
+    next: "quiz-3-show",
   },
 
   // --- Q3: ?/4 = 1/2 (fill missing, flipped) ---
@@ -798,8 +827,17 @@ export const lessonSteps: Record<string, LessonStep> = {
     tutorText:
       "That's right! Two-fourths equals one-half! "
       + "Lily and James give you a round of applause.",
-    next: "quiz-4-show-a",
+    next: "cheer-4",
     sfx: "chime",
+  },
+
+  // Cheer before Q4: Trophy Room (#8)
+  "cheer-4": {
+    id: "cheer-4",
+    type: "cheer",
+    cheerStyle: "trophy-room",
+    tutorText: "Almost there! Answer the quiz to earn your Fraction Trophy!",
+    next: "quiz-4-show-a",
   },
 
   // --- Q4: Is 1/3 the same as 2/4? (visual comparison) ---
@@ -856,8 +894,17 @@ export const lessonSteps: Record<string, LessonStep> = {
       "Great thinking! One-third and two-fourths are NOT the same. "
       + "Not all fractions that look similar are equivalent! "
       + "James is impressed.",
-    next: "quiz-5-show-a",
+    next: "cheer-5",
     sfx: "chime",
+  },
+
+  // Cheer before Q5: Dance Party (#9)
+  "cheer-5": {
+    id: "cheer-5",
+    type: "cheer",
+    cheerStyle: "dance-party",
+    tutorText: "Time to shine! Dance your way through this last quiz!",
+    next: "quiz-5-show-a",
   },
 
   // --- Q5: Is 2/4 the same as 4/8? (visual comparison) ---
@@ -912,8 +959,17 @@ export const lessonSteps: Record<string, LessonStep> = {
     tutorText:
       "You got it! Two-fourths and four-eighths are the same amount — "
       + "just more pieces! Sofia, Marcus, Lily, and James all cheer for you!",
-    next: "quiz-celebrate",
+    next: "cheer-final",
     sfx: "chime",
+  },
+
+  // Final cheer: Warm Hug (#10)
+  "cheer-final": {
+    id: "cheer-final",
+    type: "cheer",
+    cheerStyle: "warm-hug",
+    tutorText: "We're so proud of you! Let's finish strong!",
+    next: "quiz-celebrate",
   },
 
   "quiz-celebrate": {

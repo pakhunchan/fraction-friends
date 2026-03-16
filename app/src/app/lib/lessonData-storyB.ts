@@ -10,6 +10,7 @@ export type StepType =
   | "distribute-halves" // Kid distributes halves
   | "show-number"       // Big number display
   | "show-fraction"     // Big fraction display
+  | "cheer"             // Motivational screen with monsters cheering
 
 export interface Choice {
   label: string;
@@ -34,6 +35,7 @@ export interface LessonStep {
   allowKnife?: boolean;
   sliceTo?: "half" | "quarter"; // target tier for slice steps — prevents over-slicing
   sfx?: string;
+  cheerStyle?: string;
 }
 
 // ---------------------------------------------------------------------------

@@ -9,6 +9,7 @@ export type StepType =
   | "distribute-halves" // Kid distributes halves
   | "show-number"       // Big number display
   | "show-fraction"     // Big fraction display
+  | "cheer"             // Motivational celebration screen
 
 export interface Choice {
   label: string;
