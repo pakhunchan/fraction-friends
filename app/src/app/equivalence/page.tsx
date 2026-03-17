@@ -569,7 +569,9 @@ export default function Home() {
       {!hasInteracted && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#0f1729]/80 backdrop-blur-sm cursor-pointer">
           <div className="text-center animate-pulse">
-            <div className="text-5xl mb-4">🌙</div>
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="#FCD34D" className="mx-auto mb-4">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
             <p className="text-xl text-white/90 font-medium">Tap to begin</p>
           </div>
         </div>

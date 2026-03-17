@@ -45,9 +45,8 @@ export function TutorPanel({
     <div className="flex flex-col h-full p-6 pt-8 max-w-[300px]">
       {/* Task header */}
       {taskHeader && (
-        <div className="bg-white/10 rounded-xl px-4 py-3 mb-6 flex items-center justify-between">
+        <div className="bg-white/10 rounded-xl px-4 py-3 mb-6">
           <span className="text-lg text-blue-300">{taskHeader}</span>
-          <span className="text-xl">👋</span>
         </div>
       )}
 
