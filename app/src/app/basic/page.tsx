@@ -25,6 +25,7 @@ export default function Home() {
   const [characterMoods, setCharacterMoods] = useState<("neutral" | "happy" | "sad")[]>(["neutral", "neutral"]);
   const [taskHeader, setTaskHeader] = useState<string | undefined>(undefined);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const step = lessonSteps[stepId];
 
@@ -66,8 +67,8 @@ export default function Home() {
     if (prevStepIdRef.current === stepId) return;
     prevStepIdRef.current = stepId;
 
-    // Speak the tutor text
-    if (step.tutorText) {
+    // Speak the tutor text (skip for quiz display steps to avoid bad fraction reading)
+    if (step.tutorText && step.type !== "show-fraction" && step.type !== "show-number") {
       tts.speak(step.tutorText);
     }
 
@@ -441,6 +442,22 @@ export default function Home() {
     }
   }, [step, tts, handleFirstInteraction]);
 
+  const handleTogglePause = useCallback(() => {
+    setIsPaused((prev) => !prev);
+    if (!isPaused) {
+      // Pausing: stop playback
+      tts.stop();
+      music.stop();
+    } else {
+      // Resuming: restart music and re-speak current step
+      music.start();
+      const currentStep = lessonSteps[stepId];
+      if (currentStep?.tutorText) {
+        tts.speak(currentStep.tutorText);
+      }
+    }
+  }, [isPaused, stepId, tts, music]);
+
   if (!step) {
     return (
       <div
@@ -484,10 +501,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Pause button */}
-      <button className="absolute top-4 left-4 w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white z-20 cursor-pointer">
-        ⏸
-      </button>
 
       {/* Left: Tutor panel */}
       <div className="w-[220px] md:w-[260px] lg:w-[300px] flex-shrink-0 flex flex-col justify-start">
@@ -503,6 +516,8 @@ export default function Home() {
           onToggleMusicMute={music.toggleMute}
           isSfxMuted={sfx.isMuted}
           onToggleSfxMute={sfx.toggleMute}
+          isPaused={isPaused}
+          onTogglePause={handleTogglePause}
         />
       </div>
 

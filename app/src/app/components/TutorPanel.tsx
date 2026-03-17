@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { LessonStep } from "../lib/lessonData-storyB";
 
 interface TutorPanelProps {
@@ -14,6 +15,8 @@ interface TutorPanelProps {
   onToggleMusicMute?: () => void;
   isSfxMuted?: boolean;
   onToggleSfxMute?: () => void;
+  isPaused?: boolean;
+  onTogglePause?: () => void;
 }
 
 export function TutorPanel({
@@ -28,6 +31,8 @@ export function TutorPanel({
   onToggleMusicMute,
   isSfxMuted = false,
   onToggleSfxMute,
+  isPaused = false,
+  onTogglePause,
 }: TutorPanelProps) {
   const showContinue =
     step.type === "narrate" ||
@@ -89,6 +94,28 @@ export function TutorPanel({
 
       {/* Audio controls row */}
       <div className="flex items-center gap-3 mt-auto pt-2 pb-2">
+        {/* Pause button */}
+        {onTogglePause && (
+          <button
+            onClick={onTogglePause}
+            className={`w-12 h-12 rounded-lg flex items-center justify-center text-white transition-colors cursor-pointer ${
+              isPaused ? "bg-white/20 text-blue-400" : "bg-white/10 hover:bg-white/20"
+            }`}
+            title={isPaused ? "Resume" : "Pause"}
+          >
+            {isPaused ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 3l14 9-14 9V3z" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16" rx="1" />
+                <rect x="14" y="4" width="4" height="16" rx="1" />
+              </svg>
+            )}
+          </button>
+        )}
+
         {/* TTS mute button */}
         {onToggleTtsMute && (
           <button
