@@ -140,7 +140,7 @@ export type ObjectPiece = {
 
 export interface ObjectComponentProps {
   type: ObjectPieceType;
-  size?: number;
+  size?: number; // pixel width of the whole object (pieces scale proportionally)
   selected?: boolean;
 }
 
@@ -274,11 +274,8 @@ export function Workspace({
       {!isShowStep && !isCheerStep && (
         <div className={`flex-1 flex items-center justify-center ${hideShelf ? "" : "pb-[280px]"}`}>
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 max-w-full">
-            {unassigned.map((piece) => {
-              // Fixed size for all pieces — the Brownie component handles
-              // proportional scaling internally (a half renders at half-width).
-              const pieceSize = 160;
-              return isInteractive ? (
+            {unassigned.map((piece) => (
+              isInteractive ? (
                 <button
                   key={piece.id}
                   onClick={() => handlePieceClick(piece)}
@@ -286,7 +283,7 @@ export function Workspace({
                 >
                   <ObjectComponent
                     type={piece.type}
-                    size={pieceSize}
+                    size={160}
                     selected={selectedPiece === piece.id}
                   />
                 </button>
@@ -294,11 +291,11 @@ export function Workspace({
                 <div key={piece.id} className="p-0">
                   <ObjectComponent
                     type={piece.type}
-                    size={pieceSize}
+                    size={160}
                   />
                 </div>
-              );
-            })}
+              )
+            ))}
           </div>
         </div>
       )}

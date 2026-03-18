@@ -24,7 +24,7 @@ export type DividableObjectType = "whole" | "half-left" | "half-right" | "quarte
 
 export interface DividableObjectProps {
   type: DividableObjectType;
-  size?: number;
+  size?: number; // pixel width of the whole bar (pieces scale proportionally)
   selected?: boolean;
 }
 
@@ -428,26 +428,38 @@ const ANIM_CSS = `
 // ---- Main component ---------------------------------------------------------
 export function DividableObject({
   type,
-  size = 120,
+  size = 160,
   selected = false,
 }: DividableObjectProps) {
   const rawId = useId();
   const id = rawId.replace(/:/g, "");
 
   const bounds = getPieceBounds(type);
+  const wholeBounds = getPieceBounds("whole");
   const segs = getSegmentList(type);
 
-  // ViewBox: add padding around the piece for shadow/glow room
+  // ViewBox: add padding around the piece for shadow/glow room.
+  // Each piece gets its own viewBox tightly framing it, but pixel dimensions
+  // are computed so the user-unit-to-pixel scale is the same for all piece types.
+  // This ensures pieces are proportionally sized: a half is visually half the
+  // width of a whole at the same `size` prop.
   const VP = 7;
+
+  // Whole bar's viewBox determines the reference scale
+  const wholeVbW = wholeBounds.w + VP * 2;
+  const wholeVbH = wholeBounds.h + VP * 2;
+  const wholePixelW = size;
+  const wholePixelH = Math.round(size * wholeVbH / wholeVbW);
+
+  // This piece's viewBox
   const vbX = bounds.x - VP;
   const vbY = bounds.y - VP;
   const vbW = bounds.w + VP * 2;
   const vbH = bounds.h + VP * 2;
 
-  // SVG pixel dimensions: scale from size, preserving aspect ratio
-  const aspect = vbW / vbH;
-  const svgW = size;
-  const svgH = Math.round(size / aspect);
+  // Same scale: svgW / vbW = wholePixelW / wholeVbW
+  const svgW = Math.round(vbW * wholePixelW / wholeVbW);
+  const svgH = Math.round(vbH * wholePixelH / wholeVbH);
 
   const outerPath = roundedRect(bounds.x, bounds.y, bounds.w, bounds.h, BAR_R);
 
