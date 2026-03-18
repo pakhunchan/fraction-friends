@@ -16,13 +16,21 @@ const blobCache = new Map<string, Blob>();
 const prefetchInFlight = new Set<string>();
 
 /**
+ * Persistent Audio element — created once during the first user gesture so
+ * Safari keeps autoplay permission on it. Reused for all subsequent TTS by
+ * swapping its src. Module-level so it survives React re-renders.
+ */
+let sharedAudio: HTMLAudioElement | null = null;
+
+/**
  * ElevenLabs TTS hook.
  *
  * Calls our own API route (`/api/tts/elevenlabs`) which proxies to the
- * ElevenLabs REST API, then plays the returned audio via an `Audio` element.
+ * ElevenLabs REST API, then plays the returned audio via a persistent
+ * Audio element (reused to satisfy Safari's autoplay policy).
  *
  * Interface:
- *   { speak, stop, prefetch, isSpeaking, isMuted, toggleMute }
+ *   { speak, stop, prefetch, isSpeaking, isSpeakingRef, didPlayRef, isMuted, toggleMute, warmup }
  */
 export function useElevenLabsSpeech() {
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -35,10 +43,13 @@ export function useElevenLabsSpeech() {
     }
   });
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const blobUrlRef = useRef<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const isMutedRef = useRef(isMuted);
+
+  // Synchronous refs for cross-effect coordination (no render-cycle delay)
+  const isSpeakingRef = useRef(false);
+  const didPlayRef = useRef(false);
 
   useEffect(() => {
     isMutedRef.current = isMuted;
@@ -51,13 +62,25 @@ export function useElevenLabsSpeech() {
     }
   }, []);
 
-  const destroyAudio = useCallback(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.pause();
-      audio.removeAttribute("src");
-      audio.load();
-      audioRef.current = null;
+  /**
+   * Call during a user gesture (e.g. "Tap to begin") to create and bless
+   * the shared Audio element. Safari requires the element to be created
+   * in a user-gesture call stack to allow future .play() calls.
+   */
+  const warmup = useCallback(() => {
+    if (sharedAudio) return;
+    sharedAudio = new Audio();
+    // Play + immediately pause to "bless" the element on Safari.
+    // Use a silent data URI so nothing is audible.
+    sharedAudio.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+    sharedAudio.play().then(() => sharedAudio?.pause()).catch(() => {});
+  }, []);
+
+  const stopAudio = useCallback(() => {
+    if (sharedAudio) {
+      sharedAudio.pause();
+      sharedAudio.removeAttribute("src");
+      sharedAudio.load();
     }
     revokeBlobUrl();
   }, [revokeBlobUrl]);
@@ -67,9 +90,10 @@ export function useElevenLabsSpeech() {
       abortRef.current.abort();
       abortRef.current = null;
     }
-    destroyAudio();
+    stopAudio();
+    isSpeakingRef.current = false;
     setIsSpeaking(false);
-  }, [destroyAudio]);
+  }, [stopAudio]);
 
   /**
    * Prefetch audio for the given text without playing it.
@@ -110,39 +134,61 @@ export function useElevenLabsSpeech() {
   const speak = useCallback(
     async (text: string) => {
       if (typeof window === "undefined") return;
+
+      // Reset didPlay before any early return — callers check this to know
+      // whether audio actually played for the current utterance.
+      didPlayRef.current = false;
+
       if (isMutedRef.current) return;
       if (!text || text.trim().length === 0) return;
 
       stop();
 
-      // Mark as speaking immediately so that callers (e.g. auto-advance
-      // effects) know TTS is in progress even while the audio is loading.
+      // Ensure the shared audio element exists (fallback if warmup wasn't called)
+      if (!sharedAudio) {
+        sharedAudio = new Audio();
+      }
+
+      // Mark as speaking immediately (both ref and state) so that callers
+      // (e.g. auto-advance effects) know TTS is in progress even while loading.
+      isSpeakingRef.current = true;
       setIsSpeaking(true);
 
       const trimmed = text.trim();
 
-      // Check client-side in-memory cache first
+      // Wire up event handlers on the shared element for this utterance.
+      // Remove previous listeners by replacing with fresh ones via onX properties.
+      const audio = sharedAudio;
+
+      audio.onplay = () => {
+        isSpeakingRef.current = true;
+        didPlayRef.current = true;
+        setIsSpeaking(true);
+      };
+      audio.onended = () => {
+        isSpeakingRef.current = false;
+        setIsSpeaking(false);
+        revokeBlobUrl();
+      };
+      audio.onpause = () => {
+        isSpeakingRef.current = false;
+        setIsSpeaking(false);
+      };
+      audio.onerror = () => {
+        console.warn("Audio playback error");
+        isSpeakingRef.current = false;
+        setIsSpeaking(false);
+        revokeBlobUrl();
+      };
+
+      // Try to play from client-side blob cache first
       const cachedBlob = blobCache.get(trimmed);
       if (cachedBlob) {
         try {
+          revokeBlobUrl();
           const url = URL.createObjectURL(cachedBlob);
           blobUrlRef.current = url;
-
-          const audio = new Audio(url);
-          audioRef.current = audio;
-
-          audio.addEventListener("play", () => setIsSpeaking(true));
-          audio.addEventListener("ended", () => {
-            setIsSpeaking(false);
-            destroyAudio();
-          });
-          audio.addEventListener("pause", () => setIsSpeaking(false));
-          audio.addEventListener("error", () => {
-            console.warn("Audio playback error");
-            setIsSpeaking(false);
-            destroyAudio();
-          });
-
+          audio.src = url;
           await audio.play();
           return;
         } catch (err: unknown) {
@@ -150,11 +196,13 @@ export function useElevenLabsSpeech() {
             return;
           }
           console.warn("ElevenLabs TTS cached playback error:", err);
+          isSpeakingRef.current = false;
           setIsSpeaking(false);
           // Fall through to fetch if cached blob playback fails
         }
       }
 
+      // Fetch from server (S3 cache)
       const controller = new AbortController();
       abortRef.current = controller;
 
@@ -172,6 +220,7 @@ export function useElevenLabsSpeech() {
             `ElevenLabs TTS failed: ${response.status}`,
             errBody,
           );
+          isSpeakingRef.current = false;
           setIsSpeaking(false);
           return;
         }
@@ -181,34 +230,21 @@ export function useElevenLabsSpeech() {
         // Store in client-side cache for potential future replays
         blobCache.set(trimmed, blob);
 
+        revokeBlobUrl();
         const url = URL.createObjectURL(blob);
         blobUrlRef.current = url;
-
-        const audio = new Audio(url);
-        audioRef.current = audio;
-
-        audio.addEventListener("play", () => setIsSpeaking(true));
-        audio.addEventListener("ended", () => {
-          setIsSpeaking(false);
-          destroyAudio();
-        });
-        audio.addEventListener("pause", () => setIsSpeaking(false));
-        audio.addEventListener("error", () => {
-          console.warn("Audio playback error");
-          setIsSpeaking(false);
-          destroyAudio();
-        });
-
+        audio.src = url;
         await audio.play();
       } catch (err: unknown) {
         if (err instanceof DOMException && err.name === "AbortError") {
           return;
         }
         console.warn("ElevenLabs TTS error:", err);
+        isSpeakingRef.current = false;
         setIsSpeaking(false);
       }
     },
-    [stop, destroyAudio],
+    [stop, revokeBlobUrl],
   );
 
   const toggleMute = useCallback(() => {
@@ -230,10 +266,10 @@ export function useElevenLabsSpeech() {
     return () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
       abortRef.current?.abort();
-      destroyAudio();
+      stopAudio();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { speak, stop, prefetch, isSpeaking, isMuted, toggleMute } as const;
+  return { speak, stop, prefetch, warmup, isSpeaking, isSpeakingRef, didPlayRef, isMuted, toggleMute } as const;
 }

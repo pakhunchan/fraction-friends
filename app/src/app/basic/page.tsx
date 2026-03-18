@@ -8,6 +8,7 @@ import { useBackgroundMusic } from "../lib/useBackgroundMusic";
 import { TutorPanel } from "../components/TutorPanel";
 import { Workspace, ObjectPiece } from "../components/Workspace";
 import { ReportIssue } from "../components/ReportIssue";
+import { pieceValue } from "../lib/pieceValue";
 
 function createPieces(count: number): ObjectPiece[] {
   return Array.from({ length: count }, (_, i) => ({
@@ -53,10 +54,13 @@ export default function Home() {
   const handleFirstInteraction = useCallback(() => {
     if (!hasInteracted) {
       setHasInteracted(true);
+      // Bless the shared Audio element during this user gesture so
+      // Safari allows .play() calls from non-gesture contexts (auto-advance).
+      tts.warmup();
       // Start background music on first interaction
       music.start();
     }
-  }, [hasInteracted, music]);
+  }, [hasInteracted, tts, music]);
 
   // ---- Speak tutor text and play SFX when step changes ----
   const prevStepIdRef = useRef<string | null>(null);
@@ -93,11 +97,14 @@ export default function Home() {
     // If TTS is still speaking, wait for it to finish
     if (tts.isSpeaking) return;
 
-    // TTS finished (or was muted/never started) — wait 2s then advance
+    // TTS muted or never played — require manual click to continue
+    if (tts.isMuted || !tts.didPlayRef.current) return;
+
+    // TTS played successfully and finished — auto-advance after short delay
     const timer = setTimeout(() => {
       tts.stop();
       setStepId(step.next!);
-    }, 2000);
+    }, 1300);
 
     return () => clearTimeout(timer);
   }, [shouldAutoAdvance, tts.isSpeaking, step]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -180,7 +187,7 @@ export default function Home() {
       const counts = Array(characterCount).fill(0);
       pieces.forEach((c) => {
         if (c.assignedTo !== undefined) {
-          counts[c.assignedTo] += c.type === "whole" ? 1 : c.type === "quarter" ? 0.25 : 0.5;
+          counts[c.assignedTo] += pieceValue(c.type);
         }
       });
       const allEqual = counts.every((c) => c === counts[0]);
@@ -195,7 +202,7 @@ export default function Home() {
       pieces.forEach((c) => {
         if (c.assignedTo !== undefined) {
           if (step.allowKnife) {
-            counts[c.assignedTo] += c.type === "whole" ? 1 : c.type === "quarter" ? 0.25 : 0.5;
+            counts[c.assignedTo] += pieceValue(c.type);
           } else if (c.type === "whole") {
             counts[c.assignedTo]++;
           }
@@ -230,7 +237,7 @@ export default function Home() {
     const counts = Array(characterCount).fill(0);
     updatedPieces.forEach((c) => {
       if (c.assignedTo !== undefined) {
-        counts[c.assignedTo] += c.type === "whole" ? 1 : c.type === "quarter" ? 0.25 : 0.5;
+        counts[c.assignedTo] += pieceValue(c.type);
       }
     });
 
@@ -266,7 +273,7 @@ export default function Home() {
             const counts = Array(characterCount).fill(0);
             updatedPieces.forEach((c) => {
               if (c.assignedTo !== undefined) {
-                counts[c.assignedTo] += c.type === "whole" ? 1 : c.type === "quarter" ? 0.25 : 0.5;
+                counts[c.assignedTo] += pieceValue(c.type);
               }
             });
             const allEqual = counts.every((c) => c === counts[0]);
@@ -301,7 +308,7 @@ export default function Home() {
           const counts = Array(characterCount).fill(0);
           updatedPieces.forEach((c) => {
             if (c.assignedTo !== undefined) {
-              counts[c.assignedTo] += c.type === "whole" ? 1 : c.type === "quarter" ? 0.25 : 0.5;
+              counts[c.assignedTo] += pieceValue(c.type);
             }
           });
           const allEqual = counts.every((c) => c === counts[0]);
@@ -383,35 +390,75 @@ export default function Home() {
         const idx = prev.findIndex((c) => c.id === id);
         if (idx === -1) return prev;
         const piece = prev[idx];
-        if (piece.type !== "whole") return prev;
 
-        // For the 5/4 scenario, slice into quarters — insert in place
-        if (step?.characterCount === 4) {
-          const quarters: ObjectPiece[] = Array.from({ length: 4 }, (_, i) => ({
-            id: `${id}-q${i}`,
-            type: "quarter" as const,
-            assignedTo: piece.assignedTo,
-          }));
+        // Slice a whole into halves — always go through the intermediate step
+        if (piece.type === "whole") {
+          const halves: ObjectPiece[] = [
+            { id: `${id}-left`, type: "half-left", assignedTo: piece.assignedTo },
+            { id: `${id}-right`, type: "half-right", assignedTo: piece.assignedTo },
+          ];
+          return [...prev.slice(0, idx), ...halves, ...prev.slice(idx + 1)];
+        }
+
+        // Slice a half into quarters (skip if step only allows halves)
+        if ((piece.type === "half-left" || piece.type === "half-right") && step?.sliceTo !== "half") {
+          const quarters: ObjectPiece[] = [
+            { id: `${id}-q0`, type: "quarter" as const, assignedTo: piece.assignedTo },
+            { id: `${id}-q1`, type: "quarter" as const, assignedTo: piece.assignedTo },
+          ];
           return [...prev.slice(0, idx), ...quarters, ...prev.slice(idx + 1)];
         }
 
-        // Default: slice in half — insert in place
-        const halves: ObjectPiece[] = [
-          { id: `${id}-left`, type: "half-left", assignedTo: piece.assignedTo },
-          { id: `${id}-right`, type: "half-right", assignedTo: piece.assignedTo },
-        ];
-        return [...prev.slice(0, idx), ...halves, ...prev.slice(idx + 1)];
+        return prev;
       });
 
       // Play slice SFX
       sfx.play("gentle-whoosh");
-
-      if (step?.type === "slice" && step.next) {
-        setTimeout(() => setStepId(step.next!), 500);
-      }
     },
     [step, sfx]
   );
+
+  // Track piece types at the start of each slice step so we know when slicing is "done"
+  const sliceStartTypesRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (step?.type === "slice") {
+      sliceStartTypesRef.current = new Set(pieces.map((p) => p.type));
+    }
+  }, [stepId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-advance slice steps: when all pieces have been sliced to the target
+  // tier (e.g., all halves or all quarters) and that tier differs from the
+  // starting tier, slicing is complete.
+  useEffect(() => {
+    if (!step || step.type !== "slice" || !step.next) return;
+    if (pieces.length === 0) return;
+
+    const tierOf = (t: string) => {
+      if (t === "half-left" || t === "half-right") return "half";
+      return t; // "whole", "quarter"
+    };
+
+    const currentTiers = new Set(pieces.map((p) => tierOf(p.type)));
+    // Still in the middle of slicing — pieces are at mixed tiers
+    if (currentTiers.size > 1) return;
+
+    // All pieces are at the same tier — check if it differs from start
+    const startTiers = new Set(
+      [...sliceStartTypesRef.current].map(tierOf)
+    );
+    const currentTier = [...currentTiers][0];
+    if (startTiers.has(currentTier) && startTiers.size === 1) {
+      // Same tier as starting — haven't sliced anything yet
+      return;
+    }
+
+    // For sliceTo "quarter", only advance once all pieces are quarters
+    if (step.sliceTo === "quarter" && currentTier !== "quarter") return;
+
+    // All pieces are uniformly at the target tier — slicing is done, advance
+    const timer = setTimeout(() => setStepId(step.next!), 500);
+    return () => clearTimeout(timer);
+  }, [pieces, step]);
 
   const handleChoice = useCallback((nextId: string) => {
     handleFirstInteraction();

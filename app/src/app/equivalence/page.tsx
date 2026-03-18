@@ -10,6 +10,7 @@ import { Workspace, ObjectPiece } from "../components/Workspace";
 import { Brownie } from "../components/Brownie";
 import { ReportIssue } from "../components/ReportIssue";
 import { Character } from "../components/Character";
+import { pieceValue } from "../lib/pieceValue";
 
 const CORRECT_SOUNDS = [
   "boing", "ding", "fanfare", "music-box", "harp-gliss",
@@ -64,6 +65,9 @@ export default function Home() {
   const handleFirstInteraction = useCallback(() => {
     if (!hasInteracted) {
       setHasInteracted(true);
+      // Bless the shared Audio element during this user gesture so
+      // Safari allows .play() calls from non-gesture contexts (auto-advance).
+      tts.warmup();
       // Start background music on first interaction
       music.start();
       // Speak the current step's text now — the TTS effect may not
@@ -111,11 +115,14 @@ export default function Home() {
     // If TTS is still speaking, wait for it to finish
     if (tts.isSpeaking) return;
 
-    // TTS finished (or was muted/never started) — wait 2s then advance
+    // TTS muted or never played — require manual click to continue
+    if (tts.isMuted || !tts.didPlayRef.current) return;
+
+    // TTS played successfully and finished — auto-advance after short delay
     const timer = setTimeout(() => {
       tts.stop();
       setStepId(step.next!);
-    }, 2000);
+    }, 1300);
 
     return () => clearTimeout(timer);
   }, [shouldAutoAdvance, tts.isSpeaking, step]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -200,7 +207,7 @@ export default function Home() {
       const counts = Array(characterCount).fill(0);
       pieces.forEach((c) => {
         if (c.assignedTo !== undefined) {
-          counts[c.assignedTo] += c.type === "whole" ? 1 : c.type === "quarter" ? 0.25 : 0.5;
+          counts[c.assignedTo] += pieceValue(c.type);
         }
       });
       const allEqual = counts.every((c) => c === counts[0]);
@@ -215,7 +222,7 @@ export default function Home() {
       pieces.forEach((c) => {
         if (c.assignedTo !== undefined) {
           if (step.allowKnife) {
-            counts[c.assignedTo] += c.type === "whole" ? 1 : c.type === "quarter" ? 0.25 : 0.5;
+            counts[c.assignedTo] += pieceValue(c.type);
           } else if (c.type === "whole") {
             counts[c.assignedTo]++;
           }
@@ -250,7 +257,7 @@ export default function Home() {
     const counts = Array(characterCount).fill(0);
     updatedPieces.forEach((c) => {
       if (c.assignedTo !== undefined) {
-        counts[c.assignedTo] += c.type === "whole" ? 1 : c.type === "quarter" ? 0.25 : 0.5;
+        counts[c.assignedTo] += pieceValue(c.type);
       }
     });
 
@@ -286,7 +293,7 @@ export default function Home() {
             const counts = Array(characterCount).fill(0);
             updatedPieces.forEach((c) => {
               if (c.assignedTo !== undefined) {
-                counts[c.assignedTo] += c.type === "whole" ? 1 : c.type === "quarter" ? 0.25 : 0.5;
+                counts[c.assignedTo] += pieceValue(c.type);
               }
             });
             const allEqual = counts.every((c) => c === counts[0]);
@@ -321,7 +328,7 @@ export default function Home() {
           const counts = Array(characterCount).fill(0);
           updatedPieces.forEach((c) => {
             if (c.assignedTo !== undefined) {
-              counts[c.assignedTo] += c.type === "whole" ? 1 : c.type === "quarter" ? 0.25 : 0.5;
+              counts[c.assignedTo] += pieceValue(c.type);
             }
           });
           const allEqual = counts.every((c) => c === counts[0]);
@@ -413,8 +420,8 @@ export default function Home() {
           return [...prev.slice(0, idx), ...halves, ...prev.slice(idx + 1)];
         }
 
-        // Slice a half into quarters — insert in place
-        if (piece.type === "half-left" || piece.type === "half-right") {
+        // Slice a half into quarters — insert in place (skip if step only allows halves)
+        if ((piece.type === "half-left" || piece.type === "half-right") && step?.sliceTo !== "half") {
           const quarters: ObjectPiece[] = [
             { id: `${id}-q0`, type: "quarter" as const, assignedTo: piece.assignedTo },
             { id: `${id}-q1`, type: "quarter" as const, assignedTo: piece.assignedTo },

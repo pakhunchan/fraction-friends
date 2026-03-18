@@ -579,6 +579,7 @@ export const lessonSteps: Record<string, LessonStep> = {
   "s3-do-slice": {
     id: "s3-do-slice",
     type: "slice",
+    sliceTo: "quarter",
     tutorText:
       "Tap the chocolate bar to cut it into 4 equal pieces.",
     next: "s3-post-slice",
