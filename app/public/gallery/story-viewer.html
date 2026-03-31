@@ -482,6 +482,21 @@
       .grid-cell.right-cell.has-errors::before { display: none; }
       .error-card { margin-left: 0; }
     }
+
+    .open-game-btn {
+      font-size: 0.68rem;
+      background: #1e3a5f;
+      color: #93c5fd;
+      border: 1px solid #3b82f6;
+      border-radius: 4px;
+      padding: 2px 8px;
+      cursor: pointer;
+      text-decoration: none;
+      margin-left: auto;
+    }
+    .open-game-btn:hover {
+      background: #2a4a6f;
+    }
   </style>
 </head>
 <body>
@@ -653,9 +668,38 @@
 
   sections.forEach(sec => observer.observe(sec));
 
+  // Inject "Open in Game" links into step cards for production attempts
+  function addOpenButtons() {
+    const config = {
+      'attempt-12': '/basic',
+      'attempt-15': '/equivalence',
+    };
+
+    for (const [sectionId, basePath] of Object.entries(config)) {
+      const section = document.getElementById(sectionId);
+      if (!section) continue;
+
+      section.querySelectorAll('.step-card').forEach(card => {
+        const stepIdEl = card.querySelector('.step-id');
+        if (!stepIdEl) return;
+        const stepId = stepIdEl.textContent.trim();
+
+        const link = document.createElement('a');
+        link.href = basePath + '?step=' + encodeURIComponent(stepId);
+        link.target = '_blank';
+        link.className = 'open-game-btn';
+        link.textContent = '\u25B6 Open';
+
+        const header = card.querySelector('.step-header');
+        if (header) header.appendChild(link);
+      });
+    }
+  }
+
   // Initialize: show basic tab by default, hide equiv sections
   document.addEventListener('DOMContentLoaded', function() {
     switchTab('basic');
+    addOpenButtons();
   });
 </script>
 
