@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { lessonSteps, LessonStep } from "../lib/lessonData-storyB";
 import { useElevenLabsSpeech } from "../lib/useElevenLabsSpeech";
 import { useSoundEffects } from "../lib/useSoundEffects";
@@ -9,6 +10,7 @@ import { TutorPanel } from "../components/TutorPanel";
 import { Workspace, ObjectPiece } from "../components/Workspace";
 import { ReportIssue } from "../components/ReportIssue";
 import { pieceValue } from "../lib/pieceValue";
+import { resolveStepState } from "../lib/resolveStepState";
 
 function createPieces(count: number): ObjectPiece[] {
   return Array.from({ length: count }, (_, i) => ({
@@ -18,13 +20,26 @@ function createPieces(count: number): ObjectPiece[] {
 }
 
 export default function Home() {
-  const [stepId, setStepId] = useState("start");
-  const [pieces, setPieces] = useState<ObjectPiece[]>(createPieces(0));
+  return (
+    <Suspense>
+      <BasicLesson />
+    </Suspense>
+  );
+}
+
+function BasicLesson() {
+  const searchParams = useSearchParams();
+  const initialStep = searchParams.get('step') || 'start';
+  const validStep = lessonSteps[initialStep] ? initialStep : 'start';
+  const [initialState] = useState(() => resolveStepState(lessonSteps, validStep));
+
+  const [stepId, setStepId] = useState(validStep);
+  const [pieces, setPieces] = useState<ObjectPiece[]>(initialState.pieces);
   const [selectedPiece, setSelectedPiece] = useState<string | null>(null);
-  const [characterCount, setCharacterCount] = useState(2);
+  const [characterCount, setCharacterCount] = useState(initialState.characterCount);
   const [tool, setTool] = useState<"move" | "knife">("move");
-  const [characterMoods, setCharacterMoods] = useState<("neutral" | "happy" | "sad")[]>(["neutral", "neutral"]);
-  const [taskHeader, setTaskHeader] = useState<string | undefined>(undefined);
+  const [characterMoods, setCharacterMoods] = useState<("neutral" | "happy" | "sad")[]>(Array(initialState.characterCount).fill("neutral"));
+  const [taskHeader, setTaskHeader] = useState<string | undefined>(initialState.taskHeader);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
