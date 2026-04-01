@@ -20,7 +20,10 @@ const MONSTER_COUNT = 4;
 /* ── SVG helpers ─────────────────────────────────────── */
 
 function wrap(content: string): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">\n${content}\n</svg>`;
+  // Expanded viewBox to encompass overflow content (horns, eye-stalks, sparkles).
+  // Original 120×120 clipped when rendered as <img> (no overflow:visible support).
+  // Symmetric 10px padding keeps character centered; 140×140 preserves 1:1 aspect.
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 140 140" width="140" height="140">\n${content}\n</svg>`;
 }
 
 function hl(cx: number, cy: number, r = 1.6): string {
