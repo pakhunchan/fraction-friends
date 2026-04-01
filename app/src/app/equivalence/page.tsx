@@ -419,37 +419,58 @@ function EquivalenceLesson() {
     [selectedPiece, updateMoods, checkDistributionComplete, sfx]
   );
 
+  const [pieceAnimations, setPieceAnimations] = useState<Record<string, "idle" | "pre-split" | "bounce">>({});
+  const slicingRef = useRef<Set<string>>(new Set());
+
   const handleSlicePiece = useCallback(
     (id: string) => {
-      setPieces((prev) => {
-        const idx = prev.findIndex((c) => c.id === id);
-        if (idx === -1) return prev;
-        const piece = prev[idx];
+      // Guard against double-clicks during wiggle animation
+      if (slicingRef.current.has(id)) return;
+      slicingRef.current.add(id);
 
-        // Slice a whole into halves — insert in place
-        if (piece.type === "whole") {
-          const halves: ObjectPiece[] = [
-            { id: `${id}-left`, type: "half-left", assignedTo: piece.assignedTo },
-            { id: `${id}-right`, type: "half-right", assignedTo: piece.assignedTo },
-          ];
-          return [...prev.slice(0, idx), ...halves, ...prev.slice(idx + 1)];
-        }
+      // Phase 1: trigger pre-split wiggle
+      setPieceAnimations(prev => ({ ...prev, [id]: "pre-split" }));
 
-        // Slice a half into quarters — insert in place (skip if step only allows halves)
-        if ((piece.type === "half-left" || piece.type === "half-right") && step?.sliceTo !== "half") {
-          const quarters: ObjectPiece[] = [
-            { id: `${id}-q0`, type: "quarter" as const, assignedTo: piece.assignedTo },
-            { id: `${id}-q1`, type: "quarter" as const, assignedTo: piece.assignedTo },
-          ];
-          return [...prev.slice(0, idx), ...quarters, ...prev.slice(idx + 1)];
-        }
+      // Phase 2: after wiggle completes, perform the actual slice
+      setTimeout(() => {
+        slicingRef.current.delete(id);
+        setPieceAnimations(prev => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
 
-        // Quarters are the smallest piece — no further slicing
-        return prev;
-      });
+        setPieces((prev) => {
+          const idx = prev.findIndex((c) => c.id === id);
+          if (idx === -1) return prev;
+          const piece = prev[idx];
+          const currentSliceTo = stepRef.current?.sliceTo;
 
-      // Play slice SFX
-      sfx.play("gentle-whoosh");
+          // Slice a whole into halves — insert in place
+          if (piece.type === "whole") {
+            const halves: ObjectPiece[] = [
+              { id: `${id}-left`, type: "half-left", assignedTo: piece.assignedTo },
+              { id: `${id}-right`, type: "half-right", assignedTo: piece.assignedTo },
+            ];
+            return [...prev.slice(0, idx), ...halves, ...prev.slice(idx + 1)];
+          }
+
+          // Slice a half into quarters — insert in place (skip if step only allows halves)
+          if ((piece.type === "half-left" || piece.type === "half-right") && currentSliceTo !== "half") {
+            const quarters: ObjectPiece[] = [
+              { id: `${id}-q0`, type: "quarter" as const, assignedTo: piece.assignedTo },
+              { id: `${id}-q1`, type: "quarter" as const, assignedTo: piece.assignedTo },
+            ];
+            return [...prev.slice(0, idx), ...quarters, ...prev.slice(idx + 1)];
+          }
+
+          // Quarters are the smallest piece — no further slicing
+          return prev;
+        });
+
+        // Play slice SFX
+        sfx.play("gentle-whoosh");
+      }, 350);
     },
     [sfx]
   );
@@ -635,6 +656,7 @@ function EquivalenceLesson() {
           onToolChange={setTool}
           characterMoods={characterMoods}
           ObjectComponent={Brownie}
+          pieceAnimations={pieceAnimations}
         />
       </div>
 

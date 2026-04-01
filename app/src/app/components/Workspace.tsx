@@ -1,6 +1,6 @@
 "use client";
 
-import { ComponentType } from "react";
+import { ComponentType, useState, useRef } from "react";
 import { DividableObject } from "./DividableObject";
 import { Character } from "./Character";
 import { BigFraction } from "./Fraction";
@@ -142,6 +142,8 @@ export interface ObjectComponentProps {
   type: ObjectPieceType;
   size?: number; // pixel width of the whole object (pieces scale proportionally)
   selected?: boolean;
+  showLabel?: boolean;
+  animationState?: "idle" | "pre-split" | "bounce";
 }
 
 interface WorkspaceProps {
@@ -158,6 +160,7 @@ interface WorkspaceProps {
   onToolChange: (tool: "move" | "knife") => void;
   characterMoods: ("neutral" | "happy" | "sad")[];
   ObjectComponent?: ComponentType<ObjectComponentProps>;
+  pieceAnimations?: Record<string, "idle" | "pre-split" | "bounce">;
 }
 
 export function Workspace({
@@ -174,7 +177,11 @@ export function Workspace({
   onToolChange,
   characterMoods,
   ObjectComponent = DividableObject,
+  pieceAnimations,
 }: WorkspaceProps) {
+  const [bounceId, setBounceId] = useState<string | null>(null);
+  const bounceTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
   const unassigned = pieces.filter((c) => c.assignedTo === undefined);
   const characters = Array.from({ length: characterCount }, (_, i) => i);
 
@@ -219,6 +226,11 @@ export function Workspace({
       return;
     }
     onSelectPiece(piece.id);
+
+    // Trigger bounce animation on selection
+    clearTimeout(bounceTimerRef.current);
+    setBounceId(piece.id);
+    bounceTimerRef.current = setTimeout(() => setBounceId(null), 250);
   };
 
   return (
@@ -285,6 +297,7 @@ export function Workspace({
                     type={piece.type}
                     size={160}
                     selected={selectedPiece === piece.id}
+                    animationState={pieceAnimations?.[piece.id] ?? (bounceId === piece.id ? "bounce" : undefined)}
                   />
                 </button>
               ) : (
@@ -292,6 +305,7 @@ export function Workspace({
                   <ObjectComponent
                     type={piece.type}
                     size={160}
+                    animationState={pieceAnimations?.[piece.id]}
                   />
                 </div>
               )
@@ -403,6 +417,7 @@ export function Workspace({
                         <ObjectComponent
                           type={c.type}
                           size={80}
+                          animationState={pieceAnimations?.[c.id]}
                         />
                       </button>
                     ) : (
@@ -410,6 +425,7 @@ export function Workspace({
                         <ObjectComponent
                           type={c.type}
                           size={80}
+                          animationState={pieceAnimations?.[c.id]}
                         />
                       </div>
                     )

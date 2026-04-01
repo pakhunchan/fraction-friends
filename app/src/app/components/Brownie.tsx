@@ -25,6 +25,8 @@ export interface BrownieProps {
   type: BrownieType;
   size?: number;
   selected?: boolean;
+  showLabel?: boolean;        // default true
+  animationState?: "idle" | "pre-split" | "bounce";
 }
 
 // ---- Geometry constants ----------------------------------------------------
@@ -36,6 +38,15 @@ const BRW_H = 72;
 const BRW_R = 3.5; // outer corner radius — slightly rounded, not perfectly sharp
 const MID_X = BRW_X + BRW_W / 2; // 40
 const MID_Y = BRW_Y + BRW_H / 2; // 40
+
+// ---- Label data derives from piece type — always in sync with brownie state
+const PIECE_LABELS: Record<BrownieType, { num: number; den: number }> = {
+  whole:        { num: 1, den: 1 },
+  "half-left":  { num: 1, den: 2 },
+  "half-right": { num: 1, den: 2 },
+  quarter:      { num: 1, den: 4 },
+  eighth:       { num: 1, den: 8 },
+};
 
 // ---- Piece bounds -----------------------------------------------------------
 function getPieceBounds(type: BrownieType): {
@@ -455,6 +466,43 @@ function CutEdges({ id, type }: { id: string; type: BrownieType }) {
   }
 }
 
+// ---- Fraction label rendered at piece center --------------------------------
+function FractionLabel({ type, bounds }: { type: BrownieType; bounds: { x: number; y: number; w: number; h: number } }) {
+  const label = PIECE_LABELS[type];
+  const cx = bounds.x + bounds.w / 2;
+  const cy = bounds.y + bounds.h / 2;
+  const fontSize = label.den === 1
+    ? Math.min(bounds.w, bounds.h) * 0.38
+    : Math.min(bounds.w, bounds.h) * 0.28;
+
+  const commonTextProps = {
+    textAnchor: "middle" as const,
+    fill: "white",
+    stroke: "#2C1408",
+    strokeWidth: 2.5,
+    paintOrder: "stroke" as const,
+    fontWeight: "bold" as const,
+    fontFamily: "system-ui, sans-serif",
+    fontSize,
+  };
+
+  if (label.den === 1) {
+    return <text x={cx} y={cy} dominantBaseline="central" {...commonTextProps}>1</text>;
+  }
+
+  const gap = fontSize * 0.65;
+  return (
+    <g>
+      <text x={cx} y={cy - gap} dominantBaseline="central" {...commonTextProps}>{label.num}</text>
+      <line x1={cx - fontSize * 0.5} y1={cy} x2={cx + fontSize * 0.5} y2={cy}
+            stroke="#2C1408" strokeWidth={3.5} opacity={0.6} />
+      <line x1={cx - fontSize * 0.5} y1={cy} x2={cx + fontSize * 0.5} y2={cy}
+            stroke="white" strokeWidth={1.2} />
+      <text x={cx} y={cy + gap} dominantBaseline="central" {...commonTextProps}>{label.den}</text>
+    </g>
+  );
+}
+
 // ---- Selection animation CSS -----------------------------------------------
 const ANIM_CSS = `
 @keyframes brownie-tilt {
@@ -476,6 +524,40 @@ const ANIM_CSS = `
 .brownie-shine-rect {
   animation: brownie-shine 2s ease-in-out infinite;
 }
+
+/* Pre-split wiggle — subtle horizontal shake signaling imminent split */
+@keyframes brownie-wiggle {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-3px) rotate(-1.5deg); }
+  30%  { transform: translateX(3px) rotate(1.5deg); }
+  45%  { transform: translateX(-2px) rotate(-0.8deg); }
+  60%  { transform: translateX(2px) rotate(0.8deg); }
+  75%  { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+.brownie-wiggle {
+  animation: brownie-wiggle 0.35s ease-in-out;
+  transform-origin: 50% 50%;
+}
+
+/* Click bounce — quick squash-stretch on piece selection */
+@keyframes brownie-bounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(0.93, 1.05); }
+  60%  { transform: scale(1.03, 0.97); }
+  100% { transform: scale(1); }
+}
+.brownie-bounce {
+  animation: brownie-bounce 0.25s ease-out;
+  transform-origin: 50% 50%;
+}
+
+/* Respect prefers-reduced-motion for all brownie animations */
+@media (prefers-reduced-motion: reduce) {
+  .brownie-sel, .brownie-wiggle, .brownie-bounce, .brownie-shine-rect {
+    animation: none !important;
+  }
+}
 `;
 
 // ---- Main component ---------------------------------------------------------
@@ -483,11 +565,20 @@ export function Brownie({
   type,
   size = 120,
   selected = false,
+  showLabel = true,
+  animationState,
 }: BrownieProps) {
   const rawId = useId();
   const id = rawId.replace(/:/g, "");
 
   const bounds = getPieceBounds(type);
+
+  // Animation class: pre-split/bounce override selected tilt
+  const animClass =
+    animationState === "pre-split" ? "brownie-wiggle" :
+    animationState === "bounce" ? "brownie-bounce" :
+    selected ? "brownie-sel" :
+    undefined;
   const wholeBounds = getPieceBounds("whole");
 
   // ViewBox: each piece gets its own viewBox tightly framing it (with padding),
@@ -523,10 +614,10 @@ export function Brownie({
         viewBox={`${pieceVbX} ${pieceVbY} ${pieceVbW} ${pieceVbH}`}
         xmlns="http://www.w3.org/2000/svg"
         overflow="visible"
-        className={selected ? "brownie-sel" : undefined}
+        className={animClass}
         style={{ display: "block" }}
         role="img"
-        aria-label={`Brownie piece: ${type}`}
+        aria-label={`Brownie piece: ${PIECE_LABELS[type].den === 1 ? '1 whole' : `${PIECE_LABELS[type].num}/${PIECE_LABELS[type].den}`}`}
       >
         <BrownieDefs id={id} type={type} />
 
@@ -566,6 +657,9 @@ export function Brownie({
 
         {/* ---- Cut / broken edges ---- */}
         <CutEdges id={id} type={type} />
+
+        {/* ---- Fraction label ---- */}
+        {showLabel && <FractionLabel type={type} bounds={bounds} />}
 
         {/* ---- Outer edge stroke ---- */}
         <path

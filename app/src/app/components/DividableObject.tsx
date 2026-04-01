@@ -26,6 +26,8 @@ export interface DividableObjectProps {
   type: DividableObjectType;
   size?: number; // pixel width of the whole bar (pieces scale proportionally)
   selected?: boolean;
+  showLabel?: boolean;           // unused, for interface compat with Brownie
+  animationState?: "idle" | "pre-split" | "bounce"; // unused, for interface compat
 }
 
 // ---- Geometry constants ----------------------------------------------------
