@@ -39,6 +39,7 @@ export interface LessonStep {
   cheerStyle?: string;
   ghostPiece?: "whole" | "half-left" | "half-right" | "quarter"; // ghost overlay for visual-compare
   compareCount?: number; // how many unassigned pieces to group in comparison
+  pieceGap?: string; // custom CSS gap value for the unassigned pieces area (e.g. "80px")
 }
 
 // ---------------------------------------------------------------------------

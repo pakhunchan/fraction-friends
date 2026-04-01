@@ -40,6 +40,7 @@ export interface LessonStep {
   cheerStyle?: "sparkle-rally" | "high-five" | "champion-banner" | "gentle-encouragement" | "countdown-hype" | "cheerleader-squad" | "storybook" | "trophy-room" | "dance-party" | "warm-hug";
   ghostPiece?: "whole" | "half-left" | "half-right" | "quarter"; // ghost overlay for visual-compare
   compareCount?: number; // how many unassigned pieces to group in comparison
+  pieceGap?: string; // custom CSS gap value for the unassigned pieces area (e.g. "80px")
 }
 
 // ---------------------------------------------------------------------------
@@ -472,6 +473,7 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "s3-slice-half",
     type: "slice",
     sliceTo: "half",
+    pieceGap: "80px",
     tutorText:
       "Tap the brownie to cut it right down the middle!",
     next: "s3-halves-observe",
@@ -481,6 +483,7 @@ export const lessonSteps: Record<string, LessonStep> = {
   "s3-halves-observe": {
     id: "s3-halves-observe",
     type: "narrate",
+    pieceGap: "80px",
     tutorText:
       "Two perfect halves sit on the cutting board. Sofia grins and slides them "
       + "back together. 'Look, Marcus — watch closely...'",
