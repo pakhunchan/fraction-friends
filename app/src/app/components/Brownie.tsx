@@ -587,7 +587,7 @@ export function Brownie({
   // but SVG pixel dimensions are computed so that the SCALE (user-units per pixel)
   // is the same for all piece types. This ensures pieces are proportionally sized:
   // a half piece is visually half the area of a whole at the same `size` prop.
-  const VP = 7;
+  const VP = 0;
 
   // Whole brownie's viewBox determines the reference scale
   const wholeVbW = wholeBounds.w + VP * 2;
