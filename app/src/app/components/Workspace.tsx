@@ -240,11 +240,11 @@ export function Workspace({
       {/* Visual-compare animations */}
       <style>{`
         @keyframes slide-together-left {
-          from { transform: translateX(-20px); }
+          from { transform: translateX(-60px); }
           to   { transform: translateX(0); }
         }
         @keyframes slide-together-right {
-          from { transform: translateX(20px); }
+          from { transform: translateX(60px); }
           to   { transform: translateX(0); }
         }
         @keyframes slide-together-up {
@@ -330,27 +330,26 @@ export function Workspace({
 
         return (
           <div className="flex-1 flex flex-col items-center justify-center pb-[280px] gap-6">
-            {/* Comparison group with ghost overlay */}
-            <div className="relative inline-flex items-center justify-center">
-              {/* Ghost overlay — absolutely positioned behind grouped pieces */}
+            {/* Comparison group: ghost above, solid pieces below */}
+            <div className="flex flex-col items-center gap-3">
+              {/* Ghost piece (above) */}
               {step.ghostPiece && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
-                     style={{ animation: "ghost-fade-in 0.6s ease-in forwards, ghost-pulse 2s 0.6s ease-in-out infinite" }}>
+                <div style={{ animation: "ghost-fade-in 0.6s ease-in forwards, ghost-pulse 2s 0.6s ease-in-out infinite" }}>
                   <div style={{ filter: "drop-shadow(0 0 8px rgba(255,215,0,0.4))" }}>
                     <ObjectComponent
                       type={step.ghostPiece}
                       size={160}
-                      showLabel={false}
-                      opacity={0.35}
+                      showLabel={true}
+                      opacity={0.45}
                     />
                   </div>
                 </div>
               )}
-              {/* Grouped pieces sliding together */}
-              <div className={`flex ${direction} gap-0 relative z-10`}>
+              {/* Grouped pieces sliding together (below) */}
+              <div className={`flex ${direction} gap-0`}>
                 {grouped.map((piece, i) => (
                   <div key={piece.id}
-                       style={{ animation: `${slideAnims[i % slideAnims.length]} 0.5s ease-out forwards` }}>
+                       style={{ animation: `${slideAnims[i % slideAnims.length]} 1.2s ease-out forwards` }}>
                     <ObjectComponent
                       type={piece.type}
                       size={160}
@@ -380,7 +379,10 @@ export function Workspace({
       {/* Unassigned pieces area */}
       {!isShowStep && !isCheerStep && !isVisualCompare && (
         <div className={`flex-1 flex items-center justify-center ${hideShelf ? "" : "pb-[280px]"}`}>
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 max-w-full">
+          <div
+            className={`flex flex-wrap items-center justify-center max-w-full ${step.pieceGap ? "" : "gap-3 md:gap-4"}`}
+            style={step.pieceGap ? { gap: step.pieceGap } : undefined}
+          >
             {unassigned.map((piece) => (
               isInteractive ? (
                 <button
