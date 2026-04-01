@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <filter id="fuzz" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" seed="42" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <radialGradient id="body-grad" cx="40%" cy="36%" r="60%">
+      <stop offset="0%" stop-color="#18a834"/>
+      <stop offset="100%" stop-color="#006618"/>
+    </radialGradient>
+    <radialGradient id="iris" cx="38%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#ffcc00"/>
+      <stop offset="100%" stop-color="#cc8800"/>
+    </radialGradient>
+    <radialGradient id="sheen" cx="35%" cy="25%" r="45%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="43" cy="113" rx="14" ry="9" fill="#006618" filter="url(#fuzz)"/>
+  <ellipse cx="77" cy="113" rx="14" ry="9" fill="#006618" filter="url(#fuzz)"/>
+  <circle cx="32" cy="112" r="3" fill="#001a00" opacity="0.4"/>
+  <circle cx="40" cy="116" r="2.5" fill="#001a00" opacity="0.4"/>
+  <circle cx="49" cy="117" r="2.5" fill="#001a00" opacity="0.4"/>
+  <circle cx="66" cy="112" r="3" fill="#001a00" opacity="0.4"/>
+  <circle cx="74" cy="116" r="2.5" fill="#001a00" opacity="0.4"/>
+  <circle cx="83" cy="117" r="2.5" fill="#001a00" opacity="0.4"/>
+  <ellipse cx="57" cy="74" rx="36" ry="46" fill="url(#body-grad)" filter="url(#fuzz)"/>
+  <ellipse cx="57" cy="74" rx="36" ry="46" fill="url(#sheen)"/>
+  <circle cx="42" cy="62" r="5" fill="#006618" opacity="0.35"/>
+  <circle cx="68" cy="55" r="4" fill="#006618" opacity="0.35"/>
+  <circle cx="72" cy="80" r="6" fill="#006618" opacity="0.3"/>
+  <circle cx="44" cy="92" r="5" fill="#006618" opacity="0.3"/>
+  <circle cx="57" cy="110" r="4" fill="#006618" opacity="0.25"/>
+  <ellipse cx="24" cy="76" rx="10" ry="6" fill="#18a834" transform="rotate(-30 24 76)" filter="url(#fuzz)"/>
+  <ellipse cx="90" cy="76" rx="10" ry="6" fill="#18a834" transform="rotate(30 90 76)" filter="url(#fuzz)"/>
+  <circle cx="16" cy="71" r="3" fill="#006618"/>
+  <circle cx="15" cy="78" r="2.5" fill="#006618"/>
+  <circle cx="98" cy="71" r="3" fill="#006618"/>
+  <circle cx="99" cy="78" r="2.5" fill="#006618"/>
+  <path d="M 42 32 Q 30 18 34 10" fill="none" stroke="#006618" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 72 30 Q 86 18 80 10" fill="none" stroke="#006618" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="34" cy="9" r="10" fill="white"/>
+  <circle cx="34" cy="9" r="6.5" fill="url(#iris)"/>
+  <circle cx="34" cy="9" r="3.5" fill="#1a0a00"/>
+  <circle cx="31.5" cy="6" r="2.2" fill="white" opacity="0.9"/>
+  <circle cx="34.5" cy="8.5" r="0.7" fill="white" opacity="0.55"/>
+  <circle cx="81" cy="9" r="10" fill="white"/>
+  <circle cx="81" cy="9" r="6.5" fill="url(#iris)"/>
+  <circle cx="81" cy="9" r="3.5" fill="#1a0a00"/>
+  <circle cx="78.5" cy="6" r="2.2" fill="white" opacity="0.9"/>
+  <circle cx="81.5" cy="8.5" r="0.7" fill="white" opacity="0.55"/>
+  
+  
+  
+  
+  <path d="M 38 84 Q 57 94 80 84" fill="none" stroke="#003300" stroke-width="3" stroke-linecap="round"/>
+  
+</svg>

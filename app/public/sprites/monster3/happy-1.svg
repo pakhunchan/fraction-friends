@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+<g transform="translate(0,2)">
+  <defs>
+    <filter id="fuzz" x="-14%" y="-14%" width="128%" height="128%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="5" seed="42" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <radialGradient id="body-grad" cx="40%" cy="34%" r="60%">
+      <stop offset="0%" stop-color="#88ccff"/>
+      <stop offset="100%" stop-color="#44aaff"/>
+    </radialGradient>
+    <radialGradient id="iris-l" cx="38%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#66ffaa"/>
+      <stop offset="100%" stop-color="#008844"/>
+    </radialGradient>
+    <radialGradient id="iris-r" cx="38%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#ffcc44"/>
+      <stop offset="100%" stop-color="#cc8800"/>
+    </radialGradient>
+    <radialGradient id="sheen" cx="36%" cy="24%" r="48%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path d="M 90 100 Q 106 96 110 84 Q 114 72 104 70 Q 96 68 96 78 Q 96 86 106 84" fill="none" stroke="#44aaff" stroke-width="5" stroke-linecap="round" filter="url(#fuzz)"/>
+  <path d="M 90 100 Q 106 96 110 84 Q 114 72 104 70 Q 96 68 96 78 Q 96 86 106 84" fill="none" stroke="#88ccff" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 22 58 Q 4 42 8 28 Q 12 16 22 24 Q 16 40 22 58 Z" fill="#88ccff" stroke="#0066cc" stroke-width="1.2" filter="url(#fuzz)" opacity="0.9"/>
+  <path d="M 96 58 Q 114 42 110 28 Q 106 16 96 24 Q 102 40 96 58 Z" fill="#88ccff" stroke="#0066cc" stroke-width="1.2" filter="url(#fuzz)" opacity="0.9"/>
+  <path d="M 22 58 Q 4 42 8 28 Q 12 16 22 24 Q 16 40 22 58 Z" fill="none" stroke="#0066cc" stroke-width="0.7" opacity="0.3"/>
+  <path d="M 96 58 Q 114 42 110 28 Q 106 16 96 24 Q 102 40 96 58 Z" fill="none" stroke="#0066cc" stroke-width="0.7" opacity="0.3"/>
+  <circle cx="32" cy="64" r="22" fill="url(#body-grad)" filter="url(#fuzz)"/>
+  <circle cx="80" cy="64" r="22" fill="url(#body-grad)" filter="url(#fuzz)"/>
+  <circle cx="57" cy="48" r="24" fill="url(#body-grad)" filter="url(#fuzz)"/>
+  <circle cx="38" cy="56" r="18" fill="url(#body-grad)" filter="url(#fuzz)"/>
+  <circle cx="76" cy="56" r="18" fill="url(#body-grad)" filter="url(#fuzz)"/>
+  <rect x="24" y="68" width="70" height="30" rx="8" fill="url(#body-grad)"/>
+  <circle cx="57" cy="48" r="24" fill="url(#sheen)"/>
+  <circle cx="44" cy="58" r="12" fill="white"/>
+  <circle cx="44" cy="58" r="8" fill="url(#iris-l)"/>
+  <circle cx="44" cy="58" r="4.5" fill="#001a0d"/>
+  <circle cx="41" cy="55" r="2.8" fill="white" opacity="0.9"/>
+  <circle cx="44" cy="57.5" r="0.7" fill="white" opacity="0.55"/>
+  <circle cx="48" cy="62" r="1.2" fill="white" opacity="0.5"/>
+  <circle cx="70" cy="58" r="12" fill="white"/>
+  <circle cx="70" cy="58" r="8" fill="url(#iris-r)"/>
+  <circle cx="70" cy="58" r="4.5" fill="#1a1000"/>
+  <circle cx="67" cy="55" r="2.8" fill="white" opacity="0.9"/>
+  <circle cx="70" cy="57.5" r="0.7" fill="white" opacity="0.55"/>
+  <circle cx="74" cy="62" r="1.2" fill="white" opacity="0.5"/>
+  <path d="M 44 55 l1.2 -3.5 l1.2 3.5 l3.5 1.2 l-3.5 1.2 l-1.2 3.5 l-1.2 -3.5 l-3.5 -1.2 Z" fill="white" opacity="0.9"/>
+    <path d="M 70 55 l1.2 -3.5 l1.2 3.5 l3.5 1.2 l-3.5 1.2 l-1.2 3.5 l-1.2 -3.5 l-3.5 -1.2 Z" fill="white" opacity="0.9"/>
+  <path d="M 35 42 Q 44 36 53 42" fill="none" stroke="#0066cc" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 61 42 Q 70 36 79 42" fill="none" stroke="#0066cc" stroke-width="2.5" stroke-linecap="round"/>
+  <ellipse cx="32" cy="68" rx="8" ry="5" fill="#88ccff" opacity="0.5"/>
+  <ellipse cx="82" cy="68" rx="8" ry="5" fill="#88ccff" opacity="0.5"/>
+  
+  <path d="M 9 52 l2 -5 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 Z" fill="#ffe066"/>
+    <path d="M 103 46 l1.5 -4 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 Z" fill="#ffe066"/>
+    <circle cx="11" cy="68" r="2" fill="#ccffff"/>
+    <circle cx="105" cy="66" r="1.8" fill="#aaddff"/>
+    <circle cx="57" cy="10" r="2.5" fill="#ffffff" opacity="0.8"/>
+  <path d="M 38 76 Q 57 96 80 76" fill="#3399cc" stroke="#003355" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 42 77 Q 57 85 74 77" fill="white" stroke="none"/>
+    <rect x="48" y="77" width="6" height="7" rx="1.5" fill="white"/>
+    <rect x="56" y="77" width="6" height="7" rx="1.5" fill="white"/>
+    <rect x="64" y="77" width="6" height="7" rx="1.5" fill="white"/>
+    <path d="M 44 78 L 42 85 L 48 80" fill="white" stroke="#88bbdd" stroke-width="0.8"/>
+    <path d="M 72 78 L 74 85 L 68 80" fill="white" stroke="#88bbdd" stroke-width="0.8"/>
+  <ellipse cx="32" cy="70" rx="8" ry="5" fill="#88ddff" opacity="0.4"/>
+    <ellipse cx="82" cy="70" rx="8" ry="5" fill="#88ddff" opacity="0.4"/>
+  </g>
+</svg>

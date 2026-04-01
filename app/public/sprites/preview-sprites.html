@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Monster Sprite Preview</title>
+<style>
+  * { box-sizing: border-box; }
+  body { background: #1a1a2e; color: #e0e0f0; font-family: system-ui, sans-serif; padding: 20px; margin: 0; }
+  h1, h2 { text-align: center; }
+  .controls { text-align: center; margin: 16px 0; }
+  button { background: #0f3460; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin: 0 4px; font-size: 14px; }
+  button:hover { background: #1a5a9a; }
+  button.active { background: #e94560; }
+  label { margin-left: 16px; }
+  input[type=range] { vertical-align: middle; }
+  .player { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin: 24px 0; }
+  .player-cell { text-align: center; background: #16213e; border-radius: 10px; padding: 12px; min-width: 140px; }
+  .player-cell img { width: 120px; height: 120px; display: block; margin: 0 auto 6px; }
+  .player-cell span { font-size: 12px; opacity: 0.7; }
+  h2 { margin-top: 32px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 1200px; margin: 0 auto; }
+  .cell { text-align: center; background: #16213e; border-radius: 8px; padding: 10px; }
+  .cell h3 { margin: 0 0 6px; font-size: 13px; }
+  .frames { display: flex; gap: 4px; justify-content: center; }
+  .frames img { border: 1px solid #333; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h1>Monster Sprite Preview</h1>
+<div class="controls">
+  <button id="btn-play" onclick="togglePlay()" class="active">Playing</button>
+  <label>Speed: <input id="speed" type="range" min="80" max="800" value="250" oninput="setSpeed(this.value)"/> <span id="speed-val">250 ms</span></label>
+</div>
+
+<div class="player" id="player"></div>
+
+<h2>All Frames</h2>
+<div class="grid">
+      <div class="cell" data-monster="0" data-anim="idle">
+        <h3>Monster 0 — idle</h3>
+        <div class="frames"><img src="monster0/idle-1.svg" width="80" height="80" alt="idle-1"/>
+          <img src="monster0/idle-2.svg" width="80" height="80" alt="idle-2"/>
+          <img src="monster0/idle-3.svg" width="80" height="80" alt="idle-3"/></div>
+      </div>
+      <div class="cell" data-monster="0" data-anim="happy">
+        <h3>Monster 0 — happy</h3>
+        <div class="frames"><img src="monster0/happy-1.svg" width="80" height="80" alt="happy-1"/>
+          <img src="monster0/happy-2.svg" width="80" height="80" alt="happy-2"/>
+          <img src="monster0/happy-3.svg" width="80" height="80" alt="happy-3"/></div>
+      </div>
+      <div class="cell" data-monster="0" data-anim="sad">
+        <h3>Monster 0 — sad</h3>
+        <div class="frames"><img src="monster0/sad-1.svg" width="80" height="80" alt="sad-1"/>
+          <img src="monster0/sad-2.svg" width="80" height="80" alt="sad-2"/>
+          <img src="monster0/sad-3.svg" width="80" height="80" alt="sad-3"/></div>
+      </div>
+      <div class="cell" data-monster="0" data-anim="thinking">
+        <h3>Monster 0 — thinking</h3>
+        <div class="frames"><img src="monster0/thinking-1.svg" width="80" height="80" alt="thinking-1"/>
+          <img src="monster0/thinking-2.svg" width="80" height="80" alt="thinking-2"/>
+          <img src="monster0/thinking-3.svg" width="80" height="80" alt="thinking-3"/></div>
+      </div>
+      <div class="cell" data-monster="1" data-anim="idle">
+        <h3>Monster 1 — idle</h3>
+        <div class="frames"><img src="monster1/idle-1.svg" width="80" height="80" alt="idle-1"/>
+          <img src="monster1/idle-2.svg" width="80" height="80" alt="idle-2"/>
+          <img src="monster1/idle-3.svg" width="80" height="80" alt="idle-3"/></div>
+      </div>
+      <div class="cell" data-monster="1" data-anim="happy">
+        <h3>Monster 1 — happy</h3>
+        <div class="frames"><img src="monster1/happy-1.svg" width="80" height="80" alt="happy-1"/>
+          <img src="monster1/happy-2.svg" width="80" height="80" alt="happy-2"/>
+          <img src="monster1/happy-3.svg" width="80" height="80" alt="happy-3"/></div>
+      </div>
+      <div class="cell" data-monster="1" data-anim="sad">
+        <h3>Monster 1 — sad</h3>
+        <div class="frames"><img src="monster1/sad-1.svg" width="80" height="80" alt="sad-1"/>
+          <img src="monster1/sad-2.svg" width="80" height="80" alt="sad-2"/>
+          <img src="monster1/sad-3.svg" width="80" height="80" alt="sad-3"/></div>
+      </div>
+      <div class="cell" data-monster="1" data-anim="thinking">
+        <h3>Monster 1 — thinking</h3>
+        <div class="frames"><img src="monster1/thinking-1.svg" width="80" height="80" alt="thinking-1"/>
+          <img src="monster1/thinking-2.svg" width="80" height="80" alt="thinking-2"/>
+          <img src="monster1/thinking-3.svg" width="80" height="80" alt="thinking-3"/></div>
+      </div>
+      <div class="cell" data-monster="2" data-anim="idle">
+        <h3>Monster 2 — idle</h3>
+        <div class="frames"><img src="monster2/idle-1.svg" width="80" height="80" alt="idle-1"/>
+          <img src="monster2/idle-2.svg" width="80" height="80" alt="idle-2"/>
+          <img src="monster2/idle-3.svg" width="80" height="80" alt="idle-3"/></div>
+      </div>
+      <div class="cell" data-monster="2" data-anim="happy">
+        <h3>Monster 2 — happy</h3>
+        <div class="frames"><img src="monster2/happy-1.svg" width="80" height="80" alt="happy-1"/>
+          <img src="monster2/happy-2.svg" width="80" height="80" alt="happy-2"/>
+          <img src="monster2/happy-3.svg" width="80" height="80" alt="happy-3"/></div>
+      </div>
+      <div class="cell" data-monster="2" data-anim="sad">
+        <h3>Monster 2 — sad</h3>
+        <div class="frames"><img src="monster2/sad-1.svg" width="80" height="80" alt="sad-1"/>
+          <img src="monster2/sad-2.svg" width="80" height="80" alt="sad-2"/>
+          <img src="monster2/sad-3.svg" width="80" height="80" alt="sad-3"/></div>
+      </div>
+      <div class="cell" data-monster="2" data-anim="thinking">
+        <h3>Monster 2 — thinking</h3>
+        <div class="frames"><img src="monster2/thinking-1.svg" width="80" height="80" alt="thinking-1"/>
+          <img src="monster2/thinking-2.svg" width="80" height="80" alt="thinking-2"/>
+          <img src="monster2/thinking-3.svg" width="80" height="80" alt="thinking-3"/></div>
+      </div>
+      <div class="cell" data-monster="3" data-anim="idle">
+        <h3>Monster 3 — idle</h3>
+        <div class="frames"><img src="monster3/idle-1.svg" width="80" height="80" alt="idle-1"/>
+          <img src="monster3/idle-2.svg" width="80" height="80" alt="idle-2"/>
+          <img src="monster3/idle-3.svg" width="80" height="80" alt="idle-3"/></div>
+      </div>
+      <div class="cell" data-monster="3" data-anim="happy">
+        <h3>Monster 3 — happy</h3>
+        <div class="frames"><img src="monster3/happy-1.svg" width="80" height="80" alt="happy-1"/>
+          <img src="monster3/happy-2.svg" width="80" height="80" alt="happy-2"/>
+          <img src="monster3/happy-3.svg" width="80" height="80" alt="happy-3"/></div>
+      </div>
+      <div class="cell" data-monster="3" data-anim="sad">
+        <h3>Monster 3 — sad</h3>
+        <div class="frames"><img src="monster3/sad-1.svg" width="80" height="80" alt="sad-1"/>
+          <img src="monster3/sad-2.svg" width="80" height="80" alt="sad-2"/>
+          <img src="monster3/sad-3.svg" width="80" height="80" alt="sad-3"/></div>
+      </div>
+      <div class="cell" data-monster="3" data-anim="thinking">
+        <h3>Monster 3 — thinking</h3>
+        <div class="frames"><img src="monster3/thinking-1.svg" width="80" height="80" alt="thinking-1"/>
+          <img src="monster3/thinking-2.svg" width="80" height="80" alt="thinking-2"/>
+          <img src="monster3/thinking-3.svg" width="80" height="80" alt="thinking-3"/></div>
+      </div>
+</div>
+
+<script>
+const M = 4, anims = ["idle","happy","sad","thinking"];
+let playing = true, speed = 250, seqIdx = 0;
+const seq = [0,1,2,1]; // ping-pong: 1→2→3→2→...
+let timer;
+
+// Build player cells
+const player = document.getElementById('player');
+for (let mid = 0; mid < M; mid++) {
+  const div = document.createElement('div');
+  div.className = 'player-cell';
+  div.innerHTML = '<img id="p'+mid+'" src="monster'+mid+'/idle-2.svg"/><span id="l'+mid+'">idle frame 2</span>';
+  player.appendChild(div);
+}
+
+let currentAnim = 'idle';
+function setAnim(a) { currentAnim = a; seqIdx = 0; tick(); }
+
+// Add animation buttons
+const ctrl = document.querySelector('.controls');
+anims.forEach(a => {
+  const b = document.createElement('button');
+  b.textContent = a;
+  b.onclick = () => setAnim(a);
+  ctrl.insertBefore(b, ctrl.querySelector('label'));
+});
+
+function tick() {
+  const fr = seq[seqIdx % seq.length] + 1;
+  for (let mid = 0; mid < M; mid++) {
+    document.getElementById('p'+mid).src = 'monster'+mid+'/'+currentAnim+'-'+fr+'.svg';
+    document.getElementById('l'+mid).textContent = currentAnim+' frame '+fr;
+  }
+  seqIdx++;
+}
+
+function loop() { if (playing) { tick(); timer = setTimeout(loop, speed); } }
+function togglePlay() {
+  playing = !playing;
+  document.getElementById('btn-play').textContent = playing ? 'Playing' : 'Paused';
+  document.getElementById('btn-play').classList.toggle('active', playing);
+  if (playing) loop();
+}
+function setSpeed(v) { speed = +v; document.getElementById('speed-val').textContent = v+' ms'; }
+loop();
+</script>
+</body>
+</html>
