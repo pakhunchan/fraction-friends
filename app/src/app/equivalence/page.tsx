@@ -419,6 +419,29 @@ function EquivalenceLesson() {
     [selectedPiece, updateMoods, checkDistributionComplete, sfx]
   );
 
+  const handleDropPieceOnCharacter = useCallback(
+    (pieceId: string, charIndex: number) => {
+      sfx.play("soft-bell");
+
+      let updatedPieces: ObjectPiece[] | null = null;
+      setPieces((prev) => {
+        const updated = prev.map((c) =>
+          c.id === pieceId ? { ...c, assignedTo: charIndex } : c
+        );
+        updatedPieces = updated;
+        return updated;
+      });
+
+      setTimeout(() => {
+        if (updatedPieces) {
+          updateMoods(updatedPieces);
+          checkDistributionComplete(updatedPieces);
+        }
+      }, 100);
+    },
+    [updateMoods, checkDistributionComplete, sfx]
+  );
+
   const [pieceAnimations, setPieceAnimations] = useState<Record<string, "idle" | "pre-split" | "bounce">>({});
   const slicingRef = useRef<Set<string>>(new Set());
 
@@ -657,6 +680,7 @@ function EquivalenceLesson() {
           characterMoods={characterMoods}
           ObjectComponent={Brownie}
           pieceAnimations={pieceAnimations}
+          onDropPieceOnCharacter={handleDropPieceOnCharacter}
         />
       </div>
 

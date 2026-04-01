@@ -1,8 +1,20 @@
 "use client";
 
 import { ComponentType, useState, useRef } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragStartEvent,
+  DragEndEvent,
+} from "@dnd-kit/core";
 import { DividableObject } from "./DividableObject";
 import { Character } from "./Character";
+import { DraggableBrowniePiece } from "./DraggableBrowniePiece";
+import { DroppableCharacter } from "./DroppableCharacter";
 import { BigFraction } from "./Fraction";
 import { LessonStep } from "../lib/lessonData-storyB";
 
@@ -162,6 +174,7 @@ interface WorkspaceProps {
   characterMoods: ("neutral" | "happy" | "sad")[];
   ObjectComponent?: ComponentType<ObjectComponentProps>;
   pieceAnimations?: Record<string, "idle" | "pre-split" | "bounce">;
+  onDropPieceOnCharacter?: (pieceId: string, charIndex: number) => void;
 }
 
 export function Workspace({
@@ -179,9 +192,31 @@ export function Workspace({
   characterMoods,
   ObjectComponent = DividableObject,
   pieceAnimations,
+  onDropPieceOnCharacter,
 }: WorkspaceProps) {
   const [bounceId, setBounceId] = useState<string | null>(null);
   const bounceTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+
+  // dnd-kit sensors: distance constraint prevents accidental drags on tap/scroll
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 8 } });
+  const touchSensor = useSensor(TouchSensor, { activationConstraint: { distance: 8 } });
+  const sensors = useSensors(pointerSensor, touchSensor);
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveDragId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveDragId(null);
+    const { active, over } = event;
+    if (over && onDropPieceOnCharacter) {
+      const charIndex = over.data.current?.charIndex as number | undefined;
+      if (charIndex !== undefined) {
+        onDropPieceOnCharacter(active.id as string, charIndex);
+      }
+    }
+  };
 
   const unassigned = pieces.filter((c) => c.assignedTo === undefined);
   const characters = Array.from({ length: characterCount }, (_, i) => i);
@@ -235,8 +270,21 @@ export function Workspace({
     bounceTimerRef.current = setTimeout(() => setBounceId(null), 250);
   };
 
-  return (
+  const activePiece = activeDragId ? pieces.find((p) => p.id === activeDragId) : null;
+
+  const content = (
     <div className="flex-1 flex flex-col items-center h-full pt-8 px-4 relative bg-[#1e2d4a] rounded-l-2xl">
+      {/* DragOverlay — floating copy of the dragged piece */}
+      {isDistributeStep && (
+        <DragOverlay dropAnimation={null}>
+          {activePiece ? (
+            <div style={{ transform: "scale(1.05)", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.4))" }}>
+              <ObjectComponent type={activePiece.type} size={160} />
+            </div>
+          ) : null}
+        </DragOverlay>
+      )}
+
       {/* Visual-compare animations */}
       <style>{`
         @keyframes slide-together-left {
@@ -384,7 +432,15 @@ export function Workspace({
             style={step.pieceGap ? { gap: step.pieceGap } : undefined}
           >
             {unassigned.map((piece) => (
-              isInteractive ? (
+              isDistributeStep ? (
+                <DraggableBrowniePiece
+                  key={piece.id}
+                  piece={piece}
+                  ObjectComponent={ObjectComponent}
+                  size={160}
+                  animationState={pieceAnimations?.[piece.id]}
+                />
+              ) : isInteractive ? (
                 <button
                   key={piece.id}
                   onClick={() => handlePieceClick(piece)}
@@ -424,13 +480,21 @@ export function Workspace({
           {/* Shelf row — characters */}
           {characters.map((i) => (
             <div key={i} className="flex items-end justify-center mb-2">
-              <Character
-                id={i}
-                mood={characterMoods[i] || "neutral"}
-                onClick={selectedPiece ? () => onAssignToCharacter(i) : undefined}
-                highlighted={selectedPiece !== null}
-                size={characterCount > 2 ? 100 : 130}
-              />
+              {isDistributeStep ? (
+                <DroppableCharacter
+                  charIndex={i}
+                  mood={characterMoods[i] || "neutral"}
+                  size={characterCount > 2 ? 100 : 130}
+                />
+              ) : (
+                <Character
+                  id={i}
+                  mood={characterMoods[i] || "neutral"}
+                  onClick={selectedPiece ? () => onAssignToCharacter(i) : undefined}
+                  highlighted={selectedPiece !== null}
+                  size={characterCount > 2 ? 100 : 130}
+                />
+              )}
             </div>
           ))}
         </div>
@@ -549,4 +613,15 @@ export function Workspace({
       </div>
     </div>
   );
+
+  // Wrap in DndContext only during distribute steps
+  if (isDistributeStep) {
+    return (
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        {content}
+      </DndContext>
+    );
+  }
+
+  return content;
 }
