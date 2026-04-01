@@ -144,6 +144,7 @@ export interface ObjectComponentProps {
   selected?: boolean;
   showLabel?: boolean;
   animationState?: "idle" | "pre-split" | "bounce";
+  opacity?: number;
 }
 
 interface WorkspaceProps {
@@ -188,6 +189,7 @@ export function Workspace({
   // Check if this is a "show" step (big number/fraction)
   const isShowStep = step.type === "show-number" || step.type === "show-fraction";
   const isCheerStep = step.type === "cheer";
+  const isVisualCompare = step.type === "visual-compare";
 
   // Check if this is a distribute step (for showing the reset button)
   const isDistributeStep = step.type === "distribute" || step.type === "distribute-halves";
@@ -235,6 +237,37 @@ export function Workspace({
 
   return (
     <div className="flex-1 flex flex-col items-center h-full pt-8 px-4 relative bg-[#1e2d4a] rounded-l-2xl">
+      {/* Visual-compare animations */}
+      <style>{`
+        @keyframes slide-together-left {
+          from { transform: translateX(-20px); }
+          to   { transform: translateX(0); }
+        }
+        @keyframes slide-together-right {
+          from { transform: translateX(20px); }
+          to   { transform: translateX(0); }
+        }
+        @keyframes slide-together-up {
+          from { transform: translateY(-20px); }
+          to   { transform: translateY(0); }
+        }
+        @keyframes slide-together-down {
+          from { transform: translateY(20px); }
+          to   { transform: translateY(0); }
+        }
+        @keyframes ghost-fade-in {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes ghost-pulse {
+          0%, 100% { opacity: 0.85; }
+          50%      { opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .slide-together-left, .slide-together-right,
+          .slide-together-up, .slide-together-down { animation: none !important; }
+        }
+      `}</style>
       {/* Tool switcher */}
       {step.allowKnife && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 flex bg-[#1a2540] rounded-full p-1 gap-1 z-10">
@@ -282,8 +315,70 @@ export function Workspace({
         </div>
       )}
 
+      {/* Visual-compare: ghost overlay + grouped pieces */}
+      {isVisualCompare && (() => {
+        const compareCount = step.compareCount ?? 2;
+        const grouped = unassigned.slice(0, compareCount);
+        const remaining = unassigned.slice(compareCount);
+        // Half pieces → row (side by side), quarter pieces → column (stacked)
+        const isHalfPieces = grouped.some((p) => p.type === "half-left" || p.type === "half-right");
+        const direction = isHalfPieces ? "flex-row" : "flex-col";
+        // Slide animation names depend on direction
+        const slideAnims = isHalfPieces
+          ? ["slide-together-left", "slide-together-right"]
+          : ["slide-together-up", "slide-together-down"];
+
+        return (
+          <div className="flex-1 flex flex-col items-center justify-center pb-[280px] gap-6">
+            {/* Comparison group with ghost overlay */}
+            <div className="relative inline-flex items-center justify-center">
+              {/* Ghost overlay — absolutely positioned behind grouped pieces */}
+              {step.ghostPiece && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
+                     style={{ animation: "ghost-fade-in 0.6s ease-in forwards, ghost-pulse 2s 0.6s ease-in-out infinite" }}>
+                  <div style={{ filter: "drop-shadow(0 0 8px rgba(255,215,0,0.4))" }}>
+                    <ObjectComponent
+                      type={step.ghostPiece}
+                      size={160}
+                      showLabel={false}
+                      opacity={0.35}
+                    />
+                  </div>
+                </div>
+              )}
+              {/* Grouped pieces sliding together */}
+              <div className={`flex ${direction} gap-0 relative z-10`}>
+                {grouped.map((piece, i) => (
+                  <div key={piece.id}
+                       style={{ animation: `${slideAnims[i % slideAnims.length]} 0.5s ease-out forwards` }}>
+                    <ObjectComponent
+                      type={piece.type}
+                      size={160}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Remaining pieces (dimmed) */}
+            {remaining.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center gap-2 opacity-40">
+                {remaining.map((piece) => (
+                  <div key={piece.id}>
+                    <ObjectComponent
+                      type={piece.type}
+                      size={100}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Unassigned pieces area */}
-      {!isShowStep && !isCheerStep && (
+      {!isShowStep && !isCheerStep && !isVisualCompare && (
         <div className={`flex-1 flex items-center justify-center ${hideShelf ? "" : "pb-[280px]"}`}>
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 max-w-full">
             {unassigned.map((piece) => (

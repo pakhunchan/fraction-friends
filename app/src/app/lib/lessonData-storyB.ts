@@ -11,6 +11,7 @@ export type StepType =
   | "show-number"       // Big number display
   | "show-fraction"     // Big fraction display
   | "cheer"             // Motivational screen with monsters cheering
+  | "visual-compare"    // Ghost overlay comparison (pieces → equivalent larger piece)
 
 export interface Choice {
   label: string;
@@ -36,6 +37,8 @@ export interface LessonStep {
   sliceTo?: "half" | "quarter"; // target tier for slice steps — prevents over-slicing
   sfx?: string;
   cheerStyle?: string;
+  ghostPiece?: "whole" | "half-left" | "half-right" | "quarter"; // ghost overlay for visual-compare
+  compareCount?: number; // how many unassigned pieces to group in comparison
 }
 
 // ---------------------------------------------------------------------------

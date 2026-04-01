@@ -116,7 +116,7 @@ function EquivalenceLesson() {
   }, [stepId, step, hasInteracted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- Auto-advance narrate/show steps (no tasks, no choices) ----
-  const autoAdvanceTypes = ["narrate", "show-number", "show-fraction"];
+  const autoAdvanceTypes = ["narrate", "show-number", "show-fraction", "visual-compare"];
   const shouldAutoAdvance =
     step &&
     hasInteracted &&

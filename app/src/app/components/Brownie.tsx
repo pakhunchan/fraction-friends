@@ -27,6 +27,7 @@ export interface BrownieProps {
   selected?: boolean;
   showLabel?: boolean;        // default true
   animationState?: "idle" | "pre-split" | "bounce";
+  opacity?: number;
 }
 
 // ---- Geometry constants ----------------------------------------------------
@@ -567,6 +568,7 @@ export function Brownie({
   selected = false,
   showLabel = true,
   animationState,
+  opacity,
 }: BrownieProps) {
   const rawId = useId();
   const id = rawId.replace(/:/g, "");
@@ -615,7 +617,7 @@ export function Brownie({
         xmlns="http://www.w3.org/2000/svg"
         overflow="visible"
         className={animClass}
-        style={{ display: "block" }}
+        style={{ display: "block", opacity: opacity ?? 1 }}
         role="img"
         aria-label={`Brownie piece: ${PIECE_LABELS[type].den === 1 ? '1 whole' : `${PIECE_LABELS[type].num}/${PIECE_LABELS[type].den}`}`}
       >

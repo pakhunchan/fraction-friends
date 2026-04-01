@@ -12,6 +12,7 @@ export type StepType =
   | "show-number"       // Big number display
   | "show-fraction"     // Big fraction display
   | "cheer"             // Motivational screen with monsters cheering
+  | "visual-compare"    // Ghost overlay comparison (pieces → equivalent larger piece)
 
 export interface Choice {
   label: string;
@@ -37,6 +38,8 @@ export interface LessonStep {
   sliceTo?: "half" | "quarter"; // target tier for slice steps — prevents over-slicing
   sfx?: string;
   cheerStyle?: "sparkle-rally" | "high-five" | "champion-banner" | "gentle-encouragement" | "countdown-hype" | "cheerleader-squad" | "storybook" | "trophy-room" | "dance-party" | "warm-hug";
+  ghostPiece?: "whole" | "half-left" | "half-right" | "quarter"; // ghost overlay for visual-compare
+  compareCount?: number; // how many unassigned pieces to group in comparison
 }
 
 // ---------------------------------------------------------------------------
@@ -435,17 +438,19 @@ export const lessonSteps: Record<string, LessonStep> = {
   },
 
   // ===========================================================================
-  // STAGE 3 — Practice: Reinforce 1/2 = 2/4 with another brownie (4 characters)
+  // STAGE 3 — Reassembly & Equivalence: 2/4 = 1/2 (visual proof)
+  // Sofia and Marcus (2 characters) explore recombining pieces.
   // ===========================================================================
 
   "s3-intro": {
     id: "s3-intro",
     type: "narrate",
-    characterCount: 4,
+    characterCount: 2,
     tutorText:
-      "Sofia pulls another tray of brownies out of the oven. "
-      + "\"I made one big brownie for the four of us to share! "
-      + "This time, YOU get to figure out how to split it fairly.\"",
+      "A couple of days later, Sofia and Marcus are back in the Cozy Kitchen — "
+      + "just the two of them this time. Sofia has a fresh brownie cooling on the "
+      + "rack, and she can barely contain her excitement. 'Marcus, I figured out "
+      + "something AMAZING about fractions. You have to see this!'",
     next: "s3-setup",
     sfx: "harp-gliss",
   },
@@ -454,171 +459,185 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "s3-setup",
     type: "narrate",
     objectCount: 1,
-    characterCount: 4,
+    characterCount: 2,
     tutorText:
-      "There's 1 brownie and 4 friends. "
-      + "\"How should we cut it?\" asks Lily. "
-      + "\"Think about what we just learned!\"",
-    next: "s3-plan-question",
+      "Sofia places one beautiful brownie on the cutting board and rubs her hands "
+      + "together. 'Okay, first — let's cut this brownie in half. Just like before. "
+      + "But THIS time, watch what happens after!'",
+    next: "s3-slice-half",
     sfx: "gentle-whoosh",
   },
 
-  "s3-plan-question": {
-    id: "s3-plan-question",
-    type: "choice",
-    tutorText:
-      "We need to share 1 brownie fairly among 4 friends. "
-      + "What should we do first?",
-    choices: [
-      { label: "Cut the brownie in half, then cut each half in half to get 4 quarters.", next: "s3-first-cut", correct: true },
-      { label: "Give the whole brownie to Lily.", next: "s3-wrong-maple" },
-      { label: "Cut it in half for 2 pieces.", next: "s3-wrong-half-only" },
-    ],
-  },
-
-  "s3-wrong-maple": {
-    id: "s3-wrong-maple",
-    type: "narrate",
-    tutorText:
-      "Lily would love that, but then Sofia, Marcus, and James "
-      + "wouldn't get any! We need to cut it into enough pieces "
-      + "so all 4 friends get the same amount.",
-    next: "s3-plan-question",
-    sfx: "gentle-whoosh",
-  },
-
-  "s3-wrong-half-only": {
-    id: "s3-wrong-half-only",
-    type: "narrate",
-    tutorText:
-      "Two pieces would work for 2 friends, but we have 4! "
-      + "We need more pieces. What if we cut each half in half again?",
-    next: "s3-plan-question",
-    sfx: "gentle-whoosh",
-  },
-
-  "s3-first-cut": {
-    id: "s3-first-cut",
+  "s3-slice-half": {
+    id: "s3-slice-half",
     type: "slice",
     sliceTo: "half",
     tutorText:
-      "Great plan! First, tap the brownie to cut it in half.",
-    next: "s3-second-cut",
+      "Tap the brownie to cut it right down the middle!",
+    next: "s3-halves-observe",
     sfx: "gentle-whoosh",
   },
 
-  "s3-second-cut": {
-    id: "s3-second-cut",
-    type: "slice",
-    sliceTo: "quarter",
-    tutorText:
-      "Now tap each half to cut it in half again. "
-      + "That gives us 4 quarters — one for each friend!",
-    next: "s3-post-cut",
-    sfx: "gentle-whoosh",
-  },
-
-  "s3-post-cut": {
-    id: "s3-post-cut",
+  "s3-halves-observe": {
+    id: "s3-halves-observe",
     type: "narrate",
     tutorText:
-      "4 equal pieces! Marcus points at the brownie. "
-      + "\"Hey, look — 2 of those quarters are on one side of the big cut. "
-      + "That's the same as one-half! We proved it again!\"",
-    next: "s3-show-equivalence",
+      "Two perfect halves sit on the cutting board. Sofia grins and slides them "
+      + "back together. 'Look, Marcus — watch closely...'",
+    next: "s3-compare-halves",
+    sfx: "gentle-whoosh",
+  },
+
+  "s3-compare-halves": {
+    id: "s3-compare-halves",
+    type: "visual-compare",
+    ghostPiece: "whole",
+    compareCount: 2,
+    tutorText:
+      "The two halves fit back together perfectly! See the outline? They fill up "
+      + "the whole shape — not a crumb missing. We split the brownie into two "
+      + "pieces, but ALL the brownie is still right here. One half plus one half "
+      + "makes one whole!",
+    next: "s3-show-2-over-2",
     sfx: "chime",
   },
 
-  "s3-show-equivalence": {
-    id: "s3-show-equivalence",
+  "s3-show-2-over-2": {
+    id: "s3-show-2-over-2",
     type: "show-fraction",
-    tutorText:
-      "Two-fourths equals one-half! "
-      + "It doesn't matter which brownie we cut — "
-      + "1/2 and 2/4 are always the same amount.",
     showFractionNum: 2,
-    showFractionDen: 4,
-    next: "s3-equiv-check",
+    showFractionDen: 2,
+    tutorText:
+      "We can write that as two-halves. The bottom number says we cut it into 2 "
+      + "pieces. The top number says we have BOTH pieces. Two out of two — that's "
+      + "everything! Two-halves equals one whole.",
+    next: "s3-halves-check",
     sfx: "sparkle",
   },
 
-  "s3-equiv-check": {
-    id: "s3-equiv-check",
+  "s3-halves-check": {
+    id: "s3-halves-check",
     type: "choice",
     tutorText:
-      "James asks: \"If I eat 2 out of 4 pieces, "
-      + "did I eat more or less than half the brownie?\"",
+      "Sofia asks: 'So if we put both halves back together, what do we get?'",
     choices: [
-      { label: "Exactly half! 2/4 = 1/2.", next: "s3-equiv-correct", correct: true },
-      { label: "Less than half, because quarters are small.", next: "s3-equiv-wrong-less" },
-      { label: "More than half, because 2 pieces is a lot.", next: "s3-equiv-wrong-more" },
+      { label: "One whole brownie — nothing changed!", next: "s3-halves-correct", correct: true },
+      { label: "Two brownies, because there are two pieces", next: "s3-halves-wrong" },
     ],
   },
 
-  "s3-equiv-wrong-less": {
-    id: "s3-equiv-wrong-less",
+  "s3-halves-wrong": {
+    id: "s3-halves-wrong",
     type: "narrate",
     tutorText:
-      "The pieces are smaller, that's true! But you have 2 of them. "
-      + "Look at where the big half-cut is — those 2 quarters fit "
-      + "perfectly on one side. They cover the same amount as one half!",
-    next: "s3-equiv-check",
+      "We still have the same brownie! Cutting it made two pieces, but it didn't "
+      + "create extra brownie. When we push the halves back together — same brownie, "
+      + "same amount. Two halves make one whole!",
+    next: "s3-halves-check",
     sfx: "gentle-whoosh",
   },
 
-  "s3-equiv-wrong-more": {
-    id: "s3-equiv-wrong-more",
+  "s3-halves-correct": {
+    id: "s3-halves-correct",
     type: "narrate",
     tutorText:
-      "2 pieces sounds like a lot, but remember: the whole brownie "
-      + "has 4 pieces. 2 out of 4 is exactly half. "
-      + "We didn't add any extra brownie — just made more cuts!",
-    next: "s3-equiv-check",
-    sfx: "gentle-whoosh",
-  },
-
-  "s3-equiv-correct": {
-    id: "s3-equiv-correct",
-    type: "narrate",
-    tutorText:
-      "That's right! Now let's share the brownie. "
-      + "Give one quarter to each of the 4 friends!",
-    next: "s3-distribute-quarters",
+      "Marcus nods slowly. 'So cutting something doesn't make MORE stuff — it "
+      + "just splits the same stuff into pieces!' Sofia's eyes light up. 'Exactly! "
+      + "And now... watch THIS.'",
+    next: "s3-slice-quarters",
     sfx: "chime",
   },
 
-  "s3-distribute-quarters": {
-    id: "s3-distribute-quarters",
-    type: "distribute-halves",
+  "s3-slice-quarters": {
+    id: "s3-slice-quarters",
+    type: "slice",
+    sliceTo: "quarter",
     tutorText:
-      "Give one quarter to Sofia, one to Marcus, "
-      + "one to Lily, and one to James!",
-    characterCount: 4,
+      "Tap each half to cut it into two smaller pieces. Now we have four quarters!",
+    next: "s3-quarters-observe",
+    sfx: "gentle-whoosh",
+  },
+
+  "s3-quarters-observe": {
+    id: "s3-quarters-observe",
+    type: "narrate",
+    tutorText:
+      "Four little quarter pieces! Sofia carefully slides two of them together. "
+      + "'These two tiny pieces used to be one half. I wonder... do they still add "
+      + "up to the same amount?'",
+    next: "s3-compare-quarters",
+    sfx: "gentle-whoosh",
+  },
+
+  "s3-compare-quarters": {
+    id: "s3-compare-quarters",
+    type: "visual-compare",
+    ghostPiece: "half-left",
+    compareCount: 2,
+    tutorText:
+      "They fit! Two quarters pushed together fill up exactly one half — see the "
+      + "outline? Not too big, not too small. They're the same amount! These two "
+      + "little pieces together make one half!",
+    next: "s3-show-2-over-4",
+    sfx: "chime",
+  },
+
+  "s3-show-2-over-4": {
+    id: "s3-show-2-over-4",
+    type: "show-fraction",
+    showFractionNum: 2,
+    showFractionDen: 4,
+    tutorText:
+      "Two-fourths! Two pieces out of four. And two-fourths is the same amount "
+      + "as one-half. The pieces got smaller, but put two of them together and you "
+      + "get the same amount back!",
+    next: "s3-big-insight",
+    sfx: "sparkle",
+  },
+
+  "s3-big-insight": {
+    id: "s3-big-insight",
+    type: "narrate",
+    tutorText:
+      "Sofia jumps up from the table, beaming. 'Marcus! Do you see it? One whole "
+      + "brownie, two halves, four quarters — they're ALL the same amount of brownie! "
+      + "You can split it into more and more pieces, but it's always the same brownie. "
+      + "That's what equivalent fractions are!' Marcus grins. 'Fractions are just "
+      + "different ways to describe the same thing!'",
     next: "s3-final-check",
-    sfx: "xylophone",
+    sfx: "harp-gliss",
   },
 
   "s3-final-check": {
     id: "s3-final-check",
     type: "choice",
     tutorText:
-      "One last question from James! "
-      + "\"If I have 2 out of 4 pieces of brownie, is that more, less, "
-      + "or the same as someone who has 1 out of 2 pieces?\"",
+      "Quick check! If you put 2 quarter pieces together, what do they make?",
     choices: [
-      { label: "The same! 2/4 = 1/2", next: "quiz-intro", correct: true },
-      { label: "More, because 2 is more than 1.", next: "s3-final-wrong" },
+      { label: "One half! 2 quarters = 1 half", next: "quiz-intro", correct: true },
+      { label: "One whole brownie", next: "s3-final-wrong-whole" },
+      { label: "Something smaller than a half", next: "s3-final-wrong-smaller" },
     ],
   },
 
-  "s3-final-wrong": {
-    id: "s3-final-wrong",
+  "s3-final-wrong-whole": {
+    id: "s3-final-wrong-whole",
     type: "narrate",
     tutorText:
-      "The numbers are bigger, but remember: the pieces are smaller too! "
-      + "2 quarter-pieces add up to the exact same amount as "
-      + "1 half-piece. It's like having 2 quarters versus 1 fifty-cent coin. "
-      + "Same value, just different pieces!",
+      "Not quite! 4 quarters make a whole, but we only have 2 quarters here. "
+      + "Think about what we just saw — 2 small pieces fitting inside the outline "
+      + "of one half...",
+    next: "s3-final-check",
+    sfx: "gentle-whoosh",
+  },
+
+  "s3-final-wrong-smaller": {
+    id: "s3-final-wrong-smaller",
+    type: "narrate",
+    tutorText:
+      "Remember what Sofia showed us! She pushed the two quarters together and "
+      + "they filled up the half-outline perfectly. Same area, same amount. "
+      + "Two quarters together make...?",
     next: "s3-final-check",
     sfx: "gentle-whoosh",
   },
