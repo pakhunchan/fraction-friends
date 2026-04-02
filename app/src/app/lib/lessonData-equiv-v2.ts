@@ -79,6 +79,7 @@ export const lessonSteps: Record<string, LessonStep> = {
   "start-b": {
     id: "start-b",
     type: "narrate",
+    characterCount: 2,
     tutorText: "Today, Sofia and Marcus are baking brownies together.",
     next: "start-c",
   },
@@ -97,8 +98,15 @@ export const lessonSteps: Record<string, LessonStep> = {
     type: "narrate",
     objectCount: 1,
     tutorText:
-      "Sofia slides a big, beautiful brownie onto the cutting board. "
-      + "She and Marcus both want to eat it, but there's only one brownie.",
+      "Sofia slides a big, beautiful brownie onto the cutting board.",
+    next: "kitchen-intro-2a",
+  },
+
+  "kitchen-intro-2a": {
+    id: "kitchen-intro-2a",
+    type: "narrate",
+    tutorText:
+      "She and Marcus both want to eat it, but there's only one brownie.",
     next: "kitchen-intro-2b",
   },
 
@@ -213,8 +221,15 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "s1-show-fraction-b",
     type: "narrate",
     tutorText:
-      "The bottom number, 2, tells us we cut the brownie into 2 equal pieces. "
-      + "The top number, 1, tells us each friend got 1 of those pieces.",
+      "The bottom number, 2, tells us we cut the brownie into 2 equal pieces.",
+    next: "s1-show-fraction-c",
+  },
+
+  "s1-show-fraction-c": {
+    id: "s1-show-fraction-c",
+    type: "narrate",
+    tutorText:
+      "The top number, 1, tells us each friend got 1 of those pieces.",
     next: "s1-check-understanding",
   },
 
@@ -349,6 +364,14 @@ export const lessonSteps: Record<string, LessonStep> = {
     tutorText:
       "But now Sofia picks up one of those halves and says, "
       + "\"What if I cut THIS piece in half too?\"",
+    next: "s2-cut-question-intro",
+  },
+
+  "s2-cut-question-intro": {
+    id: "s2-cut-question-intro",
+    type: "narrate",
+    tutorText:
+      "Sofia wants to cut each half of the brownie in half again.",
     next: "s2-cut-question",
   },
 
@@ -356,8 +379,7 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "s2-cut-question",
     type: "choice",
     tutorText:
-      "Sofia wants to cut each half of the brownie in half again. "
-      + "If the brownie is already in 2 pieces and we cut each piece in half, "
+      "If the brownie is already in 2 pieces and we cut each piece in half, "
       + "how many pieces will we have?",
     choices: [
       { label: "4 pieces", next: "s2-do-quarter-slice", correct: true },
@@ -426,10 +448,17 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "s2-magic-moment",
     type: "narrate",
     tutorText:
-      "Sofia points at the brownie. \"Look! See where the first cut was? "
-      + "2 of these 4 pieces are on this side, and 2 are on that side.\"",
-    next: "s2-magic-moment-b",
+      "Sofia points at the brownie. \"Look! See where the first cut was?\"",
+    next: "s2-magic-moment-a2",
     sfx: "harp-gliss",
+  },
+
+  "s2-magic-moment-a2": {
+    id: "s2-magic-moment-a2",
+    type: "narrate",
+    tutorText:
+      "\"2 of these 4 pieces are on this side, and 2 are on that side.\"",
+    next: "s2-magic-moment-b",
   },
 
   "s2-magic-moment-b": {
@@ -549,8 +578,15 @@ export const lessonSteps: Record<string, LessonStep> = {
     type: "narrate",
     tutorText:
       "And now you know something amazing: one-half and two-fourths are "
-      + "the same amount, just written differently. It's like how \"twelve\" "
-      + "and \"a dozen\" mean the same thing!",
+      + "the same amount, just written differently.",
+    next: "s2-celebrate-b2",
+  },
+
+  "s2-celebrate-b2": {
+    id: "s2-celebrate-b2",
+    type: "narrate",
+    tutorText:
+      "It's like how \"twelve\" and \"a dozen\" mean the same thing!",
     next: "s2-celebrate-c",
   },
 
@@ -632,10 +668,18 @@ export const lessonSteps: Record<string, LessonStep> = {
     type: "narrate",
     pieceGap: "80px",
     tutorText:
-      "Two perfect halves sit on the cutting board. Sofia grins and slides them "
-      + "back together. 'Look, Marcus — watch closely...'",
-    next: "s3-compare-halves",
+      "Two perfect halves sit on the cutting board.",
+    next: "s3-halves-observe-b",
     sfx: "gentle-whoosh",
+  },
+
+  "s3-halves-observe-b": {
+    id: "s3-halves-observe-b",
+    type: "narrate",
+    pieceGap: "80px",
+    tutorText:
+      "Sofia grins and slides them back together. 'Look, Marcus — watch closely...'",
+    next: "s3-compare-halves",
   },
 
   "s3-compare-halves": {
@@ -645,11 +689,20 @@ export const lessonSteps: Record<string, LessonStep> = {
     compareCount: 2,
     tutorText:
       "The two halves fit back together perfectly! See the outline? They fill up "
-      + "the whole shape — not a crumb missing. We split the brownie into two "
-      + "pieces, but ALL the brownie is still right here. One half plus one half "
-      + "makes one whole!",
-    next: "s3-show-2-over-2",
+      + "the whole shape — not a crumb missing.",
+    next: "s3-compare-halves-b",
     sfx: "chime",
+  },
+
+  "s3-compare-halves-b": {
+    id: "s3-compare-halves-b",
+    type: "visual-compare",
+    ghostPiece: "whole",
+    compareCount: 2,
+    tutorText:
+      "We split the brownie into two pieces, but ALL the brownie is still right "
+      + "here. One half plus one half makes one whole!",
+    next: "s3-show-2-over-2",
   },
 
   "s3-show-2-over-2": {

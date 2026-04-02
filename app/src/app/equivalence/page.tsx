@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { lessonSteps, LessonStep } from "../lib/lessonData-equiv";
+import { lessonSteps, LessonStep } from "../lib/lessonData-equiv-v2";
 import { useElevenLabsSpeech } from "../lib/useElevenLabsSpeech";
 import { useSoundEffects } from "../lib/useSoundEffects";
 import { useBackgroundMusic } from "../lib/useBackgroundMusic";

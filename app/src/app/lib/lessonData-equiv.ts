@@ -82,6 +82,7 @@ export const lessonSteps: Record<string, LessonStep> = {
   "kitchen-intro-2": {
     id: "kitchen-intro-2",
     type: "narrate",
+    characterCount: 2,
     objectCount: 1,
     tutorText:
       "Sofia slides a big, beautiful brownie onto the cutting board. "
