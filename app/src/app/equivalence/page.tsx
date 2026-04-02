@@ -11,6 +11,7 @@ import { Workspace, ObjectPiece } from "../components/Workspace";
 import { Brownie } from "../components/Brownie";
 import { ReportIssue } from "../components/ReportIssue";
 import { Character } from "../components/Character";
+import { NightSky } from "../components/NightSky";
 import { pieceValue } from "../lib/pieceValue";
 import { resolveStepState } from "../lib/resolveStepState";
 
@@ -587,9 +588,10 @@ function EquivalenceLesson() {
   if (!step) {
     return (
       <div
-        className="h-screen w-screen starfield flex items-center justify-center bg-[#0f1729]"
+        className="h-screen w-screen flex items-center justify-center bg-[#1a2744]"
         onClick={handleFirstInteraction}
       >
+        <NightSky />
         <div className="text-center">
           <h1 className="text-4xl font-bold text-white mb-2">You&apos;re a Fraction Star!</h1>
           <p className="text-lg text-[#e8ecff] mb-6">
@@ -628,12 +630,14 @@ function EquivalenceLesson() {
 
   return (
     <div
-      className="h-screen w-screen starfield flex bg-[#0f1729] overflow-hidden"
+      className="h-screen w-screen flex bg-[#1a2744] overflow-hidden"
       onClick={handleFirstInteraction}
     >
+      <NightSky />
+
       {/* Tap-to-begin overlay */}
       {!hasInteracted && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#0f1729]/80 backdrop-blur-sm cursor-pointer">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#1a2744]/80 backdrop-blur-sm cursor-pointer">
           <div className="text-center animate-pulse">
             <svg width="80" height="80" viewBox="0 0 24 24" fill="#FCD34D" className="mx-auto mb-4">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
