@@ -21,6 +21,12 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Star twinkle animation */
+@keyframes twinkle {
+  0%, 85%, 100% { opacity: 0.15; }
+  90% { opacity: 0.7; }
+}
+
 /* Starfield background */
 .starfield {
   background-image:
