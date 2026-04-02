@@ -228,6 +228,8 @@ export function Workspace({
 
   // Check if this is a distribute step (for showing the reset button)
   const isDistributeStep = step.type === "distribute" || step.type === "distribute-halves";
+  // Only enable drag-and-drop when the callback is provided (avoids hydration issues in read-only previews)
+  const isDndEnabled = isDistributeStep && !!onDropPieceOnCharacter;
 
   // Bars are only interactive during distribute, distribute-halves, and slice steps
   const isInteractive = isDistributeStep || step.type === "slice";
@@ -275,7 +277,7 @@ export function Workspace({
   const content = (
     <div className="flex-1 flex flex-col items-center h-full pt-8 px-4 relative bg-[#1e2d4a] rounded-l-2xl">
       {/* DragOverlay — floating copy of the dragged piece */}
-      {isDistributeStep && (
+      {isDndEnabled && (
         <DragOverlay dropAnimation={null}>
           {activePiece ? (
             <div style={{ transform: "scale(1.05)", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.4))" }}>
@@ -432,7 +434,7 @@ export function Workspace({
             style={step.pieceGap ? { gap: step.pieceGap } : undefined}
           >
             {unassigned.map((piece) => (
-              isDistributeStep ? (
+              isDndEnabled ? (
                 <DraggableBrowniePiece
                   key={piece.id}
                   piece={piece}
@@ -480,7 +482,7 @@ export function Workspace({
           {/* Shelf row — characters */}
           {characters.map((i) => (
             <div key={i} className="flex items-end justify-center mb-2">
-              {isDistributeStep ? (
+              {isDndEnabled ? (
                 <DroppableCharacter
                   charIndex={i}
                   mood={characterMoods[i] || "neutral"}
@@ -614,8 +616,8 @@ export function Workspace({
     </div>
   );
 
-  // Wrap in DndContext only during distribute steps
-  if (isDistributeStep) {
+  // Wrap in DndContext only during distribute steps with drag enabled
+  if (isDndEnabled) {
     return (
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         {content}

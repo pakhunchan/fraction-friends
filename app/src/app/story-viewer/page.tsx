@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { lessonSteps as lessonStepsBasic } from "../lib/lessonData-storyB";
 import { lessonSteps as lessonStepsEquiv } from "../lib/lessonData-equiv";
+import { lessonSteps as lessonStepsEquivV2 } from "../lib/lessonData-equiv-v2";
 import type { LessonStep } from "../lib/lessonData-storyB";
 import { buildHappyPath } from "../lib/buildHappyPath";
 import { resolveStepState } from "../lib/resolveStepState";
@@ -30,6 +31,11 @@ const LESSONS: Record<
   equivalence: {
     label: "Fraction Equivalence",
     steps: lessonStepsEquiv as Record<string, LessonStep>,
+    ObjectComponent: Brownie,
+  },
+  "equivalence-v2": {
+    label: "Fractional Equivalence V2",
+    steps: lessonStepsEquivV2 as Record<string, LessonStep>,
     ObjectComponent: Brownie,
   },
 };
