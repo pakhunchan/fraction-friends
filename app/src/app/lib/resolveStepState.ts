@@ -12,7 +12,7 @@ export function resolveStepState(
   targetStepId: string
 ): { pieces: ObjectPiece[]; characterCount: number; taskHeader?: string } {
   let objectCount = 0;
-  let characterCount = 2;
+  let characterCount = 0;
   let taskHeader: string | undefined;
   let pieces: ObjectPiece[] = [];
   // Track whether we've passed through a slice step and what it sliced to

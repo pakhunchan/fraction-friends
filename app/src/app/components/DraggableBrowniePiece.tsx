@@ -9,6 +9,8 @@ interface DraggableBrowniePieceProps {
   ObjectComponent: ComponentType<ObjectComponentProps>;
   size: number;
   animationState?: "idle" | "pre-split" | "bounce";
+  selected?: boolean;
+  onClick?: () => void;
 }
 
 export function DraggableBrowniePiece({
@@ -16,6 +18,8 @@ export function DraggableBrowniePiece({
   ObjectComponent,
   size,
   animationState,
+  selected,
+  onClick,
 }: DraggableBrowniePieceProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: piece.id, data: { piece } });
@@ -30,10 +34,17 @@ export function DraggableBrowniePiece({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      onClick={onClick}
+    >
       <ObjectComponent
         type={piece.type}
         size={size}
+        selected={selected}
         animationState={animationState}
       />
     </div>

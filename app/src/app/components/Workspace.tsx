@@ -236,8 +236,8 @@ export function Workspace({
   const hasAnyAssigned = pieces.some((c) => c.assignedTo !== undefined);
 
   // Hide the bottom shelf (characters + table) when there's nothing to interact
-  // with and no objects on display — quiz, cheer, show, and finale stages
-  const hideShelf = isShowStep || isCheerStep || (!isInteractive && unassigned.length === 0 && !step.objectCount);
+  // with and no objects or characters on display — quiz, cheer, show, and finale stages
+  const hideShelf = isShowStep || isCheerStep || (!isInteractive && unassigned.length === 0 && !step.objectCount && characterCount === 0);
 
   // Get pieces assigned to each character
   const getCharacterPieces = (charIndex: number) =>
@@ -440,7 +440,9 @@ export function Workspace({
                   piece={piece}
                   ObjectComponent={ObjectComponent}
                   size={160}
-                  animationState={pieceAnimations?.[piece.id]}
+                  animationState={pieceAnimations?.[piece.id] ?? (bounceId === piece.id ? "bounce" : undefined)}
+                  selected={selectedPiece === piece.id}
+                  onClick={() => handlePieceClick(piece)}
                 />
               ) : isInteractive ? (
                 <button
@@ -487,6 +489,8 @@ export function Workspace({
                   charIndex={i}
                   mood={characterMoods[i] || "neutral"}
                   size={characterCount > 2 ? 100 : 130}
+                  onClick={selectedPiece ? () => onAssignToCharacter(i) : undefined}
+                  highlighted={selectedPiece !== null}
                 />
               ) : (
                 <Character

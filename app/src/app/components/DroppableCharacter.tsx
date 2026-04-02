@@ -7,12 +7,16 @@ interface DroppableCharacterProps {
   charIndex: number;
   mood: "neutral" | "happy" | "sad";
   size: number;
+  onClick?: () => void;
+  highlighted?: boolean;
 }
 
 export function DroppableCharacter({
   charIndex,
   mood,
   size,
+  onClick,
+  highlighted,
 }: DroppableCharacterProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: `character-${charIndex}`,
@@ -31,7 +35,7 @@ export function DroppableCharacter({
           : undefined,
       }}
     >
-      <Character id={charIndex} mood={mood} size={size} />
+      <Character id={charIndex} mood={mood} size={size} onClick={onClick} highlighted={highlighted} />
     </div>
   );
 }
