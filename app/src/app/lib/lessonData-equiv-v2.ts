@@ -13,6 +13,7 @@ export type StepType =
   | "show-fraction"     // Big fraction display
   | "cheer"             // Motivational screen with monsters cheering
   | "visual-compare"    // Ghost overlay comparison (pieces → equivalent larger piece)
+  | "auto-slice"        // Auto-animate slicing without user input (for wrong-answer demos)
 
 export interface Choice {
   label: string;
@@ -24,6 +25,7 @@ export interface LessonStep {
   id: string;
   type: StepType;
   tutorText?: string;
+  ttsText?: string;
   taskHeader?: string;
   choices?: Choice[];
   next?: string;         // for narrate / distribute / show-* steps
@@ -134,22 +136,36 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "s1-wrong-benny",
     type: "narrate",
     tutorText:
-      "Marcus would love that, but poor Sofia would be left without any brownie! "
-      + "Sharing means everyone gets the same amount. "
+      "Marcus would love that, but poor Sofia would be left without any brownie!",
+    next: "s1-wrong-benny-2",
+    sfx: "gentle-whoosh",
+  },
+
+  "s1-wrong-benny-2": {
+    id: "s1-wrong-benny-2",
+    type: "narrate",
+    tutorText:
+      "Sharing means everyone gets the same amount. "
       + "What if we cut the brownie into two equal pieces?",
     next: "s1-share-question",
-    sfx: "gentle-whoosh",
   },
 
   "s1-wrong-oven": {
     id: "s1-wrong-oven",
     type: "narrate",
     tutorText:
-      "Ha! It's already perfectly baked. Putting it back would burn it! "
-      + "Our friends just need a way to split it into two equal pieces "
+      "Ha! It's already perfectly baked. Putting it back would burn it!",
+    next: "s1-wrong-oven-2",
+    sfx: "gentle-whoosh",
+  },
+
+  "s1-wrong-oven-2": {
+    id: "s1-wrong-oven-2",
+    type: "narrate",
+    tutorText:
+      "Our friends just need a way to split it into two equal pieces "
       + "so they each get the same amount. What could we do?",
     next: "s1-share-question",
-    sfx: "gentle-whoosh",
   },
 
   "s1-do-slice": {
@@ -249,23 +265,49 @@ export const lessonSteps: Record<string, LessonStep> = {
   "s1-wrong-quarter": {
     id: "s1-wrong-quarter",
     type: "narrate",
-    tutorText:
-      "Almost! A quarter means something is cut into 4 pieces. "
-      + "But our brownie was cut into just 2 pieces. "
-      + "When you take 1 piece out of 2, that's one... what?",
-    next: "s1-check-understanding",
+    tutorText: "Almost!",
+    next: "s1-wrong-quarter-2",
     sfx: "gentle-whoosh",
+  },
+
+  "s1-wrong-quarter-2": {
+    id: "s1-wrong-quarter-2",
+    type: "narrate",
+    tutorText:
+      "A quarter means something is cut into 4 pieces. "
+      + "But our brownie was cut into just 2 pieces.",
+    next: "s1-wrong-quarter-3",
+  },
+
+  "s1-wrong-quarter-3": {
+    id: "s1-wrong-quarter-3",
+    type: "narrate",
+    tutorText: "When you take 1 piece out of 2, that's one... what?",
+    next: "s1-check-understanding",
   },
 
   "s1-wrong-two": {
     id: "s1-wrong-two",
     type: "narrate",
-    tutorText:
-      "Not quite! 2 is the number of pieces we cut the brownie into. "
-      + "But the fraction is about how much you have. "
-      + "You have 1 piece out of 2. That's called one-half!",
-    next: "s1-check-understanding",
+    tutorText: "Not quite!",
+    next: "s1-wrong-two-2",
     sfx: "gentle-whoosh",
+  },
+
+  "s1-wrong-two-2": {
+    id: "s1-wrong-two-2",
+    type: "narrate",
+    tutorText:
+      "2 is the number of pieces we cut the brownie into. "
+      + "But the fraction is about how much you have.",
+    next: "s1-wrong-two-3",
+  },
+
+  "s1-wrong-two-3": {
+    id: "s1-wrong-two-3",
+    type: "narrate",
+    tutorText: "You have 1 piece out of 2. That's called one-half!",
+    next: "s1-check-understanding",
   },
 
   "s1-correct-check": {
@@ -391,23 +433,82 @@ export const lessonSteps: Record<string, LessonStep> = {
   "s2-wrong-three": {
     id: "s2-wrong-three",
     type: "narrate",
-    tutorText:
-      "Hmm, not quite! We have 2 halves, and we're cutting each one in half. "
-      + "One half becomes 2 pieces. The other half becomes 2 pieces. "
-      + "2 plus 2 equals...?",
-    next: "s2-cut-question",
+    tutorText: "Hmm, not quite!",
+    next: "s2-wrong-three-2",
     sfx: "gentle-whoosh",
+  },
+
+  "s2-wrong-three-2": {
+    id: "s2-wrong-three-2",
+    type: "auto-slice",
+    sliceTo: "half",
+    objectCount: 1,
+    tutorText: "Watch!",
+    next: "s2-wrong-three-3",
+  },
+
+  "s2-wrong-three-3": {
+    id: "s2-wrong-three-3",
+    type: "auto-slice",
+    sliceTo: "quarter",
+    tutorText: "We cut this half into two pieces.",
+    next: "s2-wrong-three-4",
+  },
+
+  "s2-wrong-three-4": {
+    id: "s2-wrong-three-4",
+    type: "auto-slice",
+    sliceTo: "quarter",
+    tutorText: "Then we cut the other half into two pieces.",
+    next: "s2-wrong-three-5",
+  },
+
+  "s2-wrong-three-5": {
+    id: "s2-wrong-three-5",
+    type: "narrate",
+    tutorText: "Now count them up. How many pieces do you see?",
+    next: "s2-cut-question",
   },
 
   "s2-wrong-still-two": {
     id: "s2-wrong-still-two",
     type: "narrate",
     tutorText:
-      "If we cut each half in half, we're making MORE pieces, not the same number! "
-      + "Each of the 2 halves becomes 2 smaller pieces. "
-      + "So the total is 2 plus 2. How many is that?",
-    next: "s2-cut-question",
+      "If we cut each half in half, we're making MORE pieces, not the same number!",
+    next: "s2-wrong-still-two-2",
     sfx: "gentle-whoosh",
+  },
+
+  "s2-wrong-still-two-2": {
+    id: "s2-wrong-still-two-2",
+    type: "auto-slice",
+    sliceTo: "half",
+    objectCount: 1,
+    tutorText: "Watch!",
+    next: "s2-wrong-still-two-3",
+  },
+
+  "s2-wrong-still-two-3": {
+    id: "s2-wrong-still-two-3",
+    type: "auto-slice",
+    sliceTo: "quarter",
+    tutorText: "We cut this half into two pieces.",
+    next: "s2-wrong-still-two-4",
+  },
+
+  "s2-wrong-still-two-4": {
+    id: "s2-wrong-still-two-4",
+    type: "auto-slice",
+    sliceTo: "quarter",
+    tutorText: "Then we cut the other half into two pieces.",
+    next: "s2-wrong-still-two-5",
+  },
+
+  "s2-wrong-still-two-5": {
+    id: "s2-wrong-still-two-5",
+    type: "narrate",
+    tutorText: "Now count them up. How many pieces do you see?",
+    next: "s2-cut-question",
   },
 
   "s2-do-quarter-slice": {
@@ -515,24 +616,58 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "s2-wrong-bigger",
     type: "narrate",
     tutorText:
-      "I can see why you might think that! The numbers are bigger. "
-      + "But remember: we didn't add any brownie. We just made more cuts. "
-      + "The pieces got smaller, but we have more of them. "
-      + "2 small pieces out of 4 covers the exact same area as 1 big piece out of 2!",
-    next: "s2-equiv-check",
+      "I can see why you might think that! The numbers are bigger.",
+    next: "s2-wrong-bigger-2",
     sfx: "gentle-whoosh",
+  },
+
+  "s2-wrong-bigger-2": {
+    id: "s2-wrong-bigger-2",
+    type: "narrate",
+    tutorText:
+      "But remember: we didn't add any brownie. We just made more cuts.",
+    next: "s2-wrong-bigger-3",
+  },
+
+  "s2-wrong-bigger-3": {
+    id: "s2-wrong-bigger-3",
+    type: "narrate",
+    tutorText:
+      "The pieces got smaller, but we have more of them.",
+    next: "s2-wrong-bigger-4",
+  },
+
+  "s2-wrong-bigger-4": {
+    id: "s2-wrong-bigger-4",
+    type: "narrate",
+    tutorText:
+      "2 small pieces out of 4 covers the exact same area as 1 big piece out of 2!",
+    next: "s2-equiv-check",
   },
 
   "s2-wrong-smaller": {
     id: "s2-wrong-smaller",
     type: "narrate",
     tutorText:
-      "You're right that each piece is smaller! But we have MORE of them. "
-      + "1 piece out of 2 is the same amount of brownie as 2 pieces out of 4. "
-      + "The brownie didn't shrink or grow — we just sliced it differently. "
-      + "They cover the same amount!",
-    next: "s2-equiv-check",
+      "You're right that each piece is smaller! But we have MORE of them.",
+    next: "s2-wrong-smaller-2",
     sfx: "gentle-whoosh",
+  },
+
+  "s2-wrong-smaller-2": {
+    id: "s2-wrong-smaller-2",
+    type: "narrate",
+    tutorText:
+      "1 piece out of 2 is the same amount of brownie as 2 pieces out of 4.",
+    next: "s2-wrong-smaller-3",
+  },
+
+  "s2-wrong-smaller-3": {
+    id: "s2-wrong-smaller-3",
+    type: "narrate",
+    tutorText:
+      "The brownie didn't shrink or grow — we just sliced it differently. They cover the same amount!",
+    next: "s2-equiv-check",
   },
 
   "s2-equiv-correct": {
@@ -740,11 +875,17 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "s3-halves-wrong",
     type: "narrate",
     tutorText:
-      "We still have the same brownie! Cutting it made two pieces, but it didn't "
-      + "create extra brownie. When we push the halves back together — same brownie, "
-      + "same amount. Two halves make one whole!",
-    next: "s3-halves-check",
+      "We still have the same brownie! Cutting it made two pieces, but it didn't create extra brownie.",
+    next: "s3-halves-wrong-2",
     sfx: "gentle-whoosh",
+  },
+
+  "s3-halves-wrong-2": {
+    id: "s3-halves-wrong-2",
+    type: "narrate",
+    tutorText:
+      "When we push the halves back together — same brownie, same amount. Two halves make one whole!",
+    next: "s3-halves-check",
   },
 
   "s3-halves-correct": {
@@ -799,10 +940,17 @@ export const lessonSteps: Record<string, LessonStep> = {
     compareCount: 2,
     tutorText:
       "They fit! Two quarters pushed together fill up exactly one half — see the "
-      + "outline? Not too big, not too small. They're the same amount! These two "
-      + "little pieces together make one half!",
-    next: "s3-show-2-over-4",
+      + "outline? Not too big, not too small.",
+    next: "s3-compare-quarters-b",
     sfx: "chime",
+  },
+
+  "s3-compare-quarters-b": {
+    id: "s3-compare-quarters-b",
+    type: "narrate",
+    tutorText:
+      "They're the same amount! These two little pieces together make one half!",
+    next: "s3-show-2-over-4",
   },
 
   "s3-show-2-over-4": {
@@ -868,22 +1016,34 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "s3-final-wrong-whole",
     type: "narrate",
     tutorText:
-      "Not quite! 4 quarters make a whole, but we only have 2 quarters here. "
-      + "Think about what we just saw — 2 small pieces fitting inside the outline "
-      + "of one half...",
-    next: "s3-final-check",
+      "Not quite! 4 quarters make a whole, but we only have 2 quarters here.",
+    next: "s3-final-wrong-whole-2",
     sfx: "gentle-whoosh",
+  },
+
+  "s3-final-wrong-whole-2": {
+    id: "s3-final-wrong-whole-2",
+    type: "narrate",
+    tutorText:
+      "Think about what we just saw — 2 small pieces fitting inside the outline of one half...",
+    next: "s3-final-check",
   },
 
   "s3-final-wrong-smaller": {
     id: "s3-final-wrong-smaller",
     type: "narrate",
     tutorText:
-      "Remember what Sofia showed us! She pushed the two quarters together and "
-      + "they filled up the half-outline perfectly. Same area, same amount. "
-      + "Two quarters together make...?",
-    next: "s3-final-check",
+      "Remember what Sofia showed us! She pushed the two quarters together and they filled up the half-outline perfectly.",
+    next: "s3-final-wrong-smaller-2",
     sfx: "gentle-whoosh",
+  },
+
+  "s3-final-wrong-smaller-2": {
+    id: "s3-final-wrong-smaller-2",
+    type: "narrate",
+    tutorText:
+      "Same area, same amount. Two quarters together make...?",
+    next: "s3-final-check",
   },
 
   // ===========================================================================
@@ -943,6 +1103,7 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "quiz-1-ask",
     type: "choice",
     tutorText: "Is 1/2 the same as 2/4?",
+    ttsText: "Is one-half the same as two-fourths?",
     choices: [
       { label: "Yes, same amount!", next: "quiz-1-correct", correct: true },
       { label: "No, they're different", next: "quiz-1-wrong" },
@@ -1003,6 +1164,7 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "quiz-2-ask",
     type: "choice",
     tutorText: "1/2 = ?/4 — What number goes where the question mark is?",
+    ttsText: "One-half equals how many fourths? What number goes where the question mark is?",
     choices: [
       { label: "1", next: "quiz-2-wrong-1" },
       { label: "2", next: "quiz-2-correct", correct: true },
@@ -1165,11 +1327,17 @@ export const lessonSteps: Record<string, LessonStep> = {
     type: "narrate",
     tutorText:
       "These look similar but they're actually different amounts! "
-      + "1/3 means the brownie was cut into 3 pieces and you took 1. "
-      + "2/4 means it was cut into 4 pieces and you took 2. "
-      + "Those aren't the same size pieces.",
-    next: "quiz-4-ask",
+      + "1/3 means the brownie was cut into 3 pieces and you took 1.",
+    next: "quiz-4-wrong-2",
     sfx: "gentle-whoosh",
+  },
+
+  "quiz-4-wrong-2": {
+    id: "quiz-4-wrong-2",
+    type: "narrate",
+    tutorText:
+      "2/4 means it was cut into 4 pieces and you took 2. Those aren't the same size pieces.",
+    next: "quiz-4-ask",
   },
 
   "quiz-4-correct": {

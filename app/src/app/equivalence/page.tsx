@@ -14,6 +14,7 @@ import { Character } from "../components/Character";
 import { NightSky } from "../components/NightSky";
 import { pieceValue } from "../lib/pieceValue";
 import { resolveStepState } from "../lib/resolveStepState";
+import { getSpokenText } from "../lib/getSpokenText";
 
 const CORRECT_SOUNDS = [
   "boing", "ding", "fanfare", "music-box", "harp-gliss",
@@ -91,7 +92,7 @@ function EquivalenceLesson() {
       const currentStep = lessonSteps[stepId];
       if (currentStep?.tutorText) {
         prevStepIdRef.current = stepId;
-        tts.speak(currentStep.tutorText);
+        tts.speak(getSpokenText(currentStep)!);
       }
     }
   }, [hasInteracted, stepId, tts, music]);
@@ -107,7 +108,7 @@ function EquivalenceLesson() {
 
     // Speak the tutor text (skip for quiz display steps to avoid bad fraction reading)
     if (step.tutorText && step.type !== "show-fraction" && step.type !== "show-number") {
-      tts.speak(step.tutorText);
+      tts.speak(getSpokenText(step)!);
     }
 
     // Play step SFX
@@ -117,7 +118,7 @@ function EquivalenceLesson() {
   }, [stepId, step, hasInteracted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ---- Auto-advance narrate/show steps (no tasks, no choices) ----
-  const autoAdvanceTypes = ["narrate", "show-number", "show-fraction", "visual-compare"];
+  const autoAdvanceTypes = ["narrate", "show-number", "show-fraction", "visual-compare", "auto-slice"];
   const shouldAutoAdvance =
     step &&
     hasInteracted &&
@@ -138,7 +139,7 @@ function EquivalenceLesson() {
     const timer = setTimeout(() => {
       tts.stop();
       setStepId(step.next!);
-    }, 1300);
+    }, 1100);
 
     return () => clearTimeout(timer);
   }, [shouldAutoAdvance, tts.isSpeaking, step]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -153,8 +154,9 @@ function EquivalenceLesson() {
     let cursor: string | undefined = step.next;
     for (let i = 0; i < 3 && cursor; i++) {
       const nextStep = lessonSteps[cursor];
-      if (nextStep?.tutorText) {
-        textsToPrefetch.push(nextStep.tutorText);
+      const nextSpoken = nextStep ? getSpokenText(nextStep) : undefined;
+      if (nextSpoken) {
+        textsToPrefetch.push(nextSpoken);
       }
       cursor = nextStep?.next;
     }
@@ -163,8 +165,9 @@ function EquivalenceLesson() {
     if (step.choices) {
       for (const choice of step.choices) {
         const targetStep = lessonSteps[choice.next];
-        if (targetStep?.tutorText) {
-          textsToPrefetch.push(targetStep.tutorText);
+        const targetSpoken = targetStep ? getSpokenText(targetStep) : undefined;
+        if (targetSpoken) {
+          textsToPrefetch.push(targetSpoken);
         }
       }
     }
@@ -202,9 +205,102 @@ function EquivalenceLesson() {
       setSelectedPiece(null);
     }
 
+    // When re-entering a choice step (e.g. from a wrong-answer loop),
+    // reset pieces to the canonical state for this point in the lesson.
+    if (step.type === "choice") {
+      const canonical = resolveStepState(lessonSteps, stepId);
+      setPieces(canonical.pieces);
+    }
+
     if (step.type === "slice") {
       setSelectedPiece(null);
+      // Reset pieces to pre-sliced state if a wrong-answer demo already sliced them
+      if (step.sliceTo === "quarter") {
+        setPieces((prev) => {
+          const hasQuarters = prev.some((p) => p.type === "quarter" && p.assignedTo === undefined);
+          if (!hasQuarters) return prev;
+          // Rebuild as halves from the unassigned quarters
+          const assigned = prev.filter((p) => p.assignedTo !== undefined);
+          const unassignedCount = prev.filter((p) => p.assignedTo === undefined).length;
+          const halfCount = Math.max(2, unassignedCount / 2);
+          const halves: ObjectPiece[] = [];
+          for (let i = 0; i < halfCount; i++) {
+            halves.push({
+              id: `reset-half-${i}`,
+              type: i % 2 === 0 ? "half-left" : "half-right",
+            });
+          }
+          return [...assigned, ...halves];
+        });
+      }
     }
+  }, [stepId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ---- Auto-slice: cut one piece per step, then auto-advance with TTS ----
+  useEffect(() => {
+    if (!step || step.type !== "auto-slice") return;
+    const target = step.sliceTo || "half";
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    // Delay to let step-entry effect's setPieces (objectCount) flush first
+    const t1 = setTimeout(() => {
+      // Find the first sliceable piece from *current* state via functional update
+      setPieces((currentPieces) => {
+        const piece = currentPieces.find((p) => {
+          if (target === "quarter") {
+            return (p.type === "half-left" || p.type === "half-right") && p.assignedTo === undefined;
+          }
+          return p.type === "whole" && p.assignedTo === undefined;
+        });
+
+        if (!piece) return currentPieces;
+        const id = piece.id;
+
+        // Kick off the wiggle → split animation
+        setPieceAnimations((prev) => ({ ...prev, [id]: "pre-split" }));
+        const t2 = setTimeout(() => {
+          setPieceAnimations((prev) => {
+            const next = { ...prev };
+            delete next[id];
+            return next;
+          });
+
+          setPieces((prev) => {
+            const idx = prev.findIndex((c) => c.id === id);
+            if (idx === -1) return prev;
+            const p = prev[idx];
+
+            if (p.type === "whole") {
+              return [
+                ...prev.slice(0, idx),
+                { id: `${id}-left`, type: "half-left" as const, assignedTo: p.assignedTo },
+                { id: `${id}-right`, type: "half-right" as const, assignedTo: p.assignedTo },
+                ...prev.slice(idx + 1),
+              ];
+            }
+
+            if (p.type === "half-left" || p.type === "half-right") {
+              return [
+                ...prev.slice(0, idx),
+                { id: `${id}-q0`, type: "quarter" as const, assignedTo: p.assignedTo },
+                { id: `${id}-q1`, type: "quarter" as const, assignedTo: p.assignedTo },
+                ...prev.slice(idx + 1),
+              ];
+            }
+
+            return prev;
+          });
+
+          sfx.play("gentle-whoosh");
+        }, 350);
+        timers.push(t2);
+
+        return currentPieces; // don't mutate — the timeout handles it
+      });
+    }, 500);
+    timers.push(t1);
+
+    return () => timers.forEach(clearTimeout);
   }, [stepId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Reactive fallback: auto-advance distribute steps when all pieces are assigned.
@@ -580,7 +676,7 @@ function EquivalenceLesson() {
       music.start();
       const currentStep = lessonSteps[stepId];
       if (currentStep?.tutorText) {
-        tts.speak(currentStep.tutorText);
+        tts.speak(getSpokenText(currentStep)!);
       }
     }
   }, [isPaused, stepId, tts, music]);

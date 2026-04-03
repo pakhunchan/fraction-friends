@@ -65,7 +65,8 @@ export function resolveStepState(
     }
 
     // Slice step: transform unassigned wholes into halves (or halves into quarters)
-    if (step.type === "slice") {
+    // Skip if this is the target step — the user hasn't interacted yet.
+    if (step.type === "slice" && cursor !== targetStepId) {
       const target = step.sliceTo || "half";
       if (target === "quarter") {
         // First pass: wholes → halves

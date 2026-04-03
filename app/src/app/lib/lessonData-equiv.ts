@@ -24,6 +24,7 @@ export interface LessonStep {
   id: string;
   type: StepType;
   tutorText?: string;
+  ttsText?: string;
   taskHeader?: string;
   choices?: Choice[];
   next?: string;         // for narrate / distribute / show-* steps

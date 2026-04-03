@@ -12,6 +12,7 @@ export type StepType =
   | "show-fraction"     // Big fraction display
   | "cheer"             // Motivational screen with monsters cheering
   | "visual-compare"    // Ghost overlay comparison (pieces → equivalent larger piece)
+  | "auto-slice"        // Auto-animate slicing without user input (for wrong-answer demos)
 
 export interface Choice {
   label: string;
@@ -23,6 +24,7 @@ export interface LessonStep {
   id: string;
   type: StepType;
   tutorText?: string;
+  ttsText?: string;
   taskHeader?: string;
   choices?: Choice[];
   next?: string;         // for narrate / distribute / show-* steps

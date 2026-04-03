@@ -127,6 +127,7 @@ function StepCard({
   pieces,
   characterCount,
   ObjectComponent,
+  allSteps,
 }: {
   index: number;
   stepId: string;
@@ -134,6 +135,7 @@ function StepCard({
   pieces: ObjectPiece[];
   characterCount: number;
   ObjectComponent?: ComponentType<ObjectComponentProps>;
+  allSteps: Record<string, LessonStep>;
 }) {
   const badgeClass = TYPE_COLORS[step.type] || "bg-gray-500/30 text-gray-300";
 
@@ -162,25 +164,65 @@ function StepCard({
           </div>
         )}
 
-        {/* Tutor text */}
+        {/* Tutor text + TTS text */}
         {step.tutorText && (
-          <p className="text-white/80 leading-relaxed">{step.tutorText}</p>
+          step.ttsText?.trim() ? (
+            <div className="space-y-1">
+              <p className="text-white/80 leading-relaxed">
+                <span className="text-white/40 font-medium text-xs mr-1.5">Display:</span>
+                {step.tutorText}
+              </p>
+              <p className="text-cyan-300/70 leading-relaxed">
+                <span className="text-cyan-400/50 font-medium text-xs mr-1.5">TTS:</span>
+                {step.ttsText}
+              </p>
+            </div>
+          ) : (
+            <p className="text-white/80 leading-relaxed">{step.tutorText}</p>
+          )
         )}
 
         {/* Choices */}
         {step.choices && (
           <div className="space-y-1 pt-1">
             {step.choices.map((c, i) => (
-              <div
-                key={i}
-                className={`text-xs px-2 py-1 rounded ${
-                  c.correct
-                    ? "bg-green-500/20 text-green-300"
-                    : "bg-red-500/10 text-red-300/60"
-                }`}
-              >
-                {c.correct ? "✓" : "✗"} {c.label}{" "}
-                <span className="text-white/30">→ {c.next}</span>
+              <div key={i}>
+                <div
+                  className={`text-xs px-2 py-1 rounded ${
+                    c.correct
+                      ? "bg-green-500/20 text-green-300"
+                      : "bg-red-500/10 text-red-300/60"
+                  }`}
+                >
+                  {c.correct ? "✓" : "✗"} {c.label}{" "}
+                  <span className="text-white/30">→ {c.next}</span>
+                </div>
+                {/* Show wrong-answer path steps inline */}
+                {!c.correct && allSteps[c.next] && (() => {
+                  const wrongSteps: LessonStep[] = [];
+                  let cursor = c.next;
+                  const visited = new Set<string>();
+                  while (cursor && !visited.has(cursor) && allSteps[cursor]) {
+                    visited.add(cursor);
+                    const ws = allSteps[cursor];
+                    wrongSteps.push(ws);
+                    // Stop when it loops back to the parent question
+                    if (ws.next === stepId) break;
+                    cursor = ws.next!;
+                  }
+                  return (
+                    <div className="ml-4 mt-1 mb-2 pl-3 border-l-2 border-red-500/20 space-y-1">
+                      {wrongSteps.map((ws, j) => (
+                        <div key={j} className="text-xs">
+                          <span className="text-white/25 font-mono mr-1.5">{ws.id}</span>
+                          <span className="text-red-200/50 leading-relaxed">
+                            {ws.tutorText}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             ))}
           </div>
@@ -289,6 +331,7 @@ export default function StoryViewerPage() {
             pieces={s.pieces}
             characterCount={s.characterCount}
             ObjectComponent={lesson.ObjectComponent}
+            allSteps={lesson.steps}
           />
         ))}
       </main>
