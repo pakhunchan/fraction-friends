@@ -109,73 +109,114 @@ function sleep(ms) {
 }
 
 // ---------------------------------------------------------------------------
-// Extract tutorText values (reused from check-tts.mjs)
+// Extract tutorText and ttsText values from lesson files
 // ---------------------------------------------------------------------------
+
+/**
+ * Extract a string field value (e.g. tutorText or ttsText) starting at line i.
+ * Returns { text, endLine } or null if no match.
+ */
+function extractStringField(lines, i, fieldName) {
+  const reMultiline = new RegExp(`${fieldName}:\\s*$`);
+  const reInlineDouble = new RegExp(`${fieldName}:\\s*"((?:[^"\\\\]|\\\\.)*)"`);
+  const reInlineSingle = new RegExp(`${fieldName}:\\s*'((?:[^'\\\\]|\\\\.)*)'`);
+
+  const matchInline = lines[i].match(reInlineDouble);
+  const matchInlineSingle = lines[i].match(reInlineSingle);
+  const matchMultiline = lines[i].match(reMultiline);
+
+  if (matchInline) {
+    let fullText = matchInline[1];
+    let j = i + 1;
+    while (j < lines.length) {
+      const contMatch = lines[j].match(/^\s*\+\s*"((?:[^"\\]|\\.)*)"/);
+      if (contMatch) {
+        fullText += contMatch[1];
+        j++;
+      } else {
+        break;
+      }
+    }
+    fullText = fullText.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, "\\");
+    return { text: fullText, endLine: j };
+  } else if (matchInlineSingle) {
+    let fullText = matchInlineSingle[1];
+    let j = i + 1;
+    while (j < lines.length) {
+      const contMatch = lines[j].match(/^\s*\+\s*'((?:[^'\\]|\\.)*)'/);
+      if (contMatch) {
+        fullText += contMatch[1];
+        j++;
+      } else {
+        break;
+      }
+    }
+    fullText = fullText.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, "\\");
+    return { text: fullText, endLine: j };
+  } else if (matchMultiline) {
+    let j = i + 1;
+    let fullText = "";
+    while (j < lines.length) {
+      const strMatch = lines[j].match(/^\s*(?:\+\s*)?"((?:[^"\\]|\\.)*)"/);
+      const strMatchSingle = lines[j].match(/^\s*(?:\+\s*)?'((?:[^'\\]|\\.)*)'/);
+      if (strMatch) {
+        fullText += strMatch[1];
+        j++;
+      } else if (strMatchSingle) {
+        fullText += strMatchSingle[1];
+        j++;
+      } else {
+        break;
+      }
+    }
+    if (fullText) {
+      fullText = fullText.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, "\\");
+      return { text: fullText, endLine: j };
+    }
+  }
+
+  return null;
+}
+
 function extractTutorTexts(filePath) {
   const src = readFileSync(filePath, "utf-8");
   const results = [];
   const lines = src.split("\n");
   let currentId = null;
+  // Track ttsText per step so we can resolve spoken text
+  let currentTtsText = null;
+  let currentTutorText = null;
 
   for (let i = 0; i < lines.length; i++) {
     const idMatch = lines[i].match(/id:\s*"([^"]+)"/);
     if (idMatch) {
+      // Flush previous step if it had tutorText
+      if (currentId && currentTutorText) {
+        const spokenText = currentTtsText?.trim() || currentTutorText;
+        results.push({ id: currentId, text: spokenText });
+      }
       currentId = idMatch[1];
+      currentTtsText = null;
+      currentTutorText = null;
     }
 
-    const ttMatch = lines[i].match(/tutorText:\s*$/);
-    const ttMatchInline = lines[i].match(/tutorText:\s*"((?:[^"\\]|\\.)*)"/);
-    const ttMatchInlineSingle = lines[i].match(/tutorText:\s*'((?:[^'\\]|\\.)*)'/);
-
-    if (ttMatchInline) {
-      let fullText = ttMatchInline[1];
-      let j = i + 1;
-      while (j < lines.length) {
-        const contMatch = lines[j].match(/^\s*\+\s*"((?:[^"\\]|\\.)*)"/);
-        if (contMatch) {
-          fullText += contMatch[1];
-          j++;
-        } else {
-          break;
-        }
-      }
-      fullText = fullText.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, "\\");
-      results.push({ id: currentId, text: fullText });
-    } else if (ttMatchInlineSingle) {
-      let fullText = ttMatchInlineSingle[1];
-      let j = i + 1;
-      while (j < lines.length) {
-        const contMatch = lines[j].match(/^\s*\+\s*'((?:[^'\\]|\\.)*)'/);
-        if (contMatch) {
-          fullText += contMatch[1];
-          j++;
-        } else {
-          break;
-        }
-      }
-      fullText = fullText.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, "\\");
-      results.push({ id: currentId, text: fullText });
-    } else if (ttMatch) {
-      let j = i + 1;
-      let fullText = "";
-      while (j < lines.length) {
-        const strMatch = lines[j].match(/^\s*(?:\+\s*)?"((?:[^"\\]|\\.)*)"/);
-        const strMatchSingle = lines[j].match(/^\s*(?:\+\s*)?'((?:[^'\\]|\\.)*)'/);
-        if (strMatch) {
-          fullText += strMatch[1];
-          j++;
-        } else if (strMatchSingle) {
-          fullText += strMatchSingle[1];
-          j++;
-        } else {
-          break;
-        }
-      }
-      if (fullText) {
-        fullText = fullText.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, "\\");
-        results.push({ id: currentId, text: fullText });
-      }
+    // Check for ttsText field
+    const ttsResult = extractStringField(lines, i, "ttsText");
+    if (ttsResult) {
+      currentTtsText = ttsResult.text;
     }
+
+    // Check for tutorText field
+    const tutorResult = extractStringField(lines, i, "tutorText");
+    if (tutorResult) {
+      currentTutorText = tutorResult.text;
+    }
+  }
+
+  // Flush last step
+  if (currentId && currentTutorText) {
+    const spokenText = currentTtsText?.trim() || currentTutorText;
+    results.push({ id: currentId, text: spokenText });
   }
 
   return results;
@@ -195,7 +236,7 @@ async function main() {
   // 1. Extract all tutorTexts
   const files = [
     { name: "lessonData-storyB.ts", path: "/Users/jackie/src/superbuilder/app/src/app/lib/lessonData-storyB.ts" },
-    { name: "lessonData-equiv.ts", path: "/Users/jackie/src/superbuilder/app/src/app/lib/lessonData-equiv.ts" },
+    { name: "lessonData-equiv-v2.ts", path: "/Users/jackie/src/superbuilder/app/src/app/lib/lessonData-equiv-v2.ts" },
   ];
 
   const allTexts = [];

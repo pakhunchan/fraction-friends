@@ -13,18 +13,33 @@ interface Star {
   delay: number;
 }
 
+// Moon exclusion zone (vw/vh) — keep stars away from the crescent
+const MOON_X = 92; // approximate vw center of moon (right:100 ≈ 92vw)
+const MOON_Y = 10;  // approximate vh center of moon (top:70 ≈ 10vh)
+const MOON_R = 5;   // exclusion radius in vw/vh units
+
+function isNearMoon(x: number, y: number) {
+  const dx = x - MOON_X;
+  const dy = y - MOON_Y;
+  return dx * dx + dy * dy < MOON_R * MOON_R;
+}
+
 function generateStars(): Star[] {
-  return Array.from({ length: STAR_COUNT }, (_, i) => {
+  const stars: Star[] = [];
+  let id = 0;
+  while (stars.length < STAR_COUNT) {
     // Top strip (70%): full width right of panel, y 0–20vh
     // Right edge (30%): x >= 88vw, y 0–50vh
     const inTopStrip = Math.random() < 0.7;
     const x = inTopStrip ? 22 + Math.random() * 78 : 88 + Math.random() * 12;
     const y = inTopStrip ? Math.random() * 20 : Math.random() * 50;
+    if (isNearMoon(x, y)) continue;
     const size = 2 + Math.random() * 2;
     const dur = 4 + Math.random() * 4;
     const delay = Math.random() * dur;
-    return { id: i, x, y, size, dur, delay };
-  });
+    stars.push({ id: id++, x, y, size, dur, delay });
+  }
+  return stars;
 }
 
 export function NightSky() {
@@ -52,7 +67,7 @@ export function NightSky() {
 
       {/* Moon — SVG mask creates a true crescent without background-color dependency */}
       <svg
-        className="fixed z-[1] pointer-events-none"
+        className="fixed z-[2] pointer-events-none"
         style={{ top: 70, right: 100 }}
         width="60"
         height="60"

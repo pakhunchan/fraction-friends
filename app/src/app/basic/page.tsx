@@ -11,6 +11,7 @@ import { Workspace, ObjectPiece } from "../components/Workspace";
 import { ReportIssue } from "../components/ReportIssue";
 import { pieceValue } from "../lib/pieceValue";
 import { resolveStepState } from "../lib/resolveStepState";
+import { getSpokenText } from "../lib/getSpokenText";
 
 function createPieces(count: number): ObjectPiece[] {
   return Array.from({ length: count }, (_, i) => ({
@@ -88,7 +89,7 @@ function BasicLesson() {
 
     // Speak the tutor text (skip for quiz display steps to avoid bad fraction reading)
     if (step.tutorText && step.type !== "show-fraction" && step.type !== "show-number") {
-      tts.speak(step.tutorText);
+      tts.speak(getSpokenText(step)!);
     }
 
     // Play step SFX
@@ -119,7 +120,7 @@ function BasicLesson() {
     const timer = setTimeout(() => {
       tts.stop();
       setStepId(step.next!);
-    }, 1300);
+    }, 1100);
 
     return () => clearTimeout(timer);
   }, [shouldAutoAdvance, tts.isSpeaking, step]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -134,8 +135,9 @@ function BasicLesson() {
     let cursor: string | undefined = step.next;
     for (let i = 0; i < 3 && cursor; i++) {
       const nextStep = lessonSteps[cursor];
-      if (nextStep?.tutorText) {
-        textsToPrefetch.push(nextStep.tutorText);
+      const nextSpoken = nextStep ? getSpokenText(nextStep) : undefined;
+      if (nextSpoken) {
+        textsToPrefetch.push(nextSpoken);
       }
       cursor = nextStep?.next;
     }
@@ -144,8 +146,9 @@ function BasicLesson() {
     if (step.choices) {
       for (const choice of step.choices) {
         const targetStep = lessonSteps[choice.next];
-        if (targetStep?.tutorText) {
-          textsToPrefetch.push(targetStep.tutorText);
+        const targetSpoken = targetStep ? getSpokenText(targetStep) : undefined;
+        if (targetSpoken) {
+          textsToPrefetch.push(targetSpoken);
         }
       }
     }
@@ -536,7 +539,7 @@ function BasicLesson() {
       music.start();
       const currentStep = lessonSteps[stepId];
       if (currentStep?.tutorText) {
-        tts.speak(currentStep.tutorText);
+        tts.speak(getSpokenText(currentStep)!);
       }
     }
   }, [isPaused, stepId, tts, music]);
