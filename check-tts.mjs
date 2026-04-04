@@ -206,12 +206,21 @@ async function main() {
     "/Users/jackie/src/superbuilder/app/src/app/lib/lessonData-equiv.ts"
   );
 
+  const equivV2 = await processGame(
+    "Equivalence V2 Game - lessonData-equiv-v2.ts",
+    "/Users/jackie/src/superbuilder/app/src/app/lib/lessonData-equiv-v2.ts"
+  );
+
   console.log(`\n${"=".repeat(70)}`);
   console.log("SUMMARY");
   console.log(`${"=".repeat(70)}`);
   console.log(`Basic:       ${storyB.found}/${storyB.total} found, ${storyB.missing} missing`);
   console.log(`Equivalence: ${equiv.found}/${equiv.total} found, ${equiv.missing} missing`);
-  console.log(`Total:       ${storyB.found + equiv.found}/${storyB.total + equiv.total} found, ${storyB.missing + equiv.missing} missing`);
+  console.log(`Equiv V2:    ${equivV2.found}/${equivV2.total} found, ${equivV2.missing} missing`);
+  const totalFound = storyB.found + equiv.found + equivV2.found;
+  const totalAll = storyB.total + equiv.total + equivV2.total;
+  const totalMissing = storyB.missing + equiv.missing + equivV2.missing;
+  console.log(`Total:       ${totalFound}/${totalAll} found, ${totalMissing} missing`);
 }
 
 main().catch((err) => {

@@ -549,40 +549,17 @@ export const lessonSteps: Record<string, LessonStep> = {
     id: "s2-magic-moment",
     type: "narrate",
     tutorText:
-      "Sofia points at the brownie. \"Look! See where the first cut was?\"",
-    next: "s2-magic-moment-a2",
+      "Sofia gasps. \"Wait! It was 1 whole piece, and then it became 2 halves, "
+      + "and then it became 4 quarters. They all add up to the same whole brownie. "
+      + "I think they're all the same!\"",
+    next: "s2-show-equivalence-a",
     sfx: "harp-gliss",
   },
 
-  "s2-magic-moment-a2": {
-    id: "s2-magic-moment-a2",
-    type: "narrate",
-    tutorText:
-      "\"2 of these 4 pieces are on this side, and 2 are on that side.\"",
-    next: "s2-magic-moment-b",
-  },
-
-  "s2-magic-moment-b": {
-    id: "s2-magic-moment-b",
-    type: "narrate",
-    tutorText:
-      "\"The first cut split the brownie exactly in half.\"",
-    next: "s2-magic-moment-c",
-  },
-
-  "s2-magic-moment-c": {
-    id: "s2-magic-moment-c",
-    type: "narrate",
-    tutorText:
-      "\"So 2 out of 4 pieces is the SAME as one-half!\"",
-    next: "s2-show-equivalence",
-  },
-
-  "s2-show-equivalence": {
-    id: "s2-show-equivalence",
+  "s2-show-equivalence-a": {
+    id: "s2-show-equivalence-a",
     type: "show-fraction",
-    tutorText:
-      "Look at this fraction: two-fourths! 2 pieces out of 4 total pieces.",
+    tutorText: "2 quarters is the same as 1 half!",
     showFractionNum: 2,
     showFractionDen: 4,
     next: "s2-show-equivalence-b",
@@ -591,10 +568,19 @@ export const lessonSteps: Record<string, LessonStep> = {
 
   "s2-show-equivalence-b": {
     id: "s2-show-equivalence-b",
+    type: "show-fraction",
+    tutorText: "2 halves make 1 whole brownie!",
+    showFractionNum: 2,
+    showFractionDen: 2,
+    next: "s2-show-equivalence-c",
+    sfx: "sparkle",
+  },
+
+  "s2-show-equivalence-c": {
+    id: "s2-show-equivalence-c",
     type: "narrate",
     tutorText:
-      "It covers the exact same amount of brownie as one-half. "
-      + "Two-fourths equals one-half!",
+      "They're the same! We just write and say them different ways!",
     next: "s2-equiv-check",
   },
 
@@ -603,8 +589,7 @@ export const lessonSteps: Record<string, LessonStep> = {
     type: "choice",
     tutorText:
       "Sofia's discovery: the brownie didn't change size. We just cut it into "
-      + "more pieces! So one-half and two-fourths are the same amount. "
-      + "Which of these is true?",
+      + "more pieces! Which of these is true?",
     choices: [
       { label: "1/2 and 2/4 are equal — same amount of brownie!", next: "s2-equiv-correct", correct: true },
       { label: "2/4 is bigger because 4 is bigger than 2.", next: "s2-wrong-bigger" },
@@ -696,40 +681,8 @@ export const lessonSteps: Record<string, LessonStep> = {
       "Now let's share! Give each of the 4 friends one quarter of the brownie. "
       + "One piece for Sofia, one for Marcus, one for Lily, one for James!",
     characterCount: 4,
-    next: "s2-celebrate",
-    sfx: "xylophone",
-  },
-
-  "s2-celebrate": {
-    id: "s2-celebrate",
-    type: "narrate",
-    tutorText: "Everyone got a fair piece!",
-    next: "s2-celebrate-b",
-    sfx: "music-box",
-  },
-
-  "s2-celebrate-b": {
-    id: "s2-celebrate-b",
-    type: "narrate",
-    tutorText:
-      "And now you know something amazing: one-half and two-fourths are "
-      + "the same amount, just written differently.",
-    next: "s2-celebrate-b2",
-  },
-
-  "s2-celebrate-b2": {
-    id: "s2-celebrate-b2",
-    type: "narrate",
-    tutorText:
-      "It's like how \"twelve\" and \"a dozen\" mean the same thing!",
-    next: "s2-celebrate-c",
-  },
-
-  "s2-celebrate-c": {
-    id: "s2-celebrate-c",
-    type: "narrate",
-    tutorText: "But the baking isn't over yet...",
     next: "s3-intro",
+    sfx: "xylophone",
   },
 
   // ===========================================================================
@@ -740,6 +693,7 @@ export const lessonSteps: Record<string, LessonStep> = {
   "s3-intro": {
     id: "s3-intro",
     type: "narrate",
+    objectCount: 0,
     characterCount: 2,
     tutorText:
       "A couple of days later, Sofia and Marcus are back in the Cozy Kitchen — "
@@ -848,16 +802,8 @@ export const lessonSteps: Record<string, LessonStep> = {
     tutorText:
       "We can write that as two-halves. The bottom number says we cut it into "
       + "2 pieces. The top number says we have BOTH pieces.",
-    next: "s3-show-2-over-2-b",
-    sfx: "sparkle",
-  },
-
-  "s3-show-2-over-2-b": {
-    id: "s3-show-2-over-2-b",
-    type: "narrate",
-    tutorText:
-      "Two out of two — that's everything! Two-halves equals one whole.",
     next: "s3-halves-check",
+    sfx: "sparkle",
   },
 
   "s3-halves-check": {
