@@ -1,6 +1,10 @@
-// Run with: node /Users/jackie/src/superbuilder/generate-tts.mjs
+// Run with: node /Users/jackie/src/superbuilder/generate-tts.mjs [--limit N]
 import { createHash } from "crypto";
 import { readFileSync } from "fs";
+import { execFileSync } from "child_process";
+import { tmpdir } from "os";
+import { join } from "path";
+import { writeFileSync, unlinkSync } from "fs";
 import { createRequire } from "module";
 
 const require = createRequire("/Users/jackie/src/superbuilder/app/package.json");
@@ -107,6 +111,36 @@ async function uploadToS3(hash, audioBuffer) {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+function applyEQ(audioBuffer) {
+  const tmpIn = join(tmpdir(), `tts-in-${Date.now()}.mp3`);
+  const tmpOut = join(tmpdir(), `tts-out-${Date.now()}.mp3`);
+  try {
+    writeFileSync(tmpIn, audioBuffer);
+    // Pitch down ~5% for deeper voice, bass boost +3dB, high-shelf cut -4dB
+    // asetrate lowers pitch, atempo restores original speed, aresample normalizes sample rate
+    execFileSync("ffmpeg", [
+      "-y", "-i", tmpIn,
+      "-af", "asetrate=44100*0.975,aresample=44100,atempo=1.0256,bass=g=3:f=200,treble=g=-4:f=5000",
+      tmpOut,
+    ], { stdio: "pipe" });
+    return readFileSync(tmpOut);
+  } finally {
+    try { unlinkSync(tmpIn); } catch {}
+    try { unlinkSync(tmpOut); } catch {}
+  }
+}
+
+// Parse CLI flags
+const limitArg = process.argv.find((a) => a.startsWith("--limit"));
+const LIMIT = limitArg
+  ? parseInt(process.argv[process.argv.indexOf(limitArg) + 1] || limitArg.split("=")[1], 10)
+  : Infinity;
+const FORCE = process.argv.includes("--force");
+const skipArg = process.argv.find((a) => a.startsWith("--skip"));
+const SKIP = skipArg
+  ? parseInt(process.argv[process.argv.indexOf(skipArg) + 1] || skipArg.split("=")[1], 10)
+  : 0;
 
 // ---------------------------------------------------------------------------
 // Extract tutorText and ttsText values from lesson files
@@ -258,22 +292,29 @@ async function main() {
   console.log(`\nTotal: ${allTexts.length} entries, ${uniqueTexts.length} unique texts`);
 
   // 2. Check which are missing from S3
-  console.log("\nChecking S3 for existing files...");
   const missing = [];
   const existing = [];
 
-  for (let i = 0; i < uniqueTexts.length; i += 10) {
-    const batch = uniqueTexts.slice(i, i + 10);
-    const results = await Promise.all(
-      batch.map(async (entry) => {
-        const hash = computeHash(entry.text);
-        const exists = await checkS3Exists(hash);
-        return { ...entry, hash, exists };
-      })
-    );
-    for (const r of results) {
-      if (r.exists) existing.push(r);
-      else missing.push(r);
+  if (FORCE) {
+    console.log("\n--force: skipping S3 check, regenerating all...");
+    for (const entry of uniqueTexts) {
+      missing.push({ ...entry, hash: computeHash(entry.text) });
+    }
+  } else {
+    console.log("\nChecking S3 for existing files...");
+    for (let i = 0; i < uniqueTexts.length; i += 10) {
+      const batch = uniqueTexts.slice(i, i + 10);
+      const results = await Promise.all(
+        batch.map(async (entry) => {
+          const hash = computeHash(entry.text);
+          const exists = await checkS3Exists(hash);
+          return { ...entry, hash, exists };
+        })
+      );
+      for (const r of results) {
+        if (r.exists) existing.push(r);
+        else missing.push(r);
+      }
     }
   }
 
@@ -286,19 +327,26 @@ async function main() {
   }
 
   // 3. Generate and upload missing files
-  console.log(`\nGenerating ${missing.length} TTS files...\n`);
+  const toGenerate = missing.slice(SKIP, SKIP + LIMIT);
+  if (LIMIT < missing.length) {
+    console.log(`\nGenerating ${toGenerate.length} of ${missing.length} TTS files (--limit ${LIMIT})...\n`);
+  } else {
+    console.log(`\nGenerating ${toGenerate.length} TTS files...\n`);
+  }
   let generated = 0;
   let failed = 0;
   const failures = [];
 
-  for (let i = 0; i < missing.length; i++) {
-    const entry = missing[i];
+  for (let i = 0; i < toGenerate.length; i++) {
+    const entry = toGenerate[i];
     const preview = entry.text.length > 60 ? entry.text.slice(0, 60) + "..." : entry.text;
-    console.log(`[${i + 1}/${missing.length}] Generating: ${preview}`);
+    console.log(`[${i + 1}/${toGenerate.length}] Generating: ${preview}`);
 
     try {
-      const audioBuffer = await generateTTS(entry.text);
-      console.log(`  -> Got ${(audioBuffer.length / 1024).toFixed(1)} KB audio, uploading to S3...`);
+      let audioBuffer = await generateTTS(entry.text);
+      console.log(`  -> Got ${(audioBuffer.length / 1024).toFixed(1)} KB audio, applying EQ...`);
+      audioBuffer = applyEQ(audioBuffer);
+      console.log(`  -> EQ applied (${(audioBuffer.length / 1024).toFixed(1)} KB), uploading to S3...`);
 
       await uploadToS3(entry.hash, audioBuffer);
       console.log(`  -> Uploaded as ${entry.hash}.mp3`);
@@ -310,7 +358,7 @@ async function main() {
     }
 
     // Rate limit delay (skip after last item)
-    if (i < missing.length - 1) {
+    if (i < toGenerate.length - 1) {
       await sleep(500);
     }
   }
